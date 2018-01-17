@@ -2,11 +2,11 @@
   "name": "album-api",
   "version": "1.0.0",
   "description": "AWS album API",
-  "main": "dist/app.js",
+  "main": "dist",
   "scripts": {
-    "dev": "nodemon -w src --exec \"babel-node src/app.js --presets es2015,stage-0\"",
+    "dev": "nodemon -w src --exec \"babel-node src --presets es2015,stage-0\"",
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
-    "start": "node dist/app.js",
+    "start": "node dist",
     "prestart": "npm run -s build",
     "test": "eslint src"
   },
