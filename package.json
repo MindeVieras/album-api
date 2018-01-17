@@ -2,7 +2,7 @@
   "name": "album-api",
   "version": "1.0.0",
   "description": "AWS album API",
-  "main": "app.js",
+  "main": "dist/app.js",
   "scripts": {
     "dev": "nodemon -w src --exec \"babel-node src/app.js --presets es2015,stage-0\"",
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
