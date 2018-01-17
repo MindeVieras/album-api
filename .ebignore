@@ -1,11 +1,9 @@
-.git
-.sass-cache
-node_modules
 
-/lambda
+.git
+/node_modules
+/src
 
 .gitignore
-GruntFile.js
 README.md
 
 *.DS_Store
