@@ -1,26 +1,40 @@
+const port = process.env.PORT || 3000;
+const http = require('http');
+const path = require('path');
+const fallback = require('express-history-api-fallback');
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
 
-import http from 'http';
-import express from 'express';
-import morgan from 'morgan';
-import bodyParser from 'body-parser';
-import config from './config.json';
+const app = express();
 
-let app = express();
-app.server = http.createServer(app);
-
-// logger
 app.use(morgan('dev'));
-
-app.use(bodyParser.json({
-  limit : config.bodyLimit
+app.use(bodyParser.urlencoded({
+  extended: true,
+  limit: '50mb'
 }));
+app.use(bodyParser.json());
 
-app.get('/', function (req, res) {
-  res.send('hello world')
+const corsOptions = {
+  origin: '*',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+}
+app.use(cors(corsOptions));
+app.use(fallback(__dirname + './index.html'));
+app.get('/', function(req, res){
+  res.sendFile(path.join(__dirname, './index.html'));
 })
 
-app.server.listen(process.env.PORT || config.port, () => {
-  console.log(`Started on port ${app.server.address().port}`);
-});
+require('./routes/authenticate')(app);
+require('./routes/users')(app);
+require('./routes/albums')(app);
+require('./routes/media')(app);
+require('./routes/upload')(app);
+require('./routes/trash')(app);
+require('./routes/front')(app);
 
-export default app;
+// Start HTTP server
+http.createServer(app).listen(port, function(){
+  console.log('Server listening on port ' + port);
+});
