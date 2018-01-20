@@ -22,8 +22,8 @@ const upload = multer({
     //   cb(null, {fieldName: file.fieldname});
     // },
     key: function (req, file, cb) {
-      rand = Math.floor((Math.random() * 9999999) + 1)
-      ext = path.extname(file.originalname)
+      let rand = Math.floor((Math.random() * 9999999) + 1)
+      let ext = path.extname(file.originalname)
       cb(null, 'media/'+Date.now().toString()+'-'+rand+ext.toLowerCase())
     }
   })

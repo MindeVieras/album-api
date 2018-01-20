@@ -29,7 +29,6 @@ export class Database {
     })
   }
   close() {
-    console.log('db close')
     return new Promise( ( resolve, reject ) => {
       this.connection.end( err => {
         if ( err )

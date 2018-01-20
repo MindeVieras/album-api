@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({
   limit: '50mb'
 }))
 app.use(bodyParser.json({
-  limit : config.bodyLimit
+  limit : '50mb'
 }));
 
 // Routes
