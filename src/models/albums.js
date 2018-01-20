@@ -6,6 +6,10 @@ const connection = require('../config/db');
 
 const Media = require('./media');
 
+import { Database } from '../db'
+
+let conn = new Database()
+
 // Creates album
 exports.create = function(req, res){
 
@@ -43,24 +47,46 @@ exports.getList = function(req, res){
 };
 
 // Gets one album
-exports.getOne = function(req, res){
+export function getOne(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
-    const albumId = req.params.id;
-    connection.query(`SELECT * FROM albums WHERE id = ? LIMIT 1`, albumId, function(err, album) {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage});
-      } else {
-        if (album.length) {
-          res.json({ack:'ok', msg: 'One album', data: album[0]});
-        } else {
-          res.json({ack:'err', msg: 'No such Album'});
+    const { id } = req.params
+    let album
+    conn.query(`SELECT * FROM albums WHERE id = ? LIMIT 1`, id)
+      .then( rows => {
+        if (rows.length) {
+          album = rows[0]
+          // Get album media
+          return conn.query(`SELECT
+                              m.*,
+                              width.meta_value AS width,
+                              height.meta_value AS height
+                            FROM media AS m
+                              LEFT JOIN media_meta AS width
+                                ON m.id = width.media_id AND width.meta_name = 'width'
+                              LEFT JOIN media_meta AS height
+                                ON m.id = height.media_id AND height.meta_name = 'height'
+                            WHERE m.entity_id = ?`, id)
         }
-      }
-    });
+        else {
+          throw 'No such Album'
+        }
+      })
+      .then( albumMedia => {
+        // Add media to album
+        album.media = albumMedia
+      })
+      .then( () => {
+        res.json({ack:'ok', msg: 'One album', data: album});
+      })
+      .catch( err => {
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:'err', msg})
+      })
+  
   } else {
-    res.json({ack:'err', msg: 'bad parameter'});
+    res.json({ack:'err', msg: 'bad parameter'})
   }
-};
+}
 
 // Renames album
 exports.rename = function(req, res){
