@@ -1,0 +1,15 @@
+{
+  "name": "generate_thumb",
+  "version": "1.0.0",
+  "description": "generates image thumbnail",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Minde Vieras",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.5.0",
+    "gm": "^1.23.0"
+  }
+}

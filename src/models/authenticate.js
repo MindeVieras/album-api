@@ -1,74 +1,74 @@
 
-const bcrypt = require('bcrypt');
-const validator = require('validator');
-const connection = require('../config/db');
-const jwt = require('jsonwebtoken');
-const moment = require('moment');
+import bcrypt from 'bcrypt'
+import validator from 'validator'
+import { Database } from '../db'
+import jwt from 'jsonwebtoken'
+import moment from 'moment'
 
-const config = require('../config/config');
+import Config from '../config/config'
+
+let conn = new Database()
 
 // Authenticates user
-exports.authenticate = function(req, res){
+const Authenticate = (req, res) => {
 
-  const input = req.body;
+  const { username, password } = req.body
   
-  // // vlaidate form
-  if (validator.isEmpty(input.username)) {
-    res.json({ack:'err', msg: 'Username is required'});
-  } else if (validator.isEmpty(input.password)){
-    res.json({ack:'err', msg: 'Password is required'});
-  } else {
-    connection.query("SELECT * FROM users WHERE username = ? LIMIT 1",[input.username], function(err, user){
-      if (err) {
-        res.json({ack:'err', msg: err.sqlMessage});
-      } else {
-        if (user.length === 0) {
-          res.json({ack:'err', msg: 'Incorrect details'});
-        } else {
-          const passMatch = bcrypt.compareSync(input.password, user[0].password);
+  // // vlaidate input
+  if (validator.isEmpty(username)) {
+    res.json({ack:'err', msg: 'Username is required'})
+  }
+  else if (validator.isEmpty(password)) {
+    res.json({ack:'err', msg: 'Password is required'})
+  }
+  else {
+    let user
+    conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
+      .then( rows => {
+        if (rows.length){
+          let pass = rows[0].password
+          let passMatch = bcrypt.compareSync(password, pass)
           if (passMatch) {
-            let login_date = moment().format('YYYY-MM-DD HH:mm:ss');
-            connection.query('UPDATE users SET last_login = ? WHERE id = ?', [login_date, user[0].id], function(err, rows){
-              if (err) {
-                res.json({ack:'err', msg: err.sqlMessage});
-              } else {
-                if (rows.affectedRows === 1) {                
-                  // Return User object if success
-                  const jwtData = {
-                    id: user[0].id,
-                    username: user[0].username,
-                    access_level: user[0].access_level
-                  };
-                  const token = jwt.sign(jwtData, config.secret_key);
-                  let accessLevel = 'simple';
-                  if (user[0].access_level >= 50 && user[0].access_level < 100) {
-                    accessLevel = 'editor';
-                  } else if (user[0].access_level === 100) {
-                    accessLevel = 'admin';
-                  }
-                  let userData = {
-                    id: user[0].id,
-                    username: user[0].username,
-                    display_name: user[0].display_name,
-                    email: user[0].email,
-                    created: user[0].created,
-                    access_level: accessLevel,
-                    token
-                  };
-                  res.json({ack:'ok', msg: 'Authentication ok', data: userData});
-                } else {
-                  res.json({ack:'err', msg: 'Connot set last login date'});
-                }
-              }
-            });
-          } else {
-            res.json({ack:'err', msg: 'Incorrect details'});
+            user = rows[0]
+            let uid = rows[0].id
+            let login_date = moment().format('YYYY-MM-DD HH:mm:ss')
+            return conn.query('UPDATE users SET last_login = ? WHERE id = ?', [login_date, uid])
           }
-          
+          else {
+            throw 'Incorect details'
+          }
         }
-      }
-
-    });
+        else {
+          throw 'Incorrect details'
+        }
+      })
+      .then( rows => {
+        // If last login date updated
+        if (rows.affectedRows === 1) {
+          // Return User object
+          const { id, username, access_level, display_name, email, created } = user
+          const jwtData = { id, username, access_level }
+          const token = jwt.sign(jwtData, Config.secret_key)
+          let accessLevel = 'simple'
+          if (access_level >= 50 && access_level < 100) {
+            accessLevel = 'editor'
+          } else if (access_level === 100) {
+            accessLevel = 'admin'
+          }
+          let userData = { id, username, display_name, email, created, token, access_level: accessLevel }
+          res.json({ack:'ok', msg: 'Authentication ok', data: userData})
+        }
+        else {
+          throw 'Connot set last login date'
+        }
+      })
+      .catch( err => {
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:'err', msg})
+      })
   }
 
+
 };
+
+export default Authenticate

@@ -2,6 +2,7 @@
 .git
 /node_modules
 /src
+/lambda
 
 .gitignore
 README.md

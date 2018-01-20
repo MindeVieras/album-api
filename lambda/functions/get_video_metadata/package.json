@@ -1,0 +1,15 @@
+{
+  "name": "get_image_metadata",
+  "version": "1.0.0",
+  "description": "get image matadata lambda function",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Minde Vieras",
+  "license": "ISC",
+  "dependencies": {
+    "ffprobe": "^1.1.0",
+    "ffprobe-static": "^2.0.0"
+  }
+}

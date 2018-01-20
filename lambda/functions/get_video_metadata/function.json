@@ -1,0 +1,8 @@
+{
+  "name": "get_video_metadata",
+  "runtime": "nodejs4.3",
+  "memory": 1536,
+  "timeout": 300,
+  "role": "arn:aws:iam::492012502704:role/aws-album_lambda_function",
+  "handler": "index.handle"
+}

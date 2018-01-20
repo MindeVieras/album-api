@@ -1,0 +1,8 @@
+{
+  "name": "aws-album",
+  "description": "Album lambda functions",
+  "memory": 1024,
+  "timeout": 300,
+  "role": "arn:aws:iam::492012502704:role/aws-album_lambda_function",
+  "environment": {}
+}

@@ -1,8 +1,8 @@
 
-const Auth = require('../models/authenticate');
+import Authenticate from '../models/authenticate'
 
 module.exports = function(app) {
 
-  app.post('/api/authenticate', Auth.authenticate);
+  app.post('/api/authenticate', Authenticate)
 
-};
+}

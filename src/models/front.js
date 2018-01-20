@@ -12,18 +12,14 @@ exports.getList = function(req, res){
                                       THEN CONCAT_WS(
                                           ',',
                                           m.s3_key,
-                                          m.mime,
-                                          (SELECT meta_value FROM media_meta
-                                            WHERE meta_name = 'width' AND media_id = m.id),
-                                          (SELECT meta_value FROM media_meta
-                                            WHERE meta_name = 'height' AND media_id = m.id)
+                                          m.mime
                                         )
                                       ELSE NULL
                                     END ORDER BY m.id ASC SEPARATOR '|') AS media
                     FROM albums AS a
                       LEFT JOIN media AS m ON m.entity_id = a.id
                     GROUP BY a.id DESC
-                    LIMIT 4`, function(err, albums) {
+                    LIMIT 40`, function(err, albums) {
       if(err) {
         res.json({ack:'err', msg: err.sqlMessage});
       } else {
@@ -49,8 +45,6 @@ exports.getList = function(req, res){
                 mediaObj.key = require('../helpers/media').img(values[0], 'thumb');
               }
               mediaObj.mime = mime;
-              mediaObj.width = values[2];
-              mediaObj.height = values[3];
               media.push(mediaObj);
             });
           }
