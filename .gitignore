@@ -1,8 +1,8 @@
 
 /dist
-/npm-debug.log
+npm-debug.log
 
-/node_modules
+node_modules
 
 aws-keys.json
 
