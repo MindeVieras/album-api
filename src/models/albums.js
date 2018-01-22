@@ -1,6 +1,7 @@
 
 const validator = require('validator');
 const uuidv4 = require('uuid/v4');
+import moment from 'moment'
 
 const connection = require('../config/db');
 
@@ -59,12 +60,15 @@ export function getOne(req, res) {
           return conn.query(`SELECT
                               m.*,
                               width.meta_value AS width,
-                              height.meta_value AS height
+                              height.meta_value AS height,
+                              dt.meta_value AS datetime
                             FROM media AS m
                               LEFT JOIN media_meta AS width
                                 ON m.id = width.media_id AND width.meta_name = 'width'
                               LEFT JOIN media_meta AS height
                                 ON m.id = height.media_id AND height.meta_name = 'height'
+                              LEFT JOIN media_meta AS dt
+                                ON m.id = dt.media_id AND dt.meta_name = 'datetime'
                             WHERE m.entity_id = ?`, id)
         }
         else {
@@ -72,6 +76,9 @@ export function getOne(req, res) {
         }
       })
       .then( albumMedia => {
+        // Format dates
+        album.start_date = moment(album.start_date).format('YYYY-MM-DD HH:mm:ss')
+        album.end_date = moment(album.end_date).format('YYYY-MM-DD HH:mm:ss')
         // Add media to album
         album.media = albumMedia
       })
@@ -100,6 +107,21 @@ exports.rename = function(req, res){
       res.json({ack:'err', msg: err.sqlMessage});
     } else {
       res.json({ack:'ok', msg: 'Album renamed', id: row.insertId});
+    }
+  });
+
+};
+
+// Changes album date
+export function changeDate(req, res){
+
+  const { start_date, end_date, id } = req.body
+
+  connection.query('UPDATE albums SET start_date = ?, end_date = ? WHERE id = ?', [start_date, end_date, id], function(err, row) {
+    if(err) {
+      res.json({ack:'err', msg: err.sqlMessage});
+    } else {
+      res.json({ack:'ok', msg: 'Album date changed', id: row.insertId});
     }
   });
 

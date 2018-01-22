@@ -8,6 +8,7 @@ module.exports = function(app) {
   app.get('/api/albums/get-list', Auth.isAuthed, Albums.getList);
   app.get('/api/albums/get-one/:id', Auth.isAuthed, Albums.getOne);
   app.post('/api/albums/rename', Auth.isAuthed, Albums.rename);
+  app.post('/api/albums/change-date', Auth.isAuthed, Albums.changeDate);
   app.delete('/api/albums/delete/:id', Auth.isAuthed, Albums.delete);
 
 };
