@@ -56,20 +56,14 @@ export function getOne(req, res) {
       .then( rows => {
         if (rows.length) {
           album = rows[0]
+          const status = 1; // Media status ENABLED
           // Get album media
           return conn.query(`SELECT
-                              m.*,
-                              width.meta_value AS width,
-                              height.meta_value AS height,
-                              dt.meta_value AS datetime
+                              m.id AS media_id,
+                              m.org_filename AS filename,
+                              m.filesize
                             FROM media AS m
-                              LEFT JOIN media_meta AS width
-                                ON m.id = width.media_id AND width.meta_name = 'width'
-                              LEFT JOIN media_meta AS height
-                                ON m.id = height.media_id AND height.meta_name = 'height'
-                              LEFT JOIN media_meta AS dt
-                                ON m.id = dt.media_id AND dt.meta_name = 'datetime'
-                            WHERE m.entity_id = ?`, id)
+                            WHERE m.entity_id = ? AND m.status = ?`, [id, status])
         }
         else {
           throw 'No such Album'
@@ -96,19 +90,22 @@ export function getOne(req, res) {
 }
 
 // Renames album
-exports.rename = function(req, res){
+export function rename(req, res){
 
-  const input = req.body;
-  const name = input.name;
-  const id = input.id;
-  // console.log(data);
-  connection.query('UPDATE albums SET name = ? WHERE id = ?', [name, id], function(err, row) {
-    if(err) {
-      res.json({ack:'err', msg: err.sqlMessage});
-    } else {
-      res.json({ack:'ok', msg: 'Album renamed', id: row.insertId});
-    }
-  });
+  const { id, name } = req.body
+  conn.query(`UPDATE albums SET name = ? WHERE id = ?`, [name, id])
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Album renamed', id: row.insertId});
+      }
+      else {
+        throw 'No such Album'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
 
 };
 
@@ -116,16 +113,20 @@ exports.rename = function(req, res){
 export function changeDate(req, res){
 
   const { start_date, end_date, id } = req.body
-
-  connection.query('UPDATE albums SET start_date = ?, end_date = ? WHERE id = ?', [start_date, end_date, id], function(err, row) {
-    if(err) {
-      res.json({ack:'err', msg: err.sqlMessage});
-    } else {
-      res.json({ack:'ok', msg: 'Album date changed', id: row.insertId});
-    }
-  });
-
-};
+  conn.query(`UPDATE albums SET start_date = ?, end_date = ? WHERE id = ?`, [start_date, end_date, id])
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Album date changed', id: row.insertId});
+      }
+      else {
+        throw 'No such Album'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
 
 // Deletes album
 exports.delete = function(req, res){
