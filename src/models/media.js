@@ -38,14 +38,14 @@ exports.getAll = function(req, res) {
 }
 
 exports.putToTrash = function(req, res) {
-  const uuid = req.body.qquuid;
+  const { media_id } = req.body; 
   const status = 2; // Media status TRASHED
   //Put media file to trash
-  connection.query('UPDATE media SET status = ? WHERE uuid = ?', [status, uuid], function(err, rows){
+  connection.query('UPDATE media SET status = ? WHERE id = ?', [status, media_id], function(err, rows){
     if(err) {
       res.json({ack:'err', msg: err.sqlMessage, error: err.sqlMessage});
     } else {
-      res.json({ack: 'ok', msg: 'File removed to trash', success: true});
+      res.json({ack: 'ok', msg: 'File moved to trash', success: true});
     }
   });
 }

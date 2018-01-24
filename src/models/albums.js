@@ -51,7 +51,7 @@ exports.getList = function(req, res){
 export function getOne(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const { id } = req.params
-    let album
+    let album, media
     conn.query(`SELECT * FROM albums WHERE id = ? LIMIT 1`, id)
       .then( rows => {
         if (rows.length) {
@@ -60,8 +60,9 @@ export function getOne(req, res) {
           // Get album media
           return conn.query(`SELECT
                               m.id AS media_id,
-                              m.org_filename AS filename,
-                              m.filesize
+                              m.mime,
+                              m.org_filename AS name,
+                              m.filesize AS size
                             FROM media AS m
                             WHERE m.entity_id = ? AND m.status = ?`, [id, status])
         }
@@ -70,11 +71,12 @@ export function getOne(req, res) {
         }
       })
       .then( albumMedia => {
+        media = albumMedia
         // Format dates
         album.start_date = moment(album.start_date).format('YYYY-MM-DD HH:mm:ss')
         album.end_date = moment(album.end_date).format('YYYY-MM-DD HH:mm:ss')
         // Add media to album
-        album.media = albumMedia
+        album.media = media
       })
       .then( () => {
         res.json({ack:'ok', msg: 'One album', data: album});
