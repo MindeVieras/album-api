@@ -6,7 +6,7 @@ let conn = new Database()
 // Gets albums
 export function getList(req, res){
   let albums, limit, page
-  limit = parseInt(req.query.limit) || 20
+  limit = parseInt(req.query.limit) || 10
   page = parseInt(req.query.page) || 1
   conn.query(`SELECT * FROM albums ORDER BY start_date DESC LIMIT ?, ?`, [ page, limit ])
     .then( rows => {

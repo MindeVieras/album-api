@@ -5,6 +5,7 @@ import express from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
 import bodyParser from 'body-parser'
+import fallback from 'express-history-api-fallback'
 import config from './config.json'
 
 let app = express()
@@ -12,6 +13,9 @@ app.server = http.createServer(app)
 
 // Logger
 app.use(morgan('dev'))
+
+// Fallback to index.html
+app.use(fallback(__dirname + '/dist/index.html'))
 
 // CORS
 app.use(cors({

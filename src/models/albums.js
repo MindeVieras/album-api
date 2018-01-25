@@ -60,6 +60,7 @@ export function getOne(req, res) {
           // Get album media
           return conn.query(`SELECT
                               m.id AS media_id,
+                              m.s3_key,
                               m.mime,
                               m.org_filename AS name,
                               m.filesize AS size
@@ -71,7 +72,19 @@ export function getOne(req, res) {
         }
       })
       .then( albumMedia => {
-        media = albumMedia
+        media = albumMedia.map((m) => {
+          if (m.mime.includes('video')) {
+            return {
+              ...m,
+              videos: { video: require('../helpers/media').video(m.s3_key, 'medium') }
+            }
+          } else {
+            return {
+              ...m,
+              thumbs: { thumb: require('../helpers/media').img(m.s3_key, 'medium') }
+            }
+          }
+        })
         // Format dates
         album.start_date = moment(album.start_date).format('YYYY-MM-DD HH:mm:ss')
         album.end_date = moment(album.end_date).format('YYYY-MM-DD HH:mm:ss')
