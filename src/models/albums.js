@@ -95,10 +95,17 @@ export function getOne(req, res) {
 
         // Get media Metadata
         let ids = album.media.map((m) => { return m.media_id })
-        return conn.query(`SELECT
-                            m.*
-                          FROM media_meta AS m
-                          WHERE m.media_id IN (?)`, [ids])
+        if (_.isEmpty(ids)) {
+          return []
+        }
+        else {
+          return conn.query(`SELECT
+                    m.*
+                  FROM media_meta AS m
+                  WHERE m.media_id IN (?)`, [ids])
+        }
+        // res.json({ack:'ok', msg: 'One album', data: album, aaaaa: ids})
+
       })
       .then( ( mediaMeta ) => {
         metadata = mediaMeta
@@ -121,11 +128,16 @@ export function getOne(req, res) {
 
         // Get media Rekognition
         let ids = album.media.map((m) => { return m.media_id })
-        return conn.query(`SELECT
-                            r.*
-                          FROM rekognition AS r
-                            WHERE r.media_id IN (?)
-                          ORDER BY r.confidence DESC`, [ids])
+        if (_.isEmpty(ids)) {
+          return []
+        }
+        else {
+          return conn.query(`SELECT
+                              r.*
+                            FROM rekognition AS r
+                              WHERE r.media_id IN (?)
+                            ORDER BY r.confidence DESC`, [ids])
+        }
       })
       .then( ( mediaRekognition ) => {
         rekognition = mediaRekognition
@@ -150,6 +162,7 @@ export function getOne(req, res) {
         res.json({ack:'ok', msg: 'One album', data: album});
       })
       .catch( err => {
+        console.log(err)
         let msg = err.sqlMessage ? err.sqlMessage : err
         res.json({ack:'err', msg})
       })
