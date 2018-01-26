@@ -1,6 +1,7 @@
 
 const validator = require('validator');
 const uuidv4 = require('uuid/v4');
+import _ from 'lodash'
 import moment from 'moment'
 
 const connection = require('../config/db');
@@ -51,13 +52,17 @@ exports.getList = function(req, res){
 export function getOne(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const { id } = req.params
-    let album, media
+    let album, media, metadata, rekognition
     conn.query(`SELECT * FROM albums WHERE id = ? LIMIT 1`, id)
       .then( rows => {
         if (rows.length) {
           album = rows[0]
-          const status = 1; // Media status ENABLED
+          // Format dates
+          album.start_date = moment(album.start_date).format('YYYY-MM-DD HH:mm:ss')
+          album.end_date = moment(album.end_date).format('YYYY-MM-DD HH:mm:ss')
+          
           // Get album media
+          const status = 1 // Media status ENABLED
           return conn.query(`SELECT
                               m.id AS media_id,
                               m.s3_key,
@@ -85,13 +90,62 @@ export function getOne(req, res) {
             }
           }
         })
-        // Format dates
-        album.start_date = moment(album.start_date).format('YYYY-MM-DD HH:mm:ss')
-        album.end_date = moment(album.end_date).format('YYYY-MM-DD HH:mm:ss')
         // Add media to album
         album.media = media
+
+        // Get media Metadata
+        let ids = album.media.map((m) => { return m.media_id })
+        return conn.query(`SELECT
+                            m.*
+                          FROM media_meta AS m
+                          WHERE m.media_id IN (?)`, [ids])
       })
-      .then( () => {
+      .then( ( mediaMeta ) => {
+        metadata = mediaMeta
+        album.media = album.media.map((m) => {
+          const { ...mediaCopy } = m
+          let metaObj = new Object()
+          let mm = mediaMeta.filter(mt => mt.media_id === m.media_id).map((mt) => {
+            metaObj['ack'] = 'ok'
+            metaObj[mt.meta_name] = mt.meta_value
+          })
+          if (_.isEmpty(mm)) {
+            metaObj['ack'] = 'err'
+            metaObj['msg'] = 'No metadata'
+          }
+          return {
+            ...mediaCopy,
+            metadata: metaObj
+          }
+        })
+
+        // Get media Rekognition
+        let ids = album.media.map((m) => { return m.media_id })
+        return conn.query(`SELECT
+                            r.*
+                          FROM rekognition AS r
+                          WHERE r.media_id IN (?)`, [ids])
+      })
+      .then( ( mediaRekognition ) => {
+        rekognition = mediaRekognition
+        album.media = album.media.map((m) => {
+          const { ...mediaCopy } = m
+          let rekognitionObj = new Object()
+          let mm = mediaRekognition.filter(r => r.media_id === m.media_id).map((r) => {
+            rekognitionObj['ack'] = 'ok'
+            rekognitionObj[r.label] = r.confidence
+          })
+          if (_.isEmpty(mm)) {
+            rekognitionObj['ack'] = 'err'
+            rekognitionObj['msg'] = 'No rokognition labels found'
+          }
+          return {
+            ...mediaCopy,
+            rekognition_labels: rekognitionObj
+          }
+        })
+
+        // Return album
         res.json({ack:'ok', msg: 'One album', data: album});
       })
       .catch( err => {
