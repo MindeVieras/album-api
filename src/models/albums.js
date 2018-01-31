@@ -37,7 +37,7 @@ exports.create = function(req, res){
 };
 
 // Gets albums
-exports.getList = function(req, res){
+export function getList(req, res){
 
   connection.query('SELECT * FROM albums ORDER BY id DESC', function(err, rows) {
       if(err) {
@@ -52,15 +52,29 @@ exports.getList = function(req, res){
 export function getOne(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const { id } = req.params
+    const entity = 2 // Album type
     let album, media, metadata, rekognition
-    conn.query(`SELECT * FROM albums WHERE id = ? LIMIT 1`, id)
+    conn.query(`SELECT
+                  a.*,
+                  CONCAT('{"lat":', l.lat, ',"lng":', l.lng, '}') AS location
+                FROM albums AS a
+                  LEFT JOIN locations AS l ON a.id = l.entity_id AND entity = ?
+                WHERE a.id = ?
+                LIMIT 1`, [entity, id])
       .then( rows => {
         if (rows.length) {
-          album = rows[0]
-          // Format dates
-          album.start_date = moment(album.start_date).format('YYYY-MM-DD HH:mm:ss')
-          album.end_date = moment(album.end_date).format('YYYY-MM-DD HH:mm:ss')
+
+          const albumData = rows[0]
           
+          // Parse location and Format dates
+          const { ...albumCopy } = albumData
+          album = {
+            ...albumCopy,
+            location: JSON.parse(albumData.location),
+            start_date: moment(albumData.start_date).format('YYYY-MM-DD HH:mm:ss'),
+            end_date: moment(albumData.end_date).format('YYYY-MM-DD HH:mm:ss')
+          }
+
           // Get album media
           const status = 1 // Media status ENABLED
           return conn.query(`SELECT
@@ -160,6 +174,64 @@ export function getOne(req, res) {
 
         // Return album
         res.json({ack:'ok', msg: 'One album', data: album});
+      })
+      .catch( err => {
+        console.log(err)
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:'err', msg})
+      })
+  
+  } else {
+    res.json({ack:'err', msg: 'bad parameter'})
+  }
+}
+
+// Gets album locations
+export function getLocations(req, res) {
+  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
+    const { id } = req.params
+    // const entity = 2 // Album type
+    let locations
+    conn.query(`SELECT
+                  m.*
+                FROM media AS m
+                WHERE m.entity_id = ?`, [id])
+      .then( rows => {
+        locations = rows.map((loc) => {
+          let location = new Object
+          location.id = loc.id
+          if (loc.mime.includes('video')) {
+            location.key = require('../helpers/media').video(loc.s3_key, 'medium');
+          } else {
+            location.key = require('../helpers/media').img(loc.s3_key, 'icon');
+          }
+          return location
+        })
+        // Return media locations
+        res.json({ack:'ok', msg: 'Album locations', data: locations});
+      })
+      .catch( err => {
+        console.log(err)
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:'err', msg})
+      })
+  
+  } else {
+    res.json({ack:'err', msg: 'bad parameter'})
+  }
+}
+
+// Gets album locations
+export function removeLocation(req, res) {
+  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
+    const { id } = req.params
+    const entity = 2 // Album type
+    let location
+    conn.query(`DELETE FROM locations WHERE entity = ? AND entity_id = ?`, [entity, id])
+      .then( rows => {
+        location = rows
+        // Return media locations
+        res.json({ack:'ok', msg: 'Location removed', data: location});
       })
       .catch( err => {
         console.log(err)

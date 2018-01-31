@@ -7,6 +7,8 @@ module.exports = function(app) {
   app.post('/api/albums/create', Auth.isAuthed, Albums.create);
   app.get('/api/albums/get-list', Auth.isAuthed, Albums.getList);
   app.get('/api/albums/get-one/:id', Auth.isAuthed, Albums.getOne);
+  app.get('/api/albums/get-locations/:id', Auth.isAuthed, Albums.getLocations);
+  app.get('/api/albums/remove-location/:id', Auth.isAuthed, Albums.removeLocation);
   app.post('/api/albums/rename', Auth.isAuthed, Albums.rename);
   app.post('/api/albums/change-date', Auth.isAuthed, Albums.changeDate);
   app.delete('/api/albums/delete/:id', Auth.isAuthed, Albums.delete);
