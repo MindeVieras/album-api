@@ -244,6 +244,60 @@ export function removeLocation(req, res) {
   }
 }
 
+// Sets album location
+export function setLocation(req, res) {
+  const { album_id, location } = req.body
+
+  let data = {
+    lat : location.lat,
+    lng : location.lng,
+    entity: 2, // Album entity type
+    entity_id: album_id
+  }
+
+  conn.query(`INSERT INTO locations SET ?`, data)
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Location set', id: row.insertId});
+      }
+      else {
+        throw 'Location not set'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+
+// Updates album location
+export function updateLocation(req, res) {
+  const { album_id, location } = req.body
+
+  let data = [
+    location.lat,
+    location.lng,
+    2, // Album entity type
+    album_id
+  ]
+
+  conn.query(`UPDATE locations
+                SET lat = ?, lng = ?
+              WHERE entity = ? AND entity_id = ?`, data)
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Location updated'});
+      }
+      else {
+        throw 'Location not updated'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+
 // Renames album
 export function rename(req, res){
 
