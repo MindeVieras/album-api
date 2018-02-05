@@ -4,6 +4,6 @@ const Auth = require('../helpers/authenticate')
 
 module.exports = function(app) {
 
-  app.get('/api/front/albums/get-list', Auth.isAuthed, getList)
+  app.post('/api/front/albums/get-list', Auth.isAuthed, getList)
 
 }
