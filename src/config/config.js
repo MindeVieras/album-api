@@ -1,6 +1,6 @@
 
-exports.bucket = process.env.S3_BUCKET || 'images.album.mindelis.com'
-// exports.bucket = process.env.S3_BUCKET || 'media.album.mindelis.com'
+// exports.bucket = process.env.S3_BUCKET || 'images.album.mindelis.com'
+exports.bucket = process.env.S3_BUCKET || 'media.album.mindelis.com'
 
 exports.bucketFake = 'fake'
 exports.faces_collection = process.env.FACES_COLLECTION || 'album_faces_local'

@@ -42,6 +42,7 @@ require('./routes/media')(app)
 require('./routes/upload')(app)
 require('./routes/trash')(app)
 require('./routes/front')(app)
+// require('./routes/utils')(app)
 
 // Start HTTP server
 app.server.listen(process.env.PORT || config.port, () => {

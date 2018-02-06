@@ -3,6 +3,10 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const connection = require('../config/db');
 
+import { Database } from '../db'
+
+let conn = new Database()
+
 // Creates user
 exports.create = function(req, res){
 
@@ -59,7 +63,6 @@ exports.create = function(req, res){
       }
     });
   }
-
 };
 
 // Gets users
@@ -133,6 +136,29 @@ exports.getOne = function(req, res){
     res.json({ack:'err', msg: 'bad parameter'});
   }
 };
+
+// Sets user setting
+export function setSetting(req, res) {
+  const { name, value, uid } = req.body
+
+  let data = [ value, uid, name ]
+
+  conn.query(`UPDATE users_meta
+                SET meta_value = ?
+              WHERE user_id = ? AND meta_name = ?`, data)
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Setting is set'});
+      }
+      else {
+        throw 'Setting not set'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
 
 // Deletes user
 exports.delete = function(req, res){
