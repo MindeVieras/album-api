@@ -48,7 +48,7 @@ const Authenticate = (req, res) => {
         // If last login date updated
         if (rows.affectedRows === 1) {
           // Get user settings
-          return conn.query(`SELECT * FROM users_meta WHERE user_id = ?`, user.id)
+          return conn.query(`SELECT * FROM users_settings WHERE user_id = ?`, user.id)
         }
         else {
           throw 'Connot set last login date'
@@ -57,7 +57,7 @@ const Authenticate = (req, res) => {
       .then( rows => {
 
         rows.map((s) => {
-          settings[s.meta_name] = s.meta_value
+          settings[s.name] = s.value
         })
         // Return User object
         const { id, username, access_level, display_name, email, created } = user

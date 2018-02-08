@@ -84,7 +84,7 @@ export function getOne(req, res) {
                               m.org_filename AS name,
                               m.filesize AS size
                             FROM media AS m
-                            WHERE m.entity_id = ? AND m.status = ?`, [id, status])
+                            WHERE m.entity_id = ? AND m.status = ? LIMIT 15`, [id, status])
         }
         else {
           throw 'No such Album'

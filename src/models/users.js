@@ -137,29 +137,6 @@ exports.getOne = function(req, res){
   }
 };
 
-// Sets user setting
-export function setSetting(req, res) {
-  const { name, value, uid } = req.body
-
-  let data = [ value, uid, name ]
-
-  conn.query(`UPDATE users_meta
-                SET meta_value = ?
-              WHERE user_id = ? AND meta_name = ?`, data)
-    .then( row => {      
-      if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Setting is set'});
-      }
-      else {
-        throw 'Setting not set'
-      }
-    })
-    .catch( err => {
-      let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
-    })
-}
-
 // Deletes user
 exports.delete = function(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
