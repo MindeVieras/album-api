@@ -23,7 +23,6 @@ const Authenticate = (req, res) => {
   }
   else {
     let user
-    let settings = new Object()
     conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
       .then( rows => {
         if (rows.length){
@@ -31,46 +30,37 @@ const Authenticate = (req, res) => {
           let passMatch = bcrypt.compareSync(password, pass)
           if (passMatch) {
             user = rows[0]
-
-            // set user last login date
+            let uid = rows[0].id
             let login_date = moment().format('YYYY-MM-DD HH:mm:ss')
-            return conn.query(`UPDATE users SET last_login = ? WHERE id = ?`, [login_date, user.id])
+            return conn.query('UPDATE users SET last_login = ? WHERE id = ?', [login_date, uid])
           }
           else {
-            throw 'Incorect details' // If password is incorect
+            throw 'Incorect details'
           }
         }
         else {
-          throw 'Incorrect details' // If no user found
+          throw 'Incorrect details'
         }
       })
       .then( rows => {
         // If last login date updated
         if (rows.affectedRows === 1) {
-          // Get user settings
-          return conn.query(`SELECT * FROM users_settings WHERE user_id = ?`, user.id)
+          // Return User object
+          const { id, username, access_level, display_name, email, created } = user
+          const jwtData = { id, username, access_level }
+          const token = jwt.sign(jwtData, Config.secret_key)
+          let accessLevel = 'simple'
+          if (access_level >= 50 && access_level < 100) {
+            accessLevel = 'editor'
+          } else if (access_level === 100) {
+            accessLevel = 'admin'
+          }
+          let userData = { id, username, display_name, email, created, token, access_level: accessLevel }
+          res.json({ack:'ok', msg: 'Authentication ok', data: userData})
         }
         else {
           throw 'Connot set last login date'
         }
-      })
-      .then( rows => {
-
-        rows.map((s) => {
-          settings[s.name] = s.value
-        })
-        // Return User object
-        const { id, username, access_level, display_name, email, created } = user
-        const jwtData = { id, username, access_level }
-        const token = jwt.sign(jwtData, Config.secret_key)
-        let accessLevel = 'simple'
-        if (access_level >= 50 && access_level < 100) {
-          accessLevel = 'editor'
-        } else if (access_level === 100) {
-          accessLevel = 'admin'
-        }
-        user = { id, username, display_name, email, created, token, access_level: accessLevel, settings }
-        res.json({ack:'ok', msg: 'Authentication ok', data: user})
       })
       .catch( err => {
         let msg = err.sqlMessage ? err.sqlMessage : err
