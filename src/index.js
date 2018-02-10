@@ -31,6 +31,7 @@ app.use(bodyParser.json({
   limit : '50mb'
 }));
 
+app.set('title', 'My Site');
 // Routes
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, './index.html'))

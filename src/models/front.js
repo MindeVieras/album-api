@@ -5,6 +5,8 @@ let conn = new Database()
 
 // Gets albums
 export function getList(req, res){
+
+  // console.log(req.app.get('user'));
   const { page, limit, media_limit } = req.body
   
   let l_page = parseInt(page) || 0

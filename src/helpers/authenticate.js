@@ -1,37 +1,38 @@
 
-const jwt = require('jsonwebtoken');
-const config = require('../config/config');
+import jwt from 'jsonwebtoken'
+import config from '../config/config'
 
 // check if user authenticated
-exports.isAuthed = function (req, res, next) {
-  doAuth(req, res, next, 50);
+export function isAuthed(req, res, next) {
+  doAuth(req, res, next, 50)
 }
 // // check if user admin
-exports.isAdmin = function (req, res, next) {
-  doAuth(req, res, next, 100);
+export function isAdmin(req, res, next) {
+  doAuth(req, res, next, 100)
 }
 
-function doAuth(req, res, next, access_level) {
-  const bearerHeader = req.headers["authorization"];
+function doAuth(req, res, next, al) {
+  const bearerHeader = req.headers['authorization']
   if (typeof bearerHeader !== 'undefined') {
-    const bearer = bearerHeader.split(" ");
-    const bearerToken = bearer[1];
+    const bearer = bearerHeader.split(' ')
+    const bearerToken = bearer[1]
     jwt.verify(bearerToken, config.secret_key, function(err, decoded){
       if (err) {
-        res.json({ack:'err', msg: err.message});
+        res.json({ack:'err', msg: err.message})
       } else {
-        if (decoded.access_level === 100) {
-          next();
-        } else if(decoded.access_level <= 50 && access_level === 50) {
-          next();
+        const { id, access_level } = decoded
+        if (access_level === 100) {
+          req.app.set('user', { id, access_level })
+          next()
+        } else if (access_level <= 50 && al === 50) {
+          req.app.set('user', { id, access_level })
+          next()
         } else {
-          res.json({ack:'err', msg: 'Access denied'});
+          res.json({ack:'err', msg: 'Access denied'})
         }
       }
-    });
+    })
   } else {
-    res.json({ack:'err', msg: 'Not authorized'});
+    res.json({ack:'err', msg: 'Not authorized'})
   }
 }
-
-
