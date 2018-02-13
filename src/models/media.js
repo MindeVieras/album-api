@@ -4,7 +4,7 @@ const connection = require('../config/db');
 
 const generateImageThumbs = require('./aws/lambda/generate_thumbs');
 const generateVideos = require('./aws/transcoder/generate_videos');
-const getImageMeta = require('./aws/lambda/get_image_metadata');
+const getImageMetadata = require('./aws/lambda/get_image_metadata');
 const getVideoMeta = require('./aws/lambda/get_video_metadata');
 const getRekognitionLabels = require('./aws/rekognition/get_labels');
 
@@ -63,7 +63,7 @@ exports.saveMetadata = function(req, res){
         const key = media[0].s3_key;
         const mime = media[0].mime;
         if (mime.includes('image')) {
-          getImageMeta.get(key, function (err, metadata) {
+          getImageMetadata.get(key, function (err, metadata) {
             // save metadata to DB if any
             if (metadata !== null && typeof metadata === 'object') {
               // Delete old meta before save
@@ -210,6 +210,26 @@ exports.generateImageThumbs = function(req, res){
     });
   }
 };
+
+// Gets image Metadata/Exif
+export function getImageMeta(req, res) {
+  const { key } = req.body
+  if (key) {
+    getImageMetadata.get(key, function (err, metadata) {
+      if (err) {
+        res.json({ack:'err', msg: err});
+      }
+      // save metadata to DB if any
+      if (metadata !== null && typeof metadata === 'object') {
+        res.json({ack:'ok', msg: 'Image metadata', metadata: metadata});
+      } else {
+        res.json({ack:'err', msg: 'No metadata saved'});
+      }
+    });
+  } else {
+    res.json({ack: 'err', msg: 'No key'})
+  }
+}
 
 // Generate Videos
 exports.generateVideos = function(req, res){

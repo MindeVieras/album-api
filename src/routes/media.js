@@ -10,4 +10,6 @@ module.exports = function(app) {
   app.post('/api/media/save-rekognition-labels', Auth.isAuthed, Media.saveRekognitionLabels);
   app.post('/api/media/generate-image-thumbs', Auth.isAuthed, Media.generateImageThumbs);
   app.post('/api/media/generate-videos', Auth.isAuthed, Media.generateVideos);
+
+  app.post('/api/media/get-image-meta', Auth.isAuthed, Media.getImageMeta);
 };

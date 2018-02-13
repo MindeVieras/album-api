@@ -24,9 +24,13 @@ export function getList(req, res){
               LIMIT ?, ?`, [l_page, l_limit])
     .then( rows => {
       albums = rows.map((a) => {
+        let mediaArr = new Array()
         const { ...albumCopy } = a
         // Limit meida
-        let mediaArr = albumCopy.media_ids.split(',').slice(0, l_media_limit)
+        if (a.media_ids) {
+          mediaArr = albumCopy.media_ids.split(',').slice(0, l_media_limit)
+
+        }
         return {
           ...albumCopy,
           media_ids: mediaArr
