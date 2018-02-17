@@ -82,7 +82,8 @@ export function getOne(req, res) {
                               m.s3_key,
                               m.mime,
                               m.org_filename AS name,
-                              m.filesize AS size
+                              m.filesize AS size,
+                              m.weight
                             FROM media AS m
                             WHERE m.entity_id = ? AND m.status = ? LIMIT 15`, [id, status])
         }
