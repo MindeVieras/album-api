@@ -45,9 +45,10 @@ export function getAdminSettings(req, res) {
 
 // Saves admin setting
 export function saveAdminSetting(req, res) {
-  const { name, value, uid } = req.body
-
-  let data = [ value, uid, name ]
+  const { name, value } = req.body
+  const { id } = req.app.get('user')
+  
+  let data = [ value, id, name ]
 
   conn.query(`UPDATE users_settings
                 SET value = ?
