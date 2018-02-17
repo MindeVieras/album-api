@@ -17,5 +17,4 @@ module.exports = function(app) {
 
   app.get('/api/utils/get-front-settings/:id', Auth.isAuthed, getFrontSettings)
   app.post('/api/utils/save-front-setting', Auth.isAdmin, saveFrontSetting)
-
 }
