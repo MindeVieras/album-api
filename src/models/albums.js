@@ -39,14 +39,25 @@ exports.create = function(req, res){
 // Gets albums
 export function getList(req, res){
 
-  connection.query('SELECT * FROM albums ORDER BY id DESC', function(err, rows) {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage});
-      } else {
-        res.json({ack:'ok', msg: 'Albums list', data: rows});
-      }
-    });
-};
+  // const { start_date, end_date } = req.body
+
+  let albums, dates
+  conn.query(`SELECT * FROM albums`)
+    .then( rows => {
+      albums = rows
+      return conn.query(`SELECT DISTINCT DATE_FORMAT(start_date, '%Y %c %e') AS date FROM albums ORDER BY date DESC`)
+    })
+    .then( rows => {
+      dates = rows.map(d => {
+        return d.date
+      })
+      res.json({ack:'ok', msg: 'Albums list', dates, list: albums}); 
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
 
 // Gets one album
 export function getOne(req, res) {
@@ -316,8 +327,7 @@ export function rename(req, res){
       let msg = err.sqlMessage ? err.sqlMessage : err
       res.json({ack:'err', msg})
     })
-
-};
+}
 
 // Changes album date
 export function changeDate(req, res){
@@ -357,5 +367,5 @@ exports.delete = function(req, res){
   } else {
     res.json({ack:'err', msg: 'bad parameter'});
   }
-};
+}
 
