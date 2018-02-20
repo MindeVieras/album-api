@@ -57,14 +57,13 @@ export function getList(req, res){
 
 // Gets albums dates
 export function getListDates(req, res){
-
-  // const { start_date, end_date } = req.body
-
   let dates
   conn.query(`SELECT DISTINCT DATE_FORMAT(start_date, '%Y-%c-%e') AS date FROM albums ORDER BY date DESC`)
     .then( rows => {
       dates = rows.map(d => {
         return d.date
+      }).sort(function(a, b){
+        return moment(a, 'YYYY-M-D').diff(moment(b, 'YYYY-M-D'))
       })
       res.json({ack:'ok', msg: 'Albums list dates', dates}); 
     })
