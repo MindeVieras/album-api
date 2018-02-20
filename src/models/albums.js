@@ -39,19 +39,34 @@ exports.create = function(req, res){
 // Gets albums
 export function getList(req, res){
 
-  // const { start_date, end_date } = req.body
+  const { start_date, end_date } = req.body
 
-  let albums, dates
-  conn.query(`SELECT * FROM albums`)
+  let albums
+  conn.query(`SELECT * FROM albums
+                WHERE start_date >= ? AND start_date <= ?
+              ORDER BY start_date DESC`, [start_date, end_date])
     .then( rows => {
       albums = rows
-      return conn.query(`SELECT DISTINCT DATE_FORMAT(start_date, '%Y %c %e') AS date FROM albums ORDER BY date DESC`)
+      res.json({ack:'ok', msg: 'Albums list', list: albums});
     })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+
+// Gets albums dates
+export function getListDates(req, res){
+
+  // const { start_date, end_date } = req.body
+
+  let dates
+  conn.query(`SELECT DISTINCT DATE_FORMAT(start_date, '%Y-%c-%e') AS date FROM albums ORDER BY date DESC`)
     .then( rows => {
       dates = rows.map(d => {
         return d.date
       })
-      res.json({ack:'ok', msg: 'Albums list', dates, list: albums}); 
+      res.json({ack:'ok', msg: 'Albums list dates', dates}); 
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
