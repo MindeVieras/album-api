@@ -12,7 +12,7 @@ exports.img = function(key, size) {
   var params = {
     Bucket: config.bucket, 
     Key: thumbKey,
-    Expires: 60
+    Expires: 600
   };
 
   var url = s3.getSignedUrl('getObject', params);
@@ -28,7 +28,7 @@ exports.video = function (key, size) {
   var params = {
     Bucket: config.bucket, 
     Key: videoKey,
-    Expires: 60
+    Expires: 600
   };
 
   var url = s3.getSignedUrl('getObject', params);

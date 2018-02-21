@@ -110,7 +110,7 @@ export function getOne(req, res) {
                               m.filesize AS size,
                               m.weight
                             FROM media AS m
-                            WHERE m.entity_id = ? AND m.status = ? LIMIT 15`, [id, status])
+                            WHERE m.entity_id = ? AND m.status = ? LIMIT 1500`, [id, status])
         }
         else {
           throw 'No such Album'
