@@ -364,24 +364,27 @@ export function changeDate(req, res){
 }
 
 // Moves album to trash
-exports.moveToTrash = function(req, res){
+export function moveToTrash(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
-    const id = req.params.id;
+    const { id } = req.params
     const status = 2 // Trashed
-    connection.query('UPDATE albums SET status = ? WHERE id = ?', [status, id], function(err, rows) {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage});
-      } else {
+
+    conn.query(`UPDATE albums SET status = ? WHERE id = ?`, [status, id])
+      .then( rows => {
         if (rows.affectedRows === 1) {
-          res.json({ack:'ok', msg: 'Album moved to trash', data: req.params.id});
-        } else {
-          res.json({ack:'err', msg: 'No such album'});
+          res.json({ack:'ok', msg: 'Album moved to trash'});
         }
-      }
-    });
+        else {
+          throw 'No such album'
+        }
+      })
+      .catch( err => {
+        console.log(err)
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:'err', msg})
+      })
 
   } else {
-    res.json({ack:'err', msg: 'bad parameter'});
+    res.json({ack:'err', msg: 'bad parameter'})
   }
 }
-
