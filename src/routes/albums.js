@@ -14,6 +14,6 @@ module.exports = function(app) {
   app.post('/api/albums/update-location', Auth.isAuthed, Albums.updateLocation);
   app.post('/api/albums/rename', Auth.isAuthed, Albums.rename);
   app.post('/api/albums/change-date', Auth.isAuthed, Albums.changeDate);
-  app.delete('/api/albums/delete/:id', Auth.isAuthed, Albums.delete);
+  app.delete('/api/albums/move-to-trash/:id', Auth.isAuthed, Albums.moveToTrash);
 
 };

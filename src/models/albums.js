@@ -40,11 +40,11 @@ exports.create = function(req, res){
 export function getList(req, res){
 
   const { start_date, end_date } = req.body
-
+  const status = 1 // Enabled
   let albums
   conn.query(`SELECT * FROM albums
-                WHERE start_date >= ? AND start_date <= ?
-              ORDER BY start_date DESC`, [start_date, end_date])
+                WHERE status = ? AND start_date >= ? AND start_date <= ?
+              ORDER BY start_date DESC`, [status, start_date, end_date])
     .then( rows => {
       albums = rows
       res.json({ack:'ok', msg: 'Albums list', list: albums});
@@ -216,12 +216,13 @@ export function getOne(req, res) {
 export function getLocations(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const { id } = req.params
-    // const entity = 2 // Album type
+    const status = 1 // Enabled
     let locations
     conn.query(`SELECT
                   m.*
                 FROM media AS m
-                WHERE m.entity_id = ?`, [id])
+                WHERE m.entity_id = ?
+                  AND m.status = ?`, [id, status])
       .then( rows => {
         locations = rows.map((loc) => {
           let location = new Object
@@ -362,16 +363,17 @@ export function changeDate(req, res){
     })
 }
 
-// Deletes album
-exports.delete = function(req, res){
+// Moves album to trash
+exports.moveToTrash = function(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const id = req.params.id;
-    connection.query('DELETE FROM albums WHERE id = ?', [id], function(err, rows) {
+    const status = 2 // Trashed
+    connection.query('UPDATE albums SET status = ? WHERE id = ?', [status, id], function(err, rows) {
       if(err) {
         res.json({ack:'err', msg: err.sqlMessage});
       } else {
         if (rows.affectedRows === 1) {
-          res.json({ack:'ok', msg: 'Album deleted', data: req.params.id});
+          res.json({ack:'ok', msg: 'Album moved to trash', data: req.params.id});
         } else {
           res.json({ack:'err', msg: 'No such album'});
         }
