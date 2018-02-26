@@ -78,7 +78,7 @@ export function getOne(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const { id } = req.params
     const entity = 2 // Album type
-    let album, media, metadata, rekognition
+    let album, metadata, rekognition
     conn.query(`SELECT
                   a.*,
                   CONCAT('{"lat":', l.lat, ',"lng":', l.lng, '}') AS location
@@ -117,7 +117,8 @@ export function getOne(req, res) {
         }
       })
       .then( albumMedia => {
-        media = albumMedia.map((m) => {
+        // Add media to album
+        album.media = albumMedia.map((m) => {
           if (m.mime.includes('video')) {
             return {
               ...m,
@@ -130,8 +131,6 @@ export function getOne(req, res) {
             }
           }
         })
-        // Add media to album
-        album.media = media
 
         // Get media Metadata
         let ids = album.media.map((m) => { return m.media_id })
@@ -144,7 +143,6 @@ export function getOne(req, res) {
                   FROM media_meta AS m
                   WHERE m.media_id IN (?)`, [ids])
         }
-        // res.json({ack:'ok', msg: 'One album', data: album, aaaaa: ids})
 
       })
       .then( ( mediaMeta ) => {
