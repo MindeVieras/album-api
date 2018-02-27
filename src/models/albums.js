@@ -122,14 +122,15 @@ export function getOne(req, res) {
           if (m.mime.includes('video')) {
             return {
               ...m,
-              videos: { video: require('../helpers/media').video(m.s3_key, 'medium') }
+              videos: {
+                video: require('../helpers/media').video(m.s3_key, 'medium')
+              }
             }
           } else {
             return {
               ...m,
               thumbs: {
-                thumb: require('../helpers/media').img(m.s3_key, 'medium'),
-                fullhd: require('../helpers/media').img(m.s3_key, 'fullhd')
+                thumb: require('../helpers/media').img(m.s3_key, 'medium')
               }
             }
           }
