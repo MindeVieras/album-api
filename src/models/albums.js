@@ -127,7 +127,10 @@ export function getOne(req, res) {
           } else {
             return {
               ...m,
-              thumbs: { thumb: require('../helpers/media').img(m.s3_key, 'medium') }
+              thumbs: {
+                thumb: require('../helpers/media').img(m.s3_key, 'medium'),
+                fullhd: require('../helpers/media').img(m.s3_key, 'fullhd')
+              }
             }
           }
         })
