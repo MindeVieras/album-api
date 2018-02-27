@@ -123,14 +123,16 @@ export function getOne(req, res) {
             return {
               ...m,
               videos: {
-                video: require('../helpers/media').video(m.s3_key, 'medium')
+                video: require('../helpers/media').video(m.s3_key, 'medium'),
+                video_hd: require('../helpers/media').video(m.s3_key, 'hd')
               }
             }
           } else {
             return {
               ...m,
               thumbs: {
-                thumb: require('../helpers/media').img(m.s3_key, 'medium')
+                thumb: require('../helpers/media').img(m.s3_key, 'medium'),
+                fullhd: require('../helpers/media').img(m.s3_key, 'fullhd')
               }
             }
           }
