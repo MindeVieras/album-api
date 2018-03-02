@@ -77,7 +77,8 @@ export function getListDates(req, res){
 export function getOne(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const { id } = req.params
-    const entity = 2 // Album type
+    const albumEntity = 2 // Album type
+    const mediaEntity = 3 // Media type
     let album, metadata, rekognition
     conn.query(`SELECT
                   a.*,
@@ -85,7 +86,7 @@ export function getOne(req, res) {
                 FROM albums AS a
                   LEFT JOIN locations AS l ON a.id = l.entity_id AND entity = ?
                 WHERE a.id = ?
-                LIMIT 1`, [entity, id])
+                LIMIT 1`, [albumEntity, id])
       .then( rows => {
         if (rows.length) {
 
@@ -108,9 +109,11 @@ export function getOne(req, res) {
                               m.mime,
                               m.org_filename AS name,
                               m.filesize AS size,
-                              m.weight
+                              m.weight,
+                              CONCAT('{"lat":', l.lat, ',"lng":', l.lng, '}') AS location
                             FROM media AS m
-                            WHERE m.entity_id = ? AND m.status = ? LIMIT 1500`, [id, status])
+                              LEFT JOIN locations AS l ON m.id = l.entity_id AND l.entity = ?
+                            WHERE m.entity_id = ? AND m.status = ? LIMIT 1500`, [mediaEntity, id, status])
         }
         else {
           throw 'No such Album'
@@ -122,6 +125,7 @@ export function getOne(req, res) {
           if (m.mime.includes('video')) {
             return {
               ...m,
+              location: JSON.parse(m.location),
               videos: {
                 video: require('../helpers/media').video(m.s3_key, 'medium'),
                 video_hd: require('../helpers/media').video(m.s3_key, 'hd')
@@ -130,7 +134,9 @@ export function getOne(req, res) {
           } else {
             return {
               ...m,
+              location: JSON.parse(m.location),
               thumbs: {
+                icon: require('../helpers/media').img(m.s3_key, 'icon'),
                 thumb: require('../helpers/media').img(m.s3_key, 'medium'),
                 fullhd: require('../helpers/media').img(m.s3_key, 'fullhd')
               }
