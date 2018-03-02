@@ -222,43 +222,7 @@ export function getOne(req, res) {
   }
 }
 
-// Gets album locations
-export function getLocations(req, res) {
-  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
-    const { id } = req.params
-    const status = 1 // Enabled
-    let locations
-    conn.query(`SELECT
-                  m.*
-                FROM media AS m
-                WHERE m.entity_id = ?
-                  AND m.status = ?`, [id, status])
-      .then( rows => {
-        locations = rows.map((loc) => {
-          let location = new Object
-          location.id = loc.id
-          if (loc.mime.includes('video')) {
-            location.key = require('../helpers/media').video(loc.s3_key, 'medium');
-          } else {
-            location.key = require('../helpers/media').img(loc.s3_key, 'icon');
-          }
-          return location
-        })
-        // Return media locations
-        res.json({ack:'ok', msg: 'Album locations', data: locations});
-      })
-      .catch( err => {
-        console.log(err)
-        let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
-      })
-  
-  } else {
-    res.json({ack:'err', msg: 'bad parameter'})
-  }
-}
-
-// Gets album locations
+// Remove album location
 export function removeLocation(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const { id } = req.params
