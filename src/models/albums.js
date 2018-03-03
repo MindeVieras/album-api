@@ -122,10 +122,11 @@ export function getOne(req, res) {
       .then( albumMedia => {
         // Add media to album
         album.media = albumMedia.map((m) => {
+          m.marker_open = false
+          m.location = JSON.parse(m.location)
           if (m.mime.includes('video')) {
             return {
               ...m,
-              location: JSON.parse(m.location),
               videos: {
                 video: require('../helpers/media').video(m.s3_key, 'medium'),
                 video_hd: require('../helpers/media').video(m.s3_key, 'hd')
@@ -134,7 +135,6 @@ export function getOne(req, res) {
           } else {
             return {
               ...m,
-              location: JSON.parse(m.location),
               thumbs: {
                 icon: require('../helpers/media').img(m.s3_key, 'icon'),
                 thumb: require('../helpers/media').img(m.s3_key, 'medium'),
