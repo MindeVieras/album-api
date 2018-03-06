@@ -137,6 +137,7 @@ export function getOne(req, res) {
               ...m,
               thumbs: {
                 icon: require('../helpers/media').img(m.s3_key, 'icon'),
+                mini: require('../helpers/media').img(m.s3_key, 'mini'),
                 thumb: require('../helpers/media').img(m.s3_key, 'medium'),
                 fullhd: require('../helpers/media').img(m.s3_key, 'fullhd')
               }
