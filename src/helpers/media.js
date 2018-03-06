@@ -1,37 +1,52 @@
 
-const path = require('path');
-const AWS = require('aws-sdk');
-AWS.config.loadFromPath('./aws-keys.json');
-const s3 = new AWS.S3();
-const config = require('../config/config');
+import path from 'path'
+import AWS from 'aws-sdk'
+
+import { bucket } from '../config/config'
+
+AWS.config.loadFromPath('./aws-keys.json')
+const s3 = new AWS.S3()
+
+const EXPIRE = 600 // 10mins
 
 // Image url helper
-exports.img = function(key, size) {
-  var thumbKey = 'thumbs/'+size+'/'+path.basename(key);
+export  function img(key, size) {
+  const thumbKey = 'thumbs/'+size+'/'+path.basename(key)
 
-  var params = {
-    Bucket: config.bucket, 
+  const params = {
+    Bucket: bucket, 
     Key: thumbKey,
-    Expires: 600
-  };
+    Expires: EXPIRE
+  }
 
-  var url = s3.getSignedUrl('getObject', params);
-  return url;
+  return s3.getSignedUrl('getObject', params)
     
-};
+}
 
 // Video url helper
-exports.video = function (key, size) {
-  
-  var videoKey = 'videos/'+size+'/'+path.basename(key);
+export function video(key, size) {
+  const videoKey = 'videos/'+size+'/'+path.basename(key)
 
-  var params = {
-    Bucket: config.bucket, 
+  const params = {
+    Bucket: bucket, 
     Key: videoKey,
-    Expires: 600
-  };
+    Expires: EXPIRE
+  }
 
-  var url = s3.getSignedUrl('getObject', params);
-  return url;
+  return s3.getSignedUrl('getObject', params)
     
-};
+}
+
+// Video thumbnail url helper
+export function videoThumb(key, size) {
+  const videoThumbKey = 'videos/thumbs/'+size+'/'+path.parse(key).name+'-00001.jpg'
+
+  const params = {
+    Bucket: bucket, 
+    Key: videoThumbKey,
+    Expires: EXPIRE
+  }
+
+  return s3.getSignedUrl('getObject', params)
+
+}

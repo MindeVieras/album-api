@@ -1,6 +1,6 @@
 
 import jwt from 'jsonwebtoken'
-import config from '../config/config'
+import { secret_key } from '../config/config'
 
 // check if user authenticated
 export function isAuthed(req, res, next) {
@@ -16,7 +16,7 @@ function doAuth(req, res, next, al) {
   if (typeof bearerHeader !== 'undefined') {
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
-    jwt.verify(bearerToken, config.secret_key, function(err, decoded){
+    jwt.verify(bearerToken, secret_key, function(err, decoded){
       if (err) {
         res.json({ack:'err', msg: err.message})
       } else {

@@ -129,7 +129,10 @@ export function getOne(req, res) {
               ...m,
               videos: {
                 video: require('../helpers/media').video(m.s3_key, 'medium'),
-                video_hd: require('../helpers/media').video(m.s3_key, 'hd')
+                video_hd: require('../helpers/media').video(m.s3_key, 'hd'),
+                thumbs: {
+                  medium: require('../helpers/media').videoThumb(m.s3_key, 'medium')
+                }
               }
             }
           } else {
