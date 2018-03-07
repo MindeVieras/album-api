@@ -40,11 +40,12 @@ exports.create = function(req, res){
 export function getList(req, res){
 
   const { start_date, end_date } = req.body
+  const endOfEndDay = moment(end_date, 'YYYY-MM-DD').endOf('day').format('YYYY-MM-DD HH:mm:ss')
   const status = 1 // Enabled
   let albums
   conn.query(`SELECT * FROM albums
                 WHERE status = ? AND start_date >= ? AND start_date <= ?
-              ORDER BY start_date DESC`, [status, start_date, end_date])
+              ORDER BY start_date DESC`, [status, start_date, endOfEndDay])
     .then( rows => {
       albums = rows
       res.json({ack:'ok', msg: 'Albums list', list: albums});
