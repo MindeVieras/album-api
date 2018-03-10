@@ -53,6 +53,33 @@ exports.putToTrash = function(req, res) {
   });
 }
 
+// Moves media file to another album
+export function moveMedia(req, res) {
+  const { media_id, album_id } = req.body
+  
+  let data = [
+    album_id,
+    media_id,
+    2, // Album entity type
+  ]
+
+  conn.query(`UPDATE media
+                SET entity_id = ?
+              WHERE id = ? AND entity = ?`, data)
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Media moved'});
+      }
+      else {
+        throw 'Cannot move media'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+
 // Get media metadata from lambda and save to DB
 exports.saveMetadata = function(req, res){
   var mediaId = req.body.media_id;

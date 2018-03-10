@@ -4,15 +4,16 @@ const Auth = require('../helpers/authenticate');
 
 module.exports = function(app) {
 
-  app.get('/api/media/get-all', Auth.isAuthed, Media.getAll);
-  app.post('/api/media/put-to-trash', Auth.isAuthed, Media.putToTrash);
-  app.post('/api/media/save-metadata', Auth.isAuthed, Media.saveMetadata);
-  app.post('/api/media/save-rekognition-labels', Auth.isAuthed, Media.saveRekognitionLabels);
-  app.post('/api/media/generate-image-thumbs', Auth.isAuthed, Media.generateImageThumbs);
-  app.post('/api/media/generate-videos', Auth.isAuthed, Media.generateVideos);
-  app.get('/api/media/remove-location/:id', Auth.isAuthed, Media.removeLocation);
-  app.post('/api/media/set-location', Auth.isAuthed, Media.setLocation);
-  app.post('/api/media/update-location', Auth.isAuthed, Media.updateLocation);
+  app.get('/api/media/get-all', Auth.isAuthed, Media.getAll)
+  app.post('/api/media/put-to-trash', Auth.isAuthed, Media.putToTrash)
+  app.post('/api/media/move', Auth.isAuthed, Media.moveMedia)
+  app.post('/api/media/save-metadata', Auth.isAuthed, Media.saveMetadata)
+  app.post('/api/media/save-rekognition-labels', Auth.isAuthed, Media.saveRekognitionLabels)
+  app.post('/api/media/generate-image-thumbs', Auth.isAuthed, Media.generateImageThumbs)
+  app.post('/api/media/generate-videos', Auth.isAuthed, Media.generateVideos)
+  app.get('/api/media/remove-location/:id', Auth.isAuthed, Media.removeLocation)
+  app.post('/api/media/set-location', Auth.isAuthed, Media.setLocation)
+  app.post('/api/media/update-location', Auth.isAuthed, Media.updateLocation)
 
-  app.post('/api/media/get-image-meta', Auth.isAuthed, Media.getImageMeta);
-};
+  app.post('/api/media/get-image-meta', Auth.isAuthed, Media.getImageMeta)
+}
