@@ -3,7 +3,7 @@ const connection = require('../config/db');
 
 // Uploads file
 exports.upload = function(req, res){
-  
+  console.log(req.files)
   if (req.files) {
     const { id } = req.app.get('user')
     const file = req.files[0];
