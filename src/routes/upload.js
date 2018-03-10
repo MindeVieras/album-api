@@ -33,6 +33,5 @@ const upload = multer({
 module.exports = function(app) {
 
   app.post('/api/upload', Auth.isAuthed, upload.array('qqfile'), Upload.upload)
-  app.get('/api/upload/get-initial-files/:id', Auth.isAuthed, Upload.getInitialFiles)
 
 }
