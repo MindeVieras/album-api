@@ -1,5 +1,6 @@
 
 const AWS = require('aws-sdk');
+import ratio from 'aspect-ratio'
 AWS.config.loadFromPath('./aws-keys.json');
 const lambda = new AWS.Lambda();
 const s3 = new AWS.S3();
@@ -33,13 +34,15 @@ module.exports.get = function(key, cb){
       // make meta object
       payload.streams.forEach(function (row) {
         if (row.codec_type == 'video') {
-          meta.width = row.width;
-          meta.height = row.height;
-          meta.duration = parseFloat(row.duration);
-          meta.aspect = row.display_aspect_ratio;
-          meta.frame_rate = eval(row.r_frame_rate);
-          meta.codec = row.codec_name;
-          if (row.tags && 'creation_time' in row.tags) meta.datetime = row.tags.creation_time;
+          meta.width = row.width
+          meta.height = row.height
+          meta.duration = parseFloat(row.duration)
+          meta.frame_rate = eval(row.r_frame_rate)
+          meta.codec = row.codec_name
+          if (row.width && row.height) {
+            meta.aspect = ratio(row.width, row.height)
+          }
+          if (row.tags && 'creation_time' in row.tags) meta.datetime = row.tags.creation_time
         }
       });
     }

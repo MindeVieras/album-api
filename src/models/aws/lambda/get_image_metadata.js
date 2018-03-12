@@ -1,8 +1,9 @@
 
-const AWS = require('aws-sdk');
-AWS.config.loadFromPath('./aws-keys.json');
-const config = require('../../../config/config');
+import AWS from 'aws-sdk'
+import ratio from 'aspect-ratio'
+import { bucket } from '../../../config/config'
 
+AWS.config.loadFromPath('./aws-keys.json')
 const lambda = new AWS.Lambda()
 const s3 = new AWS.S3()
 
@@ -11,7 +12,7 @@ export function get(key, cb){
   // Get S3 file metadata from lambda
   let params = {
     FunctionName: 'aws-album_get_image_metadata',
-    Payload: '{"srcKey": "'+key+'", "bucket": "'+config.bucket+'"}'
+    Payload: '{"srcKey": "'+key+'", "bucket": "'+bucket+'"}'
   };
 
   lambda.invoke(params, (err, data) => {
@@ -38,15 +39,18 @@ export function get(key, cb){
         if (key == 'Model') meta.model = payload.image[key]
         if (key == 'Orientation') meta.orientation = payload.image[key]
       })
+      if (meta.width && meta.height) {
+        meta.aspect = ratio(meta.width, meta.height)
+      }
 
       cb(null, meta)
     }
     else {
       // Get presigned url
       var url = s3.getSignedUrl('getObject', {
-        Bucket: config.bucket, 
+        Bucket: bucket,
         Key: key,
-        Expires: 60
+        Expires: 10
       })
       // console.log(url)
       // Get S3 file metadata from lambda
@@ -67,8 +71,11 @@ export function get(key, cb){
 
           // make meta object
           payload.streams.forEach(function (row) {
-            meta.width = row.width
-            meta.height = row.height
+            if (row.width && row.height) {
+              meta.width = row.width
+              meta.height = row.height
+              meta.aspect = ratio(row.width, row.height)
+            }
           })
           
           cb(null, meta)

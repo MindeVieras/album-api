@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/MindeVieras/album-api#readme",
   "dependencies": {
+    "aspect-ratio": "^2.0.2",
     "aws-sdk": "^2.184.0",
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
