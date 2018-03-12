@@ -25,9 +25,9 @@ export function getAppSettings(req, res) {
 
 // Gets Admin settings
 export function getAdminSettings(req, res) {
-  const { id } = req.app.get('user')
+  const { uid } = req.app.get('user')
   let settings = new Object()
-  conn.query(`SELECT * FROM users_settings WHERE user_id = ? AND type = 'admin'`, id)
+  conn.query(`SELECT * FROM users_settings WHERE user_id = ? AND type = 'admin'`, uid)
     .then( rows => {
       // let settingsObj = new Object()
       rows.map((s) => {
@@ -46,9 +46,9 @@ export function getAdminSettings(req, res) {
 // Saves admin setting
 export function saveAdminSetting(req, res) {
   const { name, value } = req.body
-  const { id } = req.app.get('user')
+  const { uid } = req.app.get('user')
   
-  let data = [ value, id, name ]
+  let data = [ value, uid, name ]
 
   conn.query(`UPDATE users_settings
                 SET value = ?

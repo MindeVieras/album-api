@@ -4,10 +4,10 @@ const connection = require('../config/db');
 // Uploads file
 exports.upload = function(req, res){
   if (req.files) {
-    const { id } = req.app.get('user')
+    const { uid } = req.app.get('user')
     const file = req.files[0];
     const uuid = req.body.qquuid;
-    const author = id;
+    const author = uid;
     const entity = req.body.entity;
     const entity_id = req.body.entity_id;
     const status = req.body.status;

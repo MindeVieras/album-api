@@ -5,7 +5,7 @@ import { Database } from '../db'
 import jwt from 'jsonwebtoken'
 import moment from 'moment'
 
-import Config from '../config/config'
+import { secret_key } from '../config/config'
 
 let conn = new Database()
 
@@ -48,7 +48,7 @@ const Authenticate = (req, res) => {
           // Return User object
           const { id, username, access_level, display_name, email, created } = user
           const jwtData = { id, username, access_level }
-          const token = jwt.sign(jwtData, Config.secret_key)
+          const token = jwt.sign(jwtData, secret_key)
           let accessLevel = 'simple'
           if (access_level >= 50 && access_level < 100) {
             accessLevel = 'editor'

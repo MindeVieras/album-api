@@ -22,10 +22,10 @@ function doAuth(req, res, next, al) {
       } else {
         const { id, access_level } = decoded
         if (access_level === 100) {
-          req.app.set('user', { id, access_level })
+          req.app.set('user', { uid: id, access_level })
           next()
         } else if (access_level <= 50 && al === 50) {
-          req.app.set('user', { id, access_level })
+          req.app.set('user', { uid: id, access_level })
           next()
         } else {
           res.json({ack:'err', msg: 'Access denied'})

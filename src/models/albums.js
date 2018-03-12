@@ -16,7 +16,7 @@ let conn = new Database()
 // Creates album
 exports.create = function(req, res){
 
-  const input = req.body;
+  const input = req.body
 
   let data = {
     name : input.name,
@@ -25,17 +25,18 @@ exports.create = function(req, res){
     author: input.author,
     access: input.access,
     status: input.status
-  };
+  }
+
   // console.log(data);
   connection.query('INSERT INTO albums set ? ', data, function(err, row) {
     if(err) {
-      res.json({ack:'err', msg: err.sqlMessage});
+      res.json({ack:'err', msg: err.sqlMessage})
     } else {
-      res.json({ack:'ok', msg: 'Album created', id: row.insertId});
+      res.json({ack:'ok', msg: 'Album created', id: row.insertId})
     }
-  });
+  })
 
-};
+}
 
 // Gets albums
 export function getList(req, res){
