@@ -3,6 +3,7 @@ const validator = require('validator');
 const uuidv4 = require('uuid/v4');
 import _ from 'lodash'
 import moment from 'moment'
+import momentDurationFormatSetup from 'moment-duration-format'
 
 const connection = require('../config/db');
 
@@ -170,6 +171,10 @@ export function getOne(req, res) {
           let mm = mediaMeta.filter(mt => mt.media_id === m.media_id).map((mt) => {
             metaObj['ack'] = 'ok'
             metaObj[mt.meta_name] = mt.meta_value
+            if (mt.meta_name === 'duration') {
+              let duration = Math.round(mt.meta_value)
+              metaObj['duration'] = moment.duration(duration, 'seconds').format('h[h], m[min], s[s]')
+            }
           })
           if (_.isEmpty(mm)) {
             metaObj['ack'] = 'err'
