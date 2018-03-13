@@ -1,41 +1,38 @@
 
-const validator = require('validator');
-const uuidv4 = require('uuid/v4');
 import _ from 'lodash'
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
 
-const connection = require('../config/db');
-
-const Media = require('./media');
-
 import { Database } from '../db'
-
 let conn = new Database()
 
 // Creates album
-exports.create = function(req, res){
-
-  const input = req.body
-
+export function create(req, res){
+  const { uid } = req.app.get('user')
+  const { name, start_date, end_date, access, status } = req.body
+  
   let data = {
-    name : input.name,
-    start_date : input.start_date,
-    end_date: input.end_date,
-    author: input.author,
-    access: input.access,
-    status: input.status
+    name,
+    start_date,
+    end_date,
+    access,
+    status,
+    author: uid
   }
 
-  // console.log(data);
-  connection.query('INSERT INTO albums set ? ', data, function(err, row) {
-    if(err) {
-      res.json({ack:'err', msg: err.sqlMessage})
-    } else {
-      res.json({ack:'ok', msg: 'Album created', id: row.insertId})
-    }
-  })
-
+  conn.query(`INSERT INTO albums SET ?`, data)
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Album created', id: row.insertId})
+      }
+      else {
+        throw 'Could not create album'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
 }
 
 // Gets albums

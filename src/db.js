@@ -1,10 +1,10 @@
 
 import mysql from 'mysql'
 
-const host = process.env.DB_HOST || 'localhost';
-const user = process.env.DB_USER || 'root';
-const pass = process.env.DB_PASS || 'root';
-const name = process.env.DB_NAME || 'react_album';
+const host = process.env.DB_HOST || 'localhost'
+const user = process.env.DB_USER || 'root'
+const pass = process.env.DB_PASS || 'root'
+const name = process.env.DB_NAME || 'react_album'
 
 const dbConfig = {
   host: host,
