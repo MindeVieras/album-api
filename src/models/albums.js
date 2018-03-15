@@ -269,29 +269,6 @@ export function changeDate(req, res){
     })
 }
 
-// Remove album location
-export function removeLocation(req, res) {
-  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
-    const { id } = req.params
-    const entity = 2 // Album type
-    let location
-    conn.query(`DELETE FROM locations WHERE entity = ? AND entity_id = ?`, [entity, id])
-      .then( rows => {
-        location = rows
-        // Return media locations
-        res.json({ack:'ok', msg: 'Location removed', data: location});
-      })
-      .catch( err => {
-        console.log(err)
-        let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
-      })
-  
-  } else {
-    res.json({ack:'err', msg: 'bad parameter'})
-  }
-}
-
 // Sets album location
 export function setLocation(req, res) {
   const { album_id, location } = req.body
@@ -345,6 +322,31 @@ export function updateLocation(req, res) {
       res.json({ack:'err', msg})
     })
 }
+
+// Remove album location
+export function removeLocation(req, res) {
+  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
+    const { id } = req.params
+    const entity = 2 // Album type
+    let location
+    conn.query(`DELETE FROM locations WHERE entity = ? AND entity_id = ?`, [entity, id])
+      .then( rows => {
+        location = rows
+        // Return media locations
+        res.json({ack:'ok', msg: 'Location removed', data: location});
+      })
+      .catch( err => {
+        console.log(err)
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:'err', msg})
+      })
+  
+  } else {
+    res.json({ack:'err', msg: 'bad parameter'})
+  }
+}
+
+
 
 // Moves album to trash
 export function moveToTrash(req, res){

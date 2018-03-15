@@ -11,16 +11,83 @@ const getImageMetadata = require('./aws/lambda/get_image_metadata');
 const getVideoMeta = require('./aws/lambda/get_video_metadata');
 const getRekognitionLabels = require('./aws/rekognition/get_labels');
 
-exports.getAlbumMedia = function(id, cb) {
-    // get media
-  connection.query('SELECT * FROM media WHERE entity_id = ? ', id, function(err, rows){
-    if(err) {
-      cb(err.sqlMessage);
-    } else {
-      cb(null, rows);
-    }
-  });
+// Sets media location
+export function setLocation(req, res) {
+  const { media_id, location } = req.body
+
+  let data = {
+    lat : location.lat,
+    lng : location.lng,
+    entity: 3, // Media entity type
+    entity_id: media_id
+  }
+
+  conn.query(`INSERT INTO locations SET ?`, data)
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Location set', id: row.insertId});
+      }
+      else {
+        throw 'Location not set'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
 }
+
+// Updates media location
+export function updateLocation(req, res) {
+  const { media_id, location } = req.body
+
+  let data = [
+    location.lat,
+    location.lng,
+    3, // Media entity type
+    media_id
+  ]
+
+  conn.query(`UPDATE locations
+                SET lat = ?, lng = ?
+              WHERE entity = ? AND entity_id = ?`, data)
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Location updated'});
+      }
+      else {
+        throw 'Location not updated'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+
+// Removes media location
+export function removeLocation(req, res) {
+  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
+    const { id } = req.params
+    const entity = 3 // Media type
+    let location
+    conn.query(`DELETE FROM locations WHERE entity = ? AND entity_id = ?`, [entity, id])
+      .then( rows => {
+        location = rows
+        // Return media locations
+        res.json({ack:'ok', msg: 'Location removed', data: location});
+      })
+      .catch( err => {
+        console.log(err)
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:'err', msg})
+      })
+  
+  } else {
+    res.json({ack:'err', msg: 'bad parameter'})
+  }
+}
+
 
 exports.getAll = function(req, res) {
   // Get all media
@@ -270,80 +337,3 @@ exports.generateVideos = function(req, res){
     }, 2000);
   });
 };
-
-// Sets media location
-export function setLocation(req, res) {
-  const { media_id, location } = req.body
-
-  let data = {
-    lat : location.lat,
-    lng : location.lng,
-    entity: 3, // Media entity type
-    entity_id: media_id
-  }
-
-  conn.query(`INSERT INTO locations SET ?`, data)
-    .then( row => {      
-      if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location set', id: row.insertId});
-      }
-      else {
-        throw 'Location not set'
-      }
-    })
-    .catch( err => {
-      let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
-    })
-}
-
-// Updates media location
-export function updateLocation(req, res) {
-  const { media_id, location } = req.body
-
-  let data = [
-    location.lat,
-    location.lng,
-    3, // Media entity type
-    media_id
-  ]
-
-  conn.query(`UPDATE locations
-                SET lat = ?, lng = ?
-              WHERE entity = ? AND entity_id = ?`, data)
-    .then( row => {      
-      if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location updated'});
-      }
-      else {
-        throw 'Location not updated'
-      }
-    })
-    .catch( err => {
-      let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
-    })
-}
-
-// Removes media location
-export function removeLocation(req, res) {
-  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
-    const { id } = req.params
-    const entity = 3 // Media type
-    let location
-    conn.query(`DELETE FROM locations WHERE entity = ? AND entity_id = ?`, [entity, id])
-      .then( rows => {
-        location = rows
-        // Return media locations
-        res.json({ack:'ok', msg: 'Location removed', data: location});
-      })
-      .catch( err => {
-        console.log(err)
-        let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
-      })
-  
-  } else {
-    res.json({ack:'err', msg: 'bad parameter'})
-  }
-}
