@@ -230,6 +230,45 @@ export function getOne(req, res) {
   }
 }
 
+// Renames album
+export function rename(req, res){
+
+  const { album_id, name } = req.body
+
+  conn.query(`UPDATE albums SET name = ? WHERE id = ?`, [name, album_id])
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Album renamed', id: row.insertId});
+      }
+      else {
+        throw 'No such Album'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+
+// Changes album date
+export function changeDate(req, res){
+
+  const { album_id, start_date, end_date } = req.body
+  conn.query(`UPDATE albums SET start_date = ?, end_date = ? WHERE id = ?`, [start_date, end_date, album_id])
+    .then( row => {      
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'Album date changed', id: row.insertId});
+      }
+      else {
+        throw 'No such Album'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+
 // Remove album location
 export function removeLocation(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
@@ -299,44 +338,6 @@ export function updateLocation(req, res) {
       }
       else {
         throw 'Location not updated'
-      }
-    })
-    .catch( err => {
-      let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
-    })
-}
-
-// Renames album
-export function rename(req, res){
-
-  const { id, name } = req.body
-  conn.query(`UPDATE albums SET name = ? WHERE id = ?`, [name, id])
-    .then( row => {      
-      if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Album renamed', id: row.insertId});
-      }
-      else {
-        throw 'No such Album'
-      }
-    })
-    .catch( err => {
-      let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
-    })
-}
-
-// Changes album date
-export function changeDate(req, res){
-
-  const { start_date, end_date, id } = req.body
-  conn.query(`UPDATE albums SET start_date = ?, end_date = ? WHERE id = ?`, [start_date, end_date, id])
-    .then( row => {      
-      if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Album date changed', id: row.insertId});
-      }
-      else {
-        throw 'No such Album'
       }
     })
     .catch( err => {

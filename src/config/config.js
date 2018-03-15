@@ -1,6 +1,6 @@
 
-// export const bucket = process.env.S3_BUCKET || 'images.album.mindelis.com'
-export const bucket = process.env.S3_BUCKET || 'media.album.mindelis.com'
+export const bucket = process.env.S3_BUCKET || 'images.album.mindelis.com'
+// export const bucket = process.env.S3_BUCKET || 'media.album.mindelis.com'
 export const aws_region = process.env.AWS_REGION || 'eu-west-1'
 
 export const bucketFake = 'fake'
