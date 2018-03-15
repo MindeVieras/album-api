@@ -1,7 +1,7 @@
 
 import Authenticate from '../models/authenticate'
 
-module.exports = function(app) {
+export default function authenticateReoutes(app) {
 
   app.post('/api/authenticate', Authenticate)
 

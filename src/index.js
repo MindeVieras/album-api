@@ -8,6 +8,9 @@ import bodyParser from 'body-parser'
 import fallback from 'express-history-api-fallback'
 import config from './config.json'
 
+import authenticateRoutes from './routes/authenticate'
+import albumsRoutes from './routes/albums'
+
 let app = express()
 app.server = http.createServer(app)
 
@@ -29,16 +32,19 @@ app.use(bodyParser.urlencoded({
 }))
 app.use(bodyParser.json({
   limit : '50mb'
-}));
+}))
 
-app.set('title', 'My Site');
+app.set('title', 'My Site')
 // Routes
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, './index.html'))
 })
-require('./routes/authenticate')(app)
+
+// Run API routes
+authenticateRoutes(app)
+albumsRoutes(app)
+
 require('./routes/users')(app)
-require('./routes/albums')(app)
 require('./routes/media')(app)
 require('./routes/upload')(app)
 require('./routes/trash')(app)

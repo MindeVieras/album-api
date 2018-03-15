@@ -69,6 +69,6 @@ const Authenticate = (req, res) => {
   }
 
 
-};
+}
 
 export default Authenticate

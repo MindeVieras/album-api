@@ -1,18 +1,28 @@
 
-const Albums = require('../models/albums');
-const Auth = require('../helpers/authenticate');
+import {
+  create, moveToTrash,
+  getList, getListDates,
+  getOne,
+  rename, changeDate,
+  setLocation, updateLocation, removeLocation
+} from '../models/albums'
 
-module.exports = function(app) {
+import { isAuthed } from '../helpers/authenticate'
 
-  app.post('/api/albums/create', Auth.isAuthed, Albums.create);
-  app.post('/api/albums/get-list', Auth.isAuthed, Albums.getList);
-  app.get('/api/albums/get-list-dates', Auth.isAuthed, Albums.getListDates);
-  app.get('/api/albums/get-one/:id', Auth.isAuthed, Albums.getOne);
-  app.get('/api/albums/remove-location/:id', Auth.isAuthed, Albums.removeLocation);
-  app.post('/api/albums/set-location', Auth.isAuthed, Albums.setLocation);
-  app.post('/api/albums/update-location', Auth.isAuthed, Albums.updateLocation);
-  app.post('/api/albums/rename', Auth.isAuthed, Albums.rename);
-  app.post('/api/albums/change-date', Auth.isAuthed, Albums.changeDate);
-  app.delete('/api/albums/move-to-trash/:id', Auth.isAuthed, Albums.moveToTrash);
+export default function albumsRoutes(app) {
 
-};
+  app.post('/api/albums/create', isAuthed, create)
+  app.delete('/api/albums/move-to-trash/:id', isAuthed, moveToTrash)
+
+  app.post('/api/albums/get-list', isAuthed, getList)
+  app.get('/api/albums/get-list-dates', isAuthed, getListDates)
+  app.get('/api/albums/get-one/:id', isAuthed, getOne)
+  
+  app.post('/api/albums/rename', isAuthed, rename)
+  app.post('/api/albums/change-date', isAuthed, changeDate)
+  
+  app.post('/api/albums/set-location', isAuthed, setLocation)
+  app.post('/api/albums/update-location', isAuthed, updateLocation)
+  app.get('/api/albums/remove-location/:id', isAuthed, removeLocation)
+
+}

@@ -47,7 +47,7 @@ export function getList(req, res){
               ORDER BY start_date DESC`, [status, start_date, endOfEndDay])
     .then( rows => {
       albums = rows
-      res.json({ack:'ok', msg: 'Albums list', list: albums});
+      res.json({ack:'ok', msg: 'Albums list', list: albums})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
@@ -65,7 +65,7 @@ export function getListDates(req, res){
       }).sort(function(a, b){
         return moment(a, 'YYYY-M-D').diff(moment(b, 'YYYY-M-D'))
       })
-      res.json({ack:'ok', msg: 'Albums list dates', dates}); 
+      res.json({ack:'ok', msg: 'Albums list dates', dates})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
@@ -217,7 +217,7 @@ export function getOne(req, res) {
         })
 
         // Return album
-        res.json({ack:'ok', msg: 'One album', data: album});
+        res.json({ack:'ok', msg: 'One album', data: album})
       })
       .catch( err => {
         console.log(err)
@@ -238,7 +238,7 @@ export function rename(req, res){
   conn.query(`UPDATE albums SET name = ? WHERE id = ?`, [name, album_id])
     .then( row => {      
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Album renamed', id: row.insertId});
+        res.json({ack:'ok', msg: 'Album renamed', id: row.insertId})
       }
       else {
         throw 'No such Album'
@@ -257,7 +257,7 @@ export function changeDate(req, res){
   conn.query(`UPDATE albums SET start_date = ?, end_date = ? WHERE id = ?`, [start_date, end_date, album_id])
     .then( row => {      
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Album date changed', id: row.insertId});
+        res.json({ack:'ok', msg: 'Album date changed', id: row.insertId})
       }
       else {
         throw 'No such Album'
@@ -283,7 +283,7 @@ export function setLocation(req, res) {
   conn.query(`INSERT INTO locations SET ?`, data)
     .then( row => {      
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location set', id: row.insertId});
+        res.json({ack:'ok', msg: 'Location set', id: row.insertId})
       }
       else {
         throw 'Location not set'
@@ -311,7 +311,7 @@ export function updateLocation(req, res) {
               WHERE entity = ? AND entity_id = ?`, data)
     .then( row => {      
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location updated'});
+        res.json({ack:'ok', msg: 'Location updated'})
       }
       else {
         throw 'Location not updated'
@@ -333,7 +333,7 @@ export function removeLocation(req, res) {
       .then( rows => {
         location = rows
         // Return media locations
-        res.json({ack:'ok', msg: 'Location removed', data: location});
+        res.json({ack:'ok', msg: 'Location removed', data: location})
       })
       .catch( err => {
         console.log(err)
@@ -357,7 +357,7 @@ export function moveToTrash(req, res){
     conn.query(`UPDATE albums SET status = ? WHERE id = ?`, [status, id])
       .then( rows => {
         if (rows.affectedRows === 1) {
-          res.json({ack:'ok', msg: 'Album moved to trash'});
+          res.json({ack:'ok', msg: 'Album moved to trash'})
         }
         else {
           throw 'No such album'
