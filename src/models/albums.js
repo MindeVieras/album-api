@@ -107,8 +107,8 @@ export function getOne(req, res) {
                               m.id AS media_id,
                               m.s3_key,
                               m.mime,
-                              m.org_filename AS name,
-                              m.filesize AS size,
+                              m.org_filename AS filename,
+                              m.filesize,
                               m.weight,
                               CONCAT('{"lat":', l.lat, ',"lng":', l.lng, '}') AS location
                             FROM media AS m
@@ -121,7 +121,10 @@ export function getOne(req, res) {
       })
       .then( albumMedia => {
         // Add media to album
-        album.media = albumMedia.map((m) => {
+        album.media = albumMedia.map((m, i) => {
+          m.id = 100000 + i
+          m.phase = 'upload successful'
+          m.fromServer = true
           m.marker_open = false
           m.location = JSON.parse(m.location)
           if (m.mime.includes('video')) {
