@@ -10,6 +10,7 @@ import config from './config.json'
 
 import authenticateRoutes from './routes/authenticate'
 import albumsRoutes from './routes/albums'
+import uploaderRoutes from './routes/uploader'
 
 let app = express()
 app.server = http.createServer(app)
@@ -43,10 +44,10 @@ app.get('/', function(req, res){
 // Run API routes
 authenticateRoutes(app)
 albumsRoutes(app)
+uploaderRoutes(app)
 
 require('./routes/users')(app)
 require('./routes/media')(app)
-require('./routes/upload')(app)
 require('./routes/trash')(app)
 require('./routes/front')(app)
 require('./routes/utils')(app)
