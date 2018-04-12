@@ -18,7 +18,7 @@ const expectedHostname = bucket+'.s3.eu-west-1.amazonaws.com'
 const expectedMinSize = null
 const expectedMaxSize = null
 
-AWS.config.loadFromPath('./aws-keys.json');
+AWS.config.loadFromPath('./aws-keys.json')
 
 const s3 = new AWS.S3()
 

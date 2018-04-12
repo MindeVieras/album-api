@@ -1,20 +1,37 @@
 
+import { Database } from '../db'
+let conn = new Database()
+
 const connection = require('../config/db');
 const deleteFromS3 = require('./aws/s3/delete');
 
 // Gets trash items
 exports.getList = function(req, res){
 
-  const status = 2; //Trashed file
+  const mediaStatus = 2 //Trashed file
+  const albumStatus = 2 //Trashed albums
 
-  connection.query('SELECT * FROM media WHERE status = ? ORDER BY id DESC', status, function(err, rows) {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage});
-      } else {
-        res.json({ack:'ok', msg: 'Trash list', data: rows});
+  const status = 1 // Enabled
+  let trashMedia, trashAlbums, list
+  conn.query(`SELECT * FROM media
+                WHERE status = ?`, mediaStatus)
+    .then( media => {
+      trashMedia = media
+      return conn.query(`SELECT * FROM albums WHERE status = ?`, albumStatus)
+    })
+    .then( albums => {
+      trashAlbums = albums
+      list = {
+        media: trashMedia,
+        albums: trashAlbums
       }
-    });
-};
+      res.json({ack:'ok', msg: 'Trash list', list})
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
 
 // Restores trash item
 exports.restore = function(req, res){
@@ -38,7 +55,7 @@ exports.restore = function(req, res){
   }
 };
 
-// Deletes trash item (permenent)
+// Deletes media item (permenent)
 exports.delete = function(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const id = req.params.id;
