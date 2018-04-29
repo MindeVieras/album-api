@@ -1,10 +1,11 @@
 
 import mysql from 'mysql'
+import logger from './config/winston'
 
-const host = process.env.DB_HOST || 'localhost'
-const user = process.env.DB_USER || 'root'
-const pass = process.env.DB_PASS || 'root'
-const name = process.env.DB_NAME || 'react_album'
+const host = process.env.DB_HOST
+const user = process.env.DB_USER
+const pass = process.env.DB_PASSWORD
+const name = process.env.DB_NAME
 
 const dbConfig = {
   host: host,
@@ -22,8 +23,15 @@ export class Database {
   query( sql, args ) {
     return new Promise( ( resolve, reject ) => {
       this.connection.query( sql, args, ( err, rows ) => {
-        if ( err )
+        if ( err ) {
+          // Log db errors
+          if (err.sqlMessage) {
+            logger.error('database', {
+              message: err.sqlMessage
+            })
+          }
           return reject( err )
+        }
         resolve( rows )
       })
     })

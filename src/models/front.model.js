@@ -29,7 +29,6 @@ export function getList(req, res){
         // Limit meida
         if (a.media_ids) {
           mediaArr = albumCopy.media_ids.split(',').slice(0, l_media_limit)
-
         }
         return {
           ...albumCopy,

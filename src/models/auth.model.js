@@ -1,16 +1,16 @@
 
 import bcrypt from 'bcrypt'
 import validator from 'validator'
-import { Database } from '../db'
 import jwt from 'jsonwebtoken'
 import moment from 'moment'
 
 import { secret_key } from '../config/config'
 
+import { Database } from '../db'
 let conn = new Database()
 
 // Authenticates user
-const Authenticate = (req, res) => {
+export function authenticate(req, res) {
 
   const { username, password } = req.body
   
@@ -67,8 +67,4 @@ const Authenticate = (req, res) => {
         res.json({ack:'err', msg})
       })
   }
-
-
 }
-
-export default Authenticate

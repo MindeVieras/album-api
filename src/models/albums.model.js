@@ -349,8 +349,6 @@ export function removeLocation(req, res) {
   }
 }
 
-
-
 // Moves album to trash
 export function moveToTrash(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {

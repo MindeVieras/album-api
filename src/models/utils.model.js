@@ -5,7 +5,6 @@ let conn = new Database()
 
 // Gets App settings
 export function getAppSettings(req, res) {
-
   let settings = new Object()
   conn.query(`SELECT * FROM settings WHERE type = 'app'`)
     .then( rows => {
@@ -15,7 +14,7 @@ export function getAppSettings(req, res) {
       })
 
       // Return settings
-      res.json({ack:'ok', msg: 'App settings', data: settings});
+      res.json({ack:'ok', msg: 'App settings', data: settings})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
@@ -69,32 +68,29 @@ export function saveAdminSetting(req, res) {
 
 // Gets Front settings
 export function getFrontSettings(req, res) {
-  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
-    const { id } = req.params
-    let settings = new Object()
-    conn.query(`SELECT * FROM users_settings WHERE user_id = ? AND type = 'front'`, id)
-      .then( rows => {
-        // let settingsObj = new Object()
-        rows.map((s) => {
-          settings[s.name] = s.value
-        })
 
-        // Return settings
-        res.json({ack:'ok', msg: 'Front settings', data: settings});
+  const { uid } = req.app.get('user')
+  let settings = new Object()
+  conn.query(`SELECT * FROM users_settings WHERE user_id = ? AND type = 'front'`, uid)
+    .then( rows => {
+      // let settingsObj = new Object()
+      rows.map((s) => {
+        settings[s.name] = s.value
       })
-      .catch( err => {
-        let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
-      })
-  
-  } else {
-    res.json({ack:'err', msg: 'bad parameter'})
-  }
+
+      // Return settings
+      res.json({ack:'ok', msg: 'Front settings', data: settings});
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
 }
 
 // Saves front setting
 export function saveFrontSetting(req, res) {
-  const { name, value, uid } = req.body
+  const { name, value } = req.body
+  const { uid } = req.app.get('user')
 
   let data = [ value, uid, name ]
 

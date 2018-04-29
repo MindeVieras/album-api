@@ -1,12 +1,12 @@
 
 /dist
-npm-debug.log
-package-lock.json
+
+.env
+aws-keys.json
 
 node_modules
-
-aws-keys.json
+package-lock.json
 
 .DS_Store
 *.map
-npm-debug.log
+*.log
