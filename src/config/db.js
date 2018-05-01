@@ -3,7 +3,7 @@ import mysql from 'mysql'
 
 const host = process.env.DB_HOST
 const user = process.env.DB_USER
-const pass = process.env.DB_PASSWORD
+const pass = process.env.DB_PASS
 const name = process.env.DB_NAME
 
 const connection = mysql.createConnection({

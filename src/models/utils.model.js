@@ -1,4 +1,6 @@
 
+import fs from 'fs'
+
 import { Database } from '../db'
 
 let conn = new Database()
