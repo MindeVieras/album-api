@@ -2,20 +2,23 @@
 
 This is a aws album app using Node.js, Express, Passport and MySql.
 
-### Version
-1.0.0
 
-### Usage
-
-
-### Installation
-
-Album requires [Node.js](https://nodejs.org/) v6.1+ to run.
-
-```sh
-$ npm install
+To get started, first install all the necessary dependencies.
+```
+> npm install
 ```
 
-```sh
-$ node app.js
+Start the development server
+```
+> npm run dev
+```
+
+Build production version
+```
+> npm run build
+```
+
+Run test
+```
+> npm t
 ```
