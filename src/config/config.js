@@ -1,9 +1,7 @@
 
-export const bucket = process.env.S3_BUCKET || 'images.album.mindelis.com'
-// export const bucket = process.env.S3_BUCKET || 'media.album.mindelis.com'
-export const aws_region = process.env.AWS_REGION || 'eu-west-1'
+export const bucket = process.env.S3_BUCKET
+export const aws_region = process.env.AWS_REGION
 
-export const bucketFake = 'fake'
 export const faces_collection = process.env.FACES_COLLECTION || 'album_faces_local'
 export const transcoder_pipeline = process.env.TRANSCODER_PIPELINE || '1508692593579-7zkwqr'
 
