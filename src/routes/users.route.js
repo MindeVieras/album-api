@@ -3,15 +3,17 @@ import express from 'express'
 
 import { isAdmin } from '../helpers/authenticate'
 import {
+  create,
   getList,
-  restore,
+  getOne,
   _delete
-} from '../models/trash.model'
+} from '../models/users.model'
 
 const router = express.Router()
 
+router.post('/create', isAdmin, create)
 router.get('/get-list', isAdmin, getList)
-router.post('/restore/:id', isAdmin, restore)
+router.get('/get-one/:id', isAdmin, getOne)
 router.delete('/delete/:id', isAdmin, _delete)
 
 export default router

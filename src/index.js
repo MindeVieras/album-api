@@ -4,7 +4,7 @@ import app from './config/express'
 import routes from './routes/index.route'
 
 // Home route
-app.get('/', function(req, res){
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, './index.html'))
 })
 
@@ -17,4 +17,3 @@ app.listen(app.get('port'), app.get('host'), () => {
 })
 
 export default app
-

@@ -47,8 +47,8 @@ function signRequest(req, res) {
 // Signs multipart (chunked) requests.  Omit if you don't want to support chunking.
 function signRestRequest(req, res) {
   var version = req.query.v4 ? 4 : 2,
-      stringToSign = req.body.headers,
-      signature = version === 4 ? signV4RestRequest(stringToSign) : signV2RestRequest(stringToSign)
+    stringToSign = req.body.headers,
+    signature = version === 4 ? signV4RestRequest(stringToSign) : signV2RestRequest(stringToSign)
 
   var jsonResponse = {
     signature: signature
@@ -57,7 +57,7 @@ function signRestRequest(req, res) {
   res.setHeader("Content-Type", "application/json")
 
   if (isValidRestRequest(stringToSign, version)) {
-      res.end(JSON.stringify(jsonResponse))
+    res.end(JSON.stringify(jsonResponse))
   }
   else {
     res.status(400)
@@ -66,13 +66,13 @@ function signRestRequest(req, res) {
 }
 
 function signV2RestRequest(headersStr) {
-    return getV2SignatureKey(clientSecretKey, headersStr)
+  return getV2SignatureKey(clientSecretKey, headersStr)
 }
 
 function signV4RestRequest(headersStr) {
   var matches = /.+\n.+\n(\d+)\/(.+)\/s3\/aws4_request\n([\s\S]+)/.exec(headersStr),
-      hashedCanonicalRequest = CryptoJS.SHA256(matches[3]),
-      stringToSign = headersStr.replace(/(.+s3\/aws4_request\n)[\s\S]+/, '$1' + hashedCanonicalRequest)
+    hashedCanonicalRequest = CryptoJS.SHA256(matches[3]),
+    stringToSign = headersStr.replace(/(.+s3\/aws4_request\n)[\s\S]+/, '$1' + hashedCanonicalRequest)
 
   return getV4SignatureKey(clientSecretKey, matches[1], matches[2], "s3", stringToSign)
 }
@@ -81,8 +81,8 @@ function signV4RestRequest(headersStr) {
 function signPolicy(req, res) {
 
   var policy = req.body,
-      base64Policy = new Buffer(JSON.stringify(policy)).toString("base64"),
-      signature = req.query.v4 ? signV4Policy(policy, base64Policy) : signV2Policy(base64Policy)
+    base64Policy = new Buffer(JSON.stringify(policy)).toString("base64"),
+    signature = req.query.v4 ? signV4Policy(policy, base64Policy) : signV2Policy(base64Policy)
 
   var jsonResponse = {
     policy: base64Policy,
@@ -101,12 +101,12 @@ function signPolicy(req, res) {
 }
 
 function signV2Policy(base64Policy) {
-    return getV2SignatureKey(clientSecretKey, base64Policy);
+  return getV2SignatureKey(clientSecretKey, base64Policy)
 }
 
 function signV4Policy(policy, base64Policy) {
   var conditions = policy.conditions,
-      credentialCondition
+    credentialCondition
 
   for (var i = 0; i < conditions.length; i++) {
     credentialCondition = conditions[i]["x-amz-credential"]
@@ -136,7 +136,7 @@ function isValidRestRequest(headerStr, version) {
 function isPolicyValid(policy) {
   var bucket, parsedMaxSize, parsedMinSize, isValid
 
-  policy.conditions.forEach(function(condition) {
+  policy.conditions.forEach(condition => {
     if (condition.bucket) {
       bucket = condition.bucket
     }
@@ -170,7 +170,7 @@ function verifyFileInS3(req, res) {
     else if (expectedMaxSize != null && data.ContentLength > expectedMaxSize) {
       res.status(400)
       res.write(JSON.stringify({error: "Too big!"}))
-      deleteFile(req.body.bucket, req.body.key, function(err) {
+      deleteFile(req.body.bucket, req.body.key, err => {
         if (err) {
           console.log("Couldn't delete invalid file!")
         }
@@ -196,9 +196,9 @@ function getV2SignatureKey(key, stringToSign) {
 
 function getV4SignatureKey(key, dateStamp, regionName, serviceName, stringToSign) {
   var kDate = CryptoJS.HmacSHA256(dateStamp, "AWS4" + key),
-      kRegion = CryptoJS.HmacSHA256(regionName, kDate),
-      kService = CryptoJS.HmacSHA256(serviceName, kRegion),
-      kSigning = CryptoJS.HmacSHA256("aws4_request", kService)
+    kRegion = CryptoJS.HmacSHA256(regionName, kDate),
+    kService = CryptoJS.HmacSHA256(serviceName, kRegion),
+    kSigning = CryptoJS.HmacSHA256("aws4_request", kService)
 
   return CryptoJS.HmacSHA256(stringToSign, kSigning).toString()
 }
@@ -237,7 +237,7 @@ export function onSuccess(req, res){
   }
 
   // Insert file data to media table
-  connection.query('INSERT INTO media set ? ', fileData, function(err, rows){
+  connection.query('INSERT INTO media set ? ', fileData, (err, rows) => {
     if(err) {
       res.json({error: err.sqlMessage})
     } else {

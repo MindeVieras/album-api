@@ -36,7 +36,7 @@ export function getAdminSettings(req, res) {
       })
 
       // Return settings
-      res.json({ack:'ok', msg: 'Admin settings', data: settings});
+      res.json({ack:'ok', msg: 'Admin settings', data: settings})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
@@ -48,15 +48,15 @@ export function getAdminSettings(req, res) {
 export function saveAdminSetting(req, res) {
   const { name, value } = req.body
   const { uid } = req.app.get('user')
-  
+
   let data = [ value, uid, name ]
 
   conn.query(`UPDATE users_settings
                 SET value = ?
               WHERE user_id = ? AND name = ? AND type = 'admin'`, data)
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Setting saved'});
+        res.json({ack:'ok', msg: 'Setting saved'})
       }
       else {
         throw 'Setting not saved'
@@ -81,7 +81,7 @@ export function getFrontSettings(req, res) {
       })
 
       // Return settings
-      res.json({ack:'ok', msg: 'Front settings', data: settings});
+      res.json({ack:'ok', msg: 'Front settings', data: settings})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
@@ -99,9 +99,9 @@ export function saveFrontSetting(req, res) {
   conn.query(`UPDATE users_settings
                 SET value = ?
               WHERE user_id = ? AND name = ? AND type = 'front'`, data)
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Setting saved'});
+        res.json({ack:'ok', msg: 'Setting saved'})
       }
       else {
         throw 'Setting not saved'

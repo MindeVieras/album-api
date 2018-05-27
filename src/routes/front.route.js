@@ -7,8 +7,8 @@ import * as frontModel from '../models/front.model'
 const router = express.Router()
 
 router.route('/albums')
-    .post(isAuthed, (req, res) => {
-        frontModel.getList(req, res);
-    })
+  .post(isAuthed, (req, res) => {
+    frontModel.getList(req, res)
+  })
 
 export default router

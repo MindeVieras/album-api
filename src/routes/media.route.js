@@ -3,17 +3,17 @@ import express from 'express'
 
 import { isAuthed } from '../helpers/authenticate'
 import {
-    setLocation,
-    updateLocation,
-    removeLocation,
-    getAll,
-    putToTrash,
-    moveMedia,
-    saveMetadata,
-    saveRekognitionLabels,
-    generateImageThumbs,
-    generateVideos,
-    getImageMeta
+  setLocation,
+  updateLocation,
+  removeLocation,
+  getAll,
+  putToTrash,
+  moveMedia,
+  saveMetadata,
+  saveRekognitionLabels,
+  generateImageThumbs,
+  generateVideos,
+  getImageMeta
 } from '../models/media.model'
 
 const router = express.Router()

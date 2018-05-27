@@ -1,5 +1,5 @@
 
-exports.makeInitials = function(username, display_name) {
+export function makeInitials(username, display_name) {
   if (!display_name || display_name.length < 2)
     return username.slice(0,2).toUpperCase()
 

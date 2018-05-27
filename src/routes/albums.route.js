@@ -3,16 +3,16 @@ import express from 'express'
 
 import { isAuthed } from '../helpers/authenticate'
 import {
-    getList,
-    getListDates,
-    getOne,
-    create,
-    rename,
-    changeDate,
-    setLocation,
-    updateLocation,
-    removeLocation,
-    moveToTrash
+  getList,
+  getListDates,
+  getOne,
+  create,
+  rename,
+  changeDate,
+  setLocation,
+  updateLocation,
+  removeLocation,
+  moveToTrash
 } from '../models/albums.model'
 
 const router = express.Router()
