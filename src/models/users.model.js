@@ -8,64 +8,6 @@ import { Database } from '../db'
 
 let conn = new Database()
 
-// Creates user
-export function create(req, res) {
-
-  const input = req.body
-  // // vlaidate input
-  if (validator.isEmpty(input.username)) {
-    res.json({ack:'err', msg: 'Username is required'})
-  } else if (validator.isLength(input.username, {min:0, max:4})) {
-    res.json({ack:'err', msg: 'Username must be at least 5 chars long'})
-  } else if (!validator.isEmail(input.email) && !validator.isEmpty(input.email)){
-    res.json({ack:'err', msg: 'Email must be valid'})
-  } else if (validator.isEmpty(input.password)){
-    res.json({ack:'err', msg: 'Password is required'})
-  } else if (validator.isLength(input.password, {min:0, max:4})) {
-    res.json({ack:'err', msg: 'Password must be at least 5 chars long'})
-  } else {
-    // check if user exists
-    connection.query('SELECT * FROM users WHERE username = ? LIMIT 1', [input.username], (err, rows) => {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage})
-      } else {
-        if (rows.length) {
-          res.json({ack:'err', msg: 'Username already taken'})
-        } else {
-          // hashes password
-          bcrypt.hash(input.password, 10, (err, hash) => {
-            if (err) {
-              res.json({ack:'err', msg: 'Cannot hash password'})
-            } else {
-              let data = {
-                username : input.username,
-                email : input.email,
-                password: hash,
-                display_name: input.display_name,
-                access_level: input.access_level,
-                author: input.author,
-                status: input.status ? 1 : 0
-              }
-              // console.log(data);
-              connection.query('INSERT INTO users set ? ', data, (err, rows) => {
-                if(err) {
-                  res.json({ack:'err', msg: err.sqlMessage})
-                } else {
-                  // Attach avatar to user if any
-                  if (input.avatar.id) {
-                    connection.query('UPDATE media SET entity_id = ? WHERE id = ?', [rows.insertId, input.avatar.id])
-                  }
-                  res.json({ack:'ok', msg: 'User saved', id: rows.insertId})
-                }
-              })
-            }
-          })
-        }
-      }
-    })
-  }
-}
-
 // Gets users list
 export function getList(req, res){
 
@@ -73,17 +15,87 @@ export function getList(req, res){
   conn.query(`SELECT * FROM users`)
     .then( rows => {
       users = rows.map(u => {
-        const { id, username, display_name, email } = u
+        const { id, username, display_name } = u
         const initials = makeInitials(username, display_name)
 
-        return { id, initials, username, display_name, email }
+        return { id, initials, username, display_name }
       })
-      res.json({ack:'ok', msg: 'Users list', list: users})
+      res.json({ack:`ok`, msg:`Users list`, list: users})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ack:`err`, msg})
     })
+}
+
+// Creates user
+export function create(req, res) {
+
+  const { uid } = req.app.get('user')
+  const { username, password, email, display_name, access_level, status } = req.body
+
+  // vlaidate username
+  if (!username || validator.isEmpty(username))
+    res.json({ack:`err`, msg:`Username is required`})
+  else if (validator.isLength(username, {min:0, max:4}))
+    res.json({ack:`err`, msg:`Username must be at least 5 chars long`})
+
+  // vlaidate email
+  else if (email && !validator.isEmail(email))
+    res.json({ack:`err`, msg:`Email must be valid`})
+
+  // vlaidate password
+  else if (!password || validator.isEmpty(password))
+    res.json({ack:`err`, msg:`Password is required`})
+  else if (validator.isLength(password, {min:0, max:4}))
+    res.json({ack:`err`, msg:`Password must be at least 5 chars long`})
+
+  // vlaidate access_level
+  else if (!access_level || validator.isEmpty(access_level))
+    res.json({ack:`err`, msg:`Access level is required`})
+  else if (!validator.isInt(access_level, {min:0, max:100}))
+    res.json({ack:`err`, msg:`Access level is invalid`})
+
+  else {
+
+    let userData
+
+    // check if user exists
+    conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
+      .then(rows => {
+        if (rows.length)
+          throw `Username already taken`
+
+        else
+          // hash password
+          return bcrypt.hash(password, 10)
+      })
+
+      .then(hash => {
+
+        // Save user to database
+        userData = {
+          username,
+          email,
+          password: hash,
+          display_name,
+          access_level: parseInt(access_level),
+          author: uid,
+          status: status ? 1 : 0
+        }
+        return conn.query(`INSERT INTO users set ? `, userData)
+      })
+
+      .then(rows => {
+        let {password, ...user} = userData
+        res.json({ack:`ok`, msg:`User saved`, user})
+      })
+
+      .catch( err => {
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:`err`, msg})
+      })
+  }
 }
 
 // Gets one user
@@ -128,19 +140,22 @@ export function getOne(req, res){
 export function _delete(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
 
-    connection.query('DELETE FROM users WHERE id = ?', [req.params.id], (err, rows) => {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage})
-      } else {
-        if (rows.affectedRows === 1) {
-          res.json({ack:'ok', msg: 'User deleted', data: req.params.id})
-        } else {
-          res.json({ack:'err', msg: 'No such user'})
-        }
-      }
-    })
+    const { id } = req.params
+
+    conn.query(`DELETE FROM users WHERE id = ?`, id)
+      .then( rows => {
+        if (rows.affectedRows === 1)
+          // Return success
+          res.json({ack:`ok`, msg:`User deleted`, id})
+        else
+          throw `No such user`
+      })
+      .catch( err => {
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:`err`, msg})
+      })
 
   } else {
-    res.json({ack:'err', msg: 'bad parameter'})
+    res.json({ack:`err`, msg:`bad parameter`})
   }
 }
