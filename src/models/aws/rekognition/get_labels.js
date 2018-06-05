@@ -1,18 +1,18 @@
 
 const AWS = require('aws-sdk');
-AWS.config.loadFromPath('./aws-keys.json');
+// AWS.config.loadFromPath('./aws-keys.json');
 const rekognition = new AWS.Rekognition();
 const config = require('../../../config/config');
 
 module.exports.get = function(key, mime, cb){
-  if (mime.includes('image')) {  
+  if (mime.includes('image')) {
     var params = {
       Image: {
         S3Object: {
-          Bucket: config.bucket, 
+          Bucket: config.bucket,
           Name: key
         }
-      }, 
+      },
       MaxLabels: 500,
       MinConfidence: 1
     };
@@ -58,7 +58,7 @@ module.exports.get = function(key, mime, cb){
     //     });
     //   }
     // });
-    
+
   }
   else {
     cb('Invalid mime type');

@@ -2,7 +2,7 @@
 const connection = require('../../../config/db');
 const path = require('path');
 const AWS = require('aws-sdk');
-AWS.config.loadFromPath('./aws-keys.json');
+// AWS.config.loadFromPath('./aws-keys.json');
 const s3 = new AWS.S3();
 const config = require('../../../config/config');
 
@@ -32,9 +32,9 @@ module.exports.deleteImage = function(id, cb){
             keyObj['Key'] = 'thumbs/'+row.name+'/'+path.basename(key);
             keysArray.push(keyObj);
           });
-          
+
           var params = {
-            Bucket: config.bucket, 
+            Bucket: config.bucket,
             Delete: {
               Objects: keysArray,
               Quiet: false
@@ -50,7 +50,7 @@ module.exports.deleteImage = function(id, cb){
             }
           });
         }
-            
+
       });
     }
     else {
@@ -106,7 +106,7 @@ module.exports.deleteVideo = function(id, cb){
           });
 
           var params = {
-            Bucket: config.bucket, 
+            Bucket: config.bucket,
             Delete: {
               Objects: keysArray,
               Quiet: false
@@ -125,7 +125,7 @@ module.exports.deleteVideo = function(id, cb){
       });
     } else {
       cb('Can\'t find media in DB');
-    }          
+    }
   });
 };
 

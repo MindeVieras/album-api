@@ -1,7 +1,7 @@
 
 const AWS = require('aws-sdk');
 import ratio from 'aspect-ratio'
-AWS.config.loadFromPath('./aws-keys.json');
+// AWS.config.loadFromPath('./aws-keys.json');
 const lambda = new AWS.Lambda();
 const s3 = new AWS.S3();
 const config = require('../../../config/config');
@@ -10,7 +10,7 @@ module.exports.get = function(key, cb){
 
   // Get presigned url
   var url = s3.getSignedUrl('getObject', {
-    Bucket: config.bucket, 
+    Bucket: config.bucket,
     Key: key,
     Expires: 60
   });
@@ -21,9 +21,9 @@ module.exports.get = function(key, cb){
   };
 
   lambda.invoke(params, function(err, data) {
-      
+
     if (err) cb(err);
-    
+
     var payload = JSON.parse(data.Payload);
 
     var meta = payload;
@@ -46,7 +46,7 @@ module.exports.get = function(key, cb){
         }
       });
     }
-    
+
     cb(null, meta);
 
   });

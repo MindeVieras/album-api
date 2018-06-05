@@ -3,12 +3,12 @@ import AWS from 'aws-sdk'
 import ratio from 'aspect-ratio'
 import { bucket } from '../../../config/config'
 
-AWS.config.loadFromPath('./aws-keys.json')
+// AWS.config.loadFromPath('./aws-keys.json')
 const lambda = new AWS.Lambda()
 const s3 = new AWS.S3()
 
 export function get(key, cb){
-  
+
   // Get S3 file metadata from lambda
   let params = {
     FunctionName: 'aws-album_get_image_metadata',
@@ -60,9 +60,9 @@ export function get(key, cb){
       }
 
       lambda.invoke(params, function(err, data) {
-          
+
         if (err) cb(err)
-        
+
         var payload = JSON.parse(data.Payload)
 
         if (payload !== null && typeof payload === 'object') {
@@ -77,7 +77,7 @@ export function get(key, cb){
               meta.aspect = ratio(row.width, row.height)
             }
           })
-          
+
           cb(null, meta)
         }
         else {

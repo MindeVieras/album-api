@@ -2,14 +2,14 @@
 const connection = require('../../../config/db');
 const path = require('path');
 const AWS = require('aws-sdk');
-AWS.config.loadFromPath('./aws-keys.json');
+// AWS.config.loadFromPath('./aws-keys.json');
 const elastictranscoder = new AWS.ElasticTranscoder();
 const config = require('../../../config/config');
 
 module.exports.generate = function(key, cb){
     // Firtly get video presets
     connection.query('SELECT * FROM video_presets', function(err,rows){
-            
+
         if(err) cb(err);
 
         rows.forEach(function(row){
@@ -40,7 +40,7 @@ module.exports.generate = function(key, cb){
         });
 
         cb(null, 'jobs created');
-          
+
     });
 
 };
