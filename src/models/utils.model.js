@@ -15,6 +15,9 @@ export function getAppSettings(req, res) {
         settings[s.name] = s.value
       })
 
+      // Add AWS access key
+      settings.access_key_id = process.env.AWS_ACCESS_KEY_ID
+
       // Return settings
       res.json({ack:'ok', msg: 'App settings', data: settings})
     })

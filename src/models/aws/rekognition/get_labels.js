@@ -1,6 +1,5 @@
 
 const AWS = require('aws-sdk');
-// AWS.config.loadFromPath('./aws-keys.json');
 const rekognition = new AWS.Rekognition();
 const config = require('../../../config/config');
 

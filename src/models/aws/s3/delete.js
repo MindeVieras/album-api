@@ -2,7 +2,6 @@
 const connection = require('../../../config/db');
 const path = require('path');
 const AWS = require('aws-sdk');
-// AWS.config.loadFromPath('./aws-keys.json');
 const s3 = new AWS.S3();
 const config = require('../../../config/config');
 

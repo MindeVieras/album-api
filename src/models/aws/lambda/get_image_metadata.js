@@ -3,7 +3,6 @@ import AWS from 'aws-sdk'
 import ratio from 'aspect-ratio'
 import { bucket } from '../../../config/config'
 
-// AWS.config.loadFromPath('./aws-keys.json')
 const lambda = new AWS.Lambda()
 const s3 = new AWS.S3()
 

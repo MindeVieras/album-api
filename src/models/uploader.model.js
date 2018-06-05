@@ -6,8 +6,6 @@ import { bucket } from '../config/config'
 
 const connection = require('../config/db')
 
-// import awsKeys from '../../aws-keys.json'
-
 const clientSecretKey = process.env.AKIAJFXPWIB7JFKLM4GA
 // Set these two values to match your environment
 const expectedBucket = bucket
