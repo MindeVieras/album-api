@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon -w src --exec \"babel-node src\"",
-    "build": "rimraf dist && babel src -s -D -d dist",
-    "start": "node dist/index.js",
+    "build": "rimraf dist && babel src -D -d dist --no-comments",
+    "start": "rimraf dist && babel src -D -d dist --no-comments && node dist/index.js",
     "test": "eslint src"
   },
   "repository": {
