@@ -9,10 +9,6 @@ const app = express()
 // Require variables from .env file if available
 require('dotenv').config()
 
-// Set server port, host
-app.set('port',  process.env.APP_PORT || 3000)
-app.set('host',  process.env.APP_HOST || 'localhost')
-
 // Logger
 app.use(morgan('dev'))
 
