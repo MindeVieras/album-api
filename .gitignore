@@ -1,6 +1,4 @@
 
-/dist
-
 .env
 aws-keys.json
 
