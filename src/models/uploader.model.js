@@ -6,7 +6,7 @@ import { bucket } from '../config/config'
 
 const connection = require('../config/db')
 
-const clientSecretKey = process.env.AKIAJFXPWIB7JFKLM4GA
+const clientSecretKey = process.env.AWS_SECRET_ACCESS_KEY
 // Set these two values to match your environment
 const expectedBucket = bucket
 const expectedHostname = bucket+'.s3.eu-west-1.amazonaws.com'
@@ -15,8 +15,6 @@ const expectedHostname = bucket+'.s3.eu-west-1.amazonaws.com'
 // (recommended)
 const expectedMinSize = null
 const expectedMaxSize = null
-
-// AWS.config.loadFromPath('./aws-keys.json')
 
 const s3 = new AWS.S3()
 
@@ -44,11 +42,11 @@ function signRequest(req, res) {
 
 // Signs multipart (chunked) requests.  Omit if you don't want to support chunking.
 function signRestRequest(req, res) {
-  var version = req.query.v4 ? 4 : 2,
+  let version = req.query.v4 ? 4 : 2,
     stringToSign = req.body.headers,
     signature = version === 4 ? signV4RestRequest(stringToSign) : signV2RestRequest(stringToSign)
 
-  var jsonResponse = {
+  const jsonResponse = {
     signature: signature
   }
 
@@ -68,7 +66,7 @@ function signV2RestRequest(headersStr) {
 }
 
 function signV4RestRequest(headersStr) {
-  var matches = /.+\n.+\n(\d+)\/(.+)\/s3\/aws4_request\n([\s\S]+)/.exec(headersStr),
+  let matches = /.+\n.+\n(\d+)\/(.+)\/s3\/aws4_request\n([\s\S]+)/.exec(headersStr),
     hashedCanonicalRequest = CryptoJS.SHA256(matches[3]),
     stringToSign = headersStr.replace(/(.+s3\/aws4_request\n)[\s\S]+/, '$1' + hashedCanonicalRequest)
 
@@ -78,11 +76,11 @@ function signV4RestRequest(headersStr) {
 // Signs "simple" (non-chunked) upload requests.
 function signPolicy(req, res) {
 
-  var policy = req.body,
+  let policy = req.body,
     base64Policy = new Buffer(JSON.stringify(policy)).toString("base64"),
     signature = req.query.v4 ? signV4Policy(policy, base64Policy) : signV2Policy(base64Policy)
 
-  var jsonResponse = {
+  const jsonResponse = {
     policy: base64Policy,
     signature: signature
   }
@@ -103,7 +101,7 @@ function signV2Policy(base64Policy) {
 }
 
 function signV4Policy(policy, base64Policy) {
-  var conditions = policy.conditions,
+  let conditions = policy.conditions,
     credentialCondition
 
   for (var i = 0; i < conditions.length; i++) {
@@ -113,7 +111,7 @@ function signV4Policy(policy, base64Policy) {
     }
   }
 
-  var matches = /.+\/(.+)\/(.+)\/s3\/aws4_request/.exec(credentialCondition)
+  const matches = /.+\/(.+)\/(.+)\/s3\/aws4_request/.exec(credentialCondition)
   return getV4SignatureKey(clientSecretKey, matches[1], matches[2], "s3", base64Policy)
 }
 
@@ -132,7 +130,7 @@ function isValidRestRequest(headerStr, version) {
 // Comment out the expectedMaxSize and expectedMinSize variables near
 // the top of this file to disable size validation on the policy document.
 function isPolicyValid(policy) {
-  var bucket, parsedMaxSize, parsedMinSize, isValid
+  let bucket, parsedMaxSize, parsedMinSize, isValid
 
   policy.conditions.forEach(condition => {
     if (condition.bucket) {
@@ -188,12 +186,12 @@ function verifyFileInS3(req, res) {
 }
 
 function getV2SignatureKey(key, stringToSign) {
-  var words = CryptoJS.HmacSHA1(stringToSign, key)
+  let words = CryptoJS.HmacSHA1(stringToSign, key)
   return CryptoJS.enc.Base64.stringify(words)
 }
 
 function getV4SignatureKey(key, dateStamp, regionName, serviceName, stringToSign) {
-  var kDate = CryptoJS.HmacSHA256(dateStamp, "AWS4" + key),
+  let kDate = CryptoJS.HmacSHA256(dateStamp, "AWS4" + key),
     kRegion = CryptoJS.HmacSHA256(regionName, kDate),
     kService = CryptoJS.HmacSHA256(serviceName, kRegion),
     kSigning = CryptoJS.HmacSHA256("aws4_request", kService)
