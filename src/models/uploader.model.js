@@ -3,13 +3,14 @@ import AWS from 'aws-sdk'
 import CryptoJS from 'crypto-js'
 
 import { bucket } from '../config/config'
+import { Database } from '../db'
 
-const connection = require('../config/db')
+let conn = new Database()
 
 const clientSecretKey = process.env.AWS_SECRET_ACCESS_KEY
 // Set these two values to match your environment
 const expectedBucket = bucket
-const expectedHostname = bucket+'.s3.eu-west-1.amazonaws.com'
+const expectedHostname = `${bucket}.s3.eu-west-1.amazonaws.com`
 
 // CHANGE TO INTEGERS TO ENABLE POLICY DOCUMENT VERIFICATION ON FILE SIZE
 // (recommended)
@@ -50,7 +51,7 @@ function signRestRequest(req, res) {
     signature: signature
   }
 
-  res.setHeader("Content-Type", "application/json")
+  res.setHeader('Content-Type', 'application/json')
 
   if (isValidRestRequest(stringToSign, version)) {
     res.end(JSON.stringify(jsonResponse))
@@ -70,14 +71,14 @@ function signV4RestRequest(headersStr) {
     hashedCanonicalRequest = CryptoJS.SHA256(matches[3]),
     stringToSign = headersStr.replace(/(.+s3\/aws4_request\n)[\s\S]+/, '$1' + hashedCanonicalRequest)
 
-  return getV4SignatureKey(clientSecretKey, matches[1], matches[2], "s3", stringToSign)
+  return getV4SignatureKey(clientSecretKey, matches[1], matches[2], 's3', stringToSign)
 }
 
 // Signs "simple" (non-chunked) upload requests.
 function signPolicy(req, res) {
 
   let policy = req.body,
-    base64Policy = new Buffer(JSON.stringify(policy)).toString("base64"),
+    base64Policy = new Buffer(JSON.stringify(policy)).toString('base64'),
     signature = req.query.v4 ? signV4Policy(policy, base64Policy) : signV2Policy(base64Policy)
 
   const jsonResponse = {
@@ -85,7 +86,7 @@ function signPolicy(req, res) {
     signature: signature
   }
   // console.log(jsonResponse)
-  res.setHeader("Content-Type", "application/json")
+  res.setHeader('Content-Type', 'application/json')
 
   if (isPolicyValid(req.body)) {
     res.end(JSON.stringify(jsonResponse))
@@ -105,24 +106,24 @@ function signV4Policy(policy, base64Policy) {
     credentialCondition
 
   for (var i = 0; i < conditions.length; i++) {
-    credentialCondition = conditions[i]["x-amz-credential"]
+    credentialCondition = conditions[i]['x-amz-credential']
     if (credentialCondition != null) {
       break
     }
   }
 
   const matches = /.+\/(.+)\/(.+)\/s3\/aws4_request/.exec(credentialCondition)
-  return getV4SignatureKey(clientSecretKey, matches[1], matches[2], "s3", base64Policy)
+  return getV4SignatureKey(clientSecretKey, matches[1], matches[2], 's3', base64Policy)
 }
 
 // Ensures the REST request is targeting the correct bucket.
 // Omit if you don't want to support chunking.
 function isValidRestRequest(headerStr, version) {
   if (version === 4) {
-    return new RegExp("host:" + expectedHostname).exec(headerStr) != null
+    return new RegExp('host:' + expectedHostname).exec(headerStr) != null
   }
 
-  return new RegExp("\/" + expectedBucket + "\/.+$").exec(headerStr) != null
+  return new RegExp('\/' + expectedBucket + '\/.+$').exec(headerStr) != null
 }
 
 // Ensures the policy document associated with a "simple" (non-chunked) request is
@@ -136,7 +137,7 @@ function isPolicyValid(policy) {
     if (condition.bucket) {
       bucket = condition.bucket
     }
-    else if (condition instanceof Array && condition[0] === "content-length-range") {
+    else if (condition instanceof Array && condition[0] === 'content-length-range') {
       parsedMinSize = condition[1]
       parsedMaxSize = condition[2]
     }
@@ -161,14 +162,14 @@ function verifyFileInS3(req, res) {
     if (err) {
       res.status(500)
       console.log(err)
-      res.end(JSON.stringify({error: "Problem querying S3!"}))
+      res.end(JSON.stringify({error: 'Problem querying S3!'}))
     }
     else if (expectedMaxSize != null && data.ContentLength > expectedMaxSize) {
       res.status(400)
-      res.write(JSON.stringify({error: "Too big!"}))
+      res.write(JSON.stringify({error: 'Too big!'}))
       deleteFile(req.body.bucket, req.body.key, err => {
         if (err) {
-          console.log("Couldn't delete invalid file!")
+          console.log('Couldn\'t delete invalid file!')
         }
 
         res.end()
@@ -179,7 +180,7 @@ function verifyFileInS3(req, res) {
     }
   }
 
-  callS3("head", {
+  callS3('head', {
     bucket: req.body.bucket,
     key: req.body.key
   }, headReceived)
@@ -191,23 +192,23 @@ function getV2SignatureKey(key, stringToSign) {
 }
 
 function getV4SignatureKey(key, dateStamp, regionName, serviceName, stringToSign) {
-  let kDate = CryptoJS.HmacSHA256(dateStamp, "AWS4" + key),
+  let kDate = CryptoJS.HmacSHA256(dateStamp, 'AWS4' + key),
     kRegion = CryptoJS.HmacSHA256(regionName, kDate),
     kService = CryptoJS.HmacSHA256(serviceName, kRegion),
-    kSigning = CryptoJS.HmacSHA256("aws4_request", kService)
+    kSigning = CryptoJS.HmacSHA256('aws4_request', kService)
 
   return CryptoJS.HmacSHA256(stringToSign, kSigning).toString()
 }
 
 function deleteFile(bucket, key, callback) {
-  callS3("delete", {
+  callS3('delete', {
     bucket: bucket,
     key: key
   }, callback)
 }
 
 function callS3(type, spec, callback) {
-  s3[type + "Object"]({
+  s3[type + 'Object']({
     Bucket: spec.bucket,
     Key: spec.key
   }, callback)
@@ -233,12 +234,13 @@ export function onSuccess(req, res){
   }
 
   // Insert file data to media table
-  connection.query('INSERT INTO media set ? ', fileData, (err, rows) => {
-    if(err) {
-      res.json({error: err.sqlMessage})
-    } else {
-      fileData.media_id = rows.insertId
+  conn.query(`INSERT INTO media set ?`, fileData)
+    .then( row => {
+      fileData.media_id = row.insertId
       res.json({success: true, data: fileData})
-    }
-  })
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
 }

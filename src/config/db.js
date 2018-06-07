@@ -12,10 +12,10 @@ const connection = mysql.createConnection({
   password : pass,
   database: name,
   acquireTimeout: 1000000
-});
+})
 
-connection.connect(function(err) {
-    if (err) throw err;
-});
+connection.connect(err => {
+  if (err) throw err
+})
 
-module.exports = connection;
+module.exports = connection
