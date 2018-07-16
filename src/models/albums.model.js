@@ -10,7 +10,7 @@ let conn = new Database()
 export function create(req, res){
   const { uid } = req.app.get('user')
   const { name, start_date, end_date, access, status } = req.body
-  
+
   let data = {
     name,
     start_date,
@@ -21,7 +21,7 @@ export function create(req, res){
   }
 
   conn.query(`INSERT INTO albums SET ?`, data)
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
         res.json({ack:'ok', msg: 'Album created', id: row.insertId})
       }
@@ -80,6 +80,8 @@ export function getOne(req, res) {
     const albumEntity = 2 // Album type
     const mediaEntity = 3 // Media type
     let album, metadata, rekognition
+    let totalSize = 0
+
     conn.query(`SELECT
                   a.*,
                   CONCAT('{"lat":', l.lat, ',"lng":', l.lng, '}') AS location
@@ -91,7 +93,7 @@ export function getOne(req, res) {
         if (rows.length) {
 
           const albumData = rows[0]
-          
+
           // Parse location and Format dates
           const { ...albumCopy } = albumData
           album = {
@@ -120,8 +122,12 @@ export function getOne(req, res) {
         }
       })
       .then( albumMedia => {
-        // Add media to album
+        // Get album media
         album.media = albumMedia.map((m, i) => {
+
+          // count total files size
+          totalSize += m.filesize
+
           m.id = 100000 + i
           m.phase = 'upload successful'
           m.fromServer = true
@@ -150,6 +156,11 @@ export function getOne(req, res) {
             }
           }
         })
+
+        // Count all media
+        album.total_media = albumMedia.length
+        // Count all media filesize
+        album.total_filesize = totalSize
 
         // Get media Metadata
         let ids = album.media.map((m) => { return m.media_id })
@@ -227,7 +238,7 @@ export function getOne(req, res) {
         let msg = err.sqlMessage ? err.sqlMessage : err
         res.json({ack:'err', msg})
       })
-  
+
   } else {
     res.json({ack:'err', msg: 'bad parameter'})
   }
@@ -239,7 +250,7 @@ export function rename(req, res){
   const { album_id, name } = req.body
 
   conn.query(`UPDATE albums SET name = ? WHERE id = ?`, [name, album_id])
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
         res.json({ack:'ok', msg: 'Album renamed', id: row.insertId})
       }
@@ -258,7 +269,7 @@ export function changeDate(req, res){
 
   const { album_id, start_date, end_date } = req.body
   conn.query(`UPDATE albums SET start_date = ?, end_date = ? WHERE id = ?`, [start_date, end_date, album_id])
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
         res.json({ack:'ok', msg: 'Album date changed', id: row.insertId})
       }
@@ -284,7 +295,7 @@ export function setLocation(req, res) {
   }
 
   conn.query(`INSERT INTO locations SET ?`, data)
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
         res.json({ack:'ok', msg: 'Location set', id: row.insertId})
       }
@@ -312,7 +323,7 @@ export function updateLocation(req, res) {
   conn.query(`UPDATE locations
                 SET lat = ?, lng = ?
               WHERE entity = ? AND entity_id = ?`, data)
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
         res.json({ack:'ok', msg: 'Location updated'})
       }
@@ -343,7 +354,7 @@ export function removeLocation(req, res) {
         let msg = err.sqlMessage ? err.sqlMessage : err
         res.json({ack:'err', msg})
       })
-  
+
   } else {
     res.json({ack:'err', msg: 'bad parameter'})
   }
