@@ -62,7 +62,7 @@ export function getListDates(req, res){
     .then( rows => {
       dates = rows.map(d => {
         return d.date
-      }).sort(function(a, b){
+      }).sort((a, b) => {
         return moment(a, 'YYYY-M-D').diff(moment(b, 'YYYY-M-D'))
       })
       res.json({ack:'ok', msg: 'Albums list dates', dates})

@@ -1,15 +1,15 @@
 
-const uuidv4 = require('uuid/v4');
+import uuidv4 from 'uuid/v4'
 const connection = require('../config/db');
 import { Database } from '../db'
 
 let conn = new Database()
 
-const generateImageThumbs = require('./aws/lambda/generate_thumbs');
-const generateVideos = require('./aws/transcoder/generate_videos');
-const getImageMetadata = require('./aws/lambda/get_image_metadata');
-const getVideoMeta = require('./aws/lambda/get_video_metadata');
-const getRekognitionLabels = require('./aws/rekognition/get_labels');
+const getImageMetadata = require('./aws/lambda/get_image_metadata')
+const getVideoMeta = require('./aws/lambda/get_video_metadata')
+const generateImageThumbs = require('./aws/lambda/generate_thumbs')
+const generateVideos = require('./aws/transcoder/generate_videos')
+const getRekognitionLabels = require('./aws/rekognition/get_labels')
 
 // Sets media location
 export function setLocation(req, res) {
@@ -23,9 +23,9 @@ export function setLocation(req, res) {
   }
 
   conn.query(`INSERT INTO locations SET ?`, data)
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location set', id: row.insertId});
+        res.json({ack:'ok', msg: 'Location set', id: row.insertId})
       }
       else {
         throw 'Location not set'
@@ -51,9 +51,9 @@ export function updateLocation(req, res) {
   conn.query(`UPDATE locations
                 SET lat = ?, lng = ?
               WHERE entity = ? AND entity_id = ?`, data)
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location updated'});
+        res.json({ack:'ok', msg: 'Location updated'})
       }
       else {
         throw 'Location not updated'
@@ -82,7 +82,7 @@ export function removeLocation(req, res) {
         let msg = err.sqlMessage ? err.sqlMessage : err
         res.json({ack:'err', msg})
       })
-  
+
   } else {
     res.json({ack:'err', msg: 'bad parameter'})
   }
@@ -108,7 +108,7 @@ exports.getAll = function(req, res) {
 }
 
 exports.putToTrash = function(req, res) {
-  const { media_id } = req.body; 
+  const { media_id } = req.body;
   const status = 2; // Media status TRASHED
   //Put media file to trash
   connection.query('UPDATE media SET status = ? WHERE id = ?', [status, media_id], function(err, rows){
@@ -123,7 +123,7 @@ exports.putToTrash = function(req, res) {
 // Moves media file to another album
 export function moveMedia(req, res) {
   const { media_id, album_id } = req.body
-  
+
   let data = [
     album_id,
     media_id,
@@ -133,9 +133,9 @@ export function moveMedia(req, res) {
   conn.query(`UPDATE media
                 SET entity_id = ?
               WHERE id = ? AND entity = ?`, data)
-    .then( row => {      
+    .then( row => {
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Media moved'});
+        res.json({ack:'ok', msg: 'Media moved'})
       }
       else {
         throw 'Cannot move media'
@@ -148,91 +148,91 @@ export function moveMedia(req, res) {
 }
 
 // Get media metadata from lambda and save to DB
-exports.saveMetadata = function(req, res){
-  var mediaId = req.body.media_id;
-  if (!mediaId) {
-    res.json({ack:'err', msg: 'Wrong params'});
-  } else {
-    connection.query('SELECT s3_key, mime FROM media WHERE id = ?', mediaId, function(err, media) {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage});
-      } else {
-        const key = media[0].s3_key;
-        const mime = media[0].mime;
-        if (mime.includes('image')) {
-          getImageMetadata.get(key, function (err, metadata) {
-            // save metadata to DB if any
-            if (metadata !== null && typeof metadata === 'object') {
-              // Delete old meta before save
-              connection.query('DELETE FROM media_meta WHERE media_id = ?', mediaId, function(err, rows) {
-                if(err) {
-                  res.json({ack:'err', msg: err.sqlMessage});
-                } else {            
-                  // make meta array
-                  var values = [];
-                  Object.keys(metadata).forEach(function (key) {
-                    let obj = metadata[key];
-                    values.push([mediaId, key, obj]);
-                  });
-                  // make DB query
-                  var sql = 'INSERT INTO media_meta (media_id, meta_name, meta_value) VALUES ?';
-                  connection.query(sql, [values], function(err, rows) {
-                    if (err) {
-                      res.json({ack:'err', msg: err.sqlMessage});
-                    } else {
-                      res.json({ack:'ok', msg: 'Metadata saved', metadata: metadata});
-                    }
-                  });
-                }
-              });
-            } else {
-              res.json({ack:'err', msg: 'No metadata saved'});
-            }
-          });
-        }
-        else if (mime.includes('video')) {
-          getVideoMeta.get(key, function (err, metadata) {
-            // save metadata to DB if any
-            if (metadata !== null && typeof metadata === 'object') {
-              // Delete old meta before save
-              connection.query('DELETE FROM media_meta WHERE media_id = ?', mediaId, function(err, rows) {
-                if(err) {
-                  res.json({ack:'err', msg: err.sqlMessage});
-                } else {
-                  // make meta array
-                  var values = [];
-                  Object.keys(metadata).forEach(function(key) {
-                    let obj = metadata[key];
-                    values.push([mediaId, key, obj]);
-                  });
+export function saveMetadata(req, res) {
 
-                  // make DB query
-                  var sql = "INSERT INTO media_meta (media_id, meta_name, meta_value) VALUES ?";
-                  connection.query(sql, [values], function(err, rows) {
-                    if (err) {
-                      res.json({ack:'err', msg: err.sqlMessage});
-                    } else {
-                      res.json({ack:'ok', msg: 'Metadata saved', metadata: metadata});
-                    }
-                  });
-                }
-              });
+  const { media_id } = req.body
+  const entity = 3 // media entity
 
-            } else {
-              res.json({ack:'err', msg: 'No metadata saved'});
-            }
-          });
+  let imageMeta
+
+  conn.query(`SELECT s3_key, mime FROM media WHERE id = ?`, media_id)
+    .then( rows => {
+      if (rows.length) {
+
+        const { s3_key, mime } = rows[0]
+
+        if (mime.includes('image'))
+          return getImageMetadata.get(s3_key)
+
+        else if (mime.includes('video'))
+          return getVideoMeta.get(s3_key)
+
+        else
+          throw 'Invalid mime type'
+
+      }
+      else {
+        throw 'No such Album'
+      }
+    })
+    .then(metadata => {
+
+      imageMeta = metadata
+
+      return conn.query(`DELETE FROM media_meta WHERE media_id = ?`, media_id)
+    })
+    .then(deletedRows => {
+
+      // remove location from meta, it saves to locations table
+      let { location, ...restMeta } = imageMeta
+      let newMeta = { ...restMeta }
+      // make meta array
+      var values = []
+      Object.keys(newMeta).forEach((key) => {
+        let val = newMeta[key]
+        values.push([media_id, key, val])
+      })
+
+      // insert metadata to DB
+      const sql = `INSERT INTO media_meta (media_id, meta_name, meta_value) VALUES ?`
+      return conn.query(sql, [values])
+
+    })
+    .then(insertedRows => {
+      if (imageMeta !== null && typeof imageMeta === 'object') {
+        if (imageMeta.location) {
+          const sql = `DELETE FROM locations WHERE entity = ? AND entity_id = ?`
+          return conn.query(sql, [entity, media_id])
         }
         else {
-          res.json({ack:'err', msg: 'Unvalid mime type'});
+          return false
         }
+      } else {
+        throw 'No metadata saved'
       }
-    });
-  }
-};
+    })
+    .then(locDeletedRows => {
+      if (locDeletedRows) {
+        let values = [imageMeta.location.lat, imageMeta.location.lon, entity, media_id]
+        // insert location to DB
+        const sql = `INSERT INTO locations (lat, lng, entity, entity_id) VALUES (?, ?, ?, ?)`
+        return conn.query(sql, values)
+      }
+      else {
+        return false
+      }
+    })
+    .then(_ => {
+      res.json({ack:'ok', msg: 'Metadata saved', metadata: imageMeta})
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
 
 // Get and Save Image Labels from AWS rekognition
-exports.saveRekognitionLabels = function(req, res){
+exports.saveRekognitionLabels = function(req, res) {
   var mediaId = req.body.media_id;
   if (!mediaId) {
     res.json({ack:'err', msg: 'Wrong params'});
@@ -247,7 +247,7 @@ exports.saveRekognitionLabels = function(req, res){
         getRekognitionLabels.get(key, mime, function(err, labels){
           if (err) {
             res.json({ack:'err', msg: err});
-          } else {          
+          } else {
             // save recognition labels to DB if any
             if (labels !== null && typeof labels === 'object') {
               // Delete old meta before save
@@ -270,7 +270,7 @@ exports.saveRekognitionLabels = function(req, res){
                       res.json({ack:'err', msg: err.sqlMessage});
                     } else {
                       res.json({ack:'ok', msg: 'Rekognition Labels saved', rekognition_labels: labelsObj});
-                    }          
+                    }
                   });
                 }
               });
@@ -312,17 +312,17 @@ exports.generateImageThumbs = function(req, res){
 export function getImageMeta(req, res) {
   const { key } = req.body
   if (key) {
-    getImageMetadata.get(key, function (err, metadata) {
+    getImageMetadata.get(key, (err, metadata) => {
       if (err) {
-        res.json({ack:'err', msg: err});
+        res.json({ack:'err', msg: err})
       }
       // save metadata to DB if any
       if (metadata !== null && typeof metadata === 'object') {
-        res.json({ack:'ok', msg: 'Image metadata', metadata: metadata});
+        res.json({ack:'ok', msg: 'Image metadata', metadata: metadata})
       } else {
-        res.json({ack:'err', msg: 'No metadata saved'});
+        res.json({ack:'err', msg: 'No metadata saved'})
       }
-    });
+    })
   } else {
     res.json({ack: 'err', msg: 'No key'})
   }
