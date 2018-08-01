@@ -11,12 +11,45 @@ export function getList(req, res){
   const mediaStatus = 2 //Trashed file
   const albumStatus = 2 //Trashed albums
 
-  const status = 1 // Enabled
   let trashMedia, trashAlbums, list
-  conn.query(`SELECT * FROM media
-                WHERE status = ?`, mediaStatus)
+
+  conn.query(`SELECT
+                m.*,
+                mw.meta_value AS width,
+                mh.meta_value AS height,
+                a.name AS album_name
+              FROM media AS m
+                LEFT JOIN media_meta AS mw ON m.id = mw.media_id AND mw.meta_name = 'width'
+                LEFT JOIN media_meta AS mh ON m.id = mh.media_id AND mh.meta_name = 'height'
+                LEFT JOIN albums AS a ON m.entity_id = a.id
+              WHERE m.status = ?`, mediaStatus)
     .then( media => {
-      trashMedia = media
+
+      trashMedia = media.map(m => {
+
+        if (m.mime.includes('video')) {
+          return {
+            ...m,
+            videos: {
+              video: require('../helpers/media').video(m.s3_key, 'medium'),
+              thumb: require('../helpers/media').videoThumb(m.s3_key, 'medium')
+            }
+          }
+        }
+        else if (m.mime.includes('image')) {
+          return {
+            ...m,
+            thumbs: {
+              icon: require('../helpers/media').img(m.s3_key, 'icon'),
+              mini: require('../helpers/media').img(m.s3_key, 'mini')
+            }
+          }
+        }
+        else {
+          return { ...m }
+        }
+      })
+
       return conn.query(`SELECT * FROM albums WHERE status = ?`, albumStatus)
     })
     .then( albums => {
@@ -28,6 +61,7 @@ export function getList(req, res){
       res.json({ack:'ok', msg: 'Trash list', list})
     })
     .catch( err => {
+      console.log(err.sqlMessage)
       let msg = err.sqlMessage ? err.sqlMessage : err
       res.json({ack:'err', msg})
     })
@@ -38,7 +72,7 @@ export function restore(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const id = req.params.id
     const status = 1; //Enabled file
-    connection.query('UPDATE media SET status = ? WHERE id = ?', [status, id], function(err, rows) {
+    connection.query('UPDATE media SET status = ? WHERE id = ?', [status, id], (err, rows) => {
       if(err) {
         res.json({ack:'err', msg: err.sqlMessage})
       } else {
@@ -59,7 +93,7 @@ export function restore(req, res){
 export function _delete(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const id = req.params.id;
-    connection.query('SELECT mime FROM media WHERE id = ?', [id], function(err, mime) {
+    connection.query('SELECT mime FROM media WHERE id = ?', [id], (err, mime) => {
       if(err) {
         res.json({ack:'err', msg: err.sqlMessage});
       } else {
@@ -67,7 +101,7 @@ export function _delete(req, res){
         // If IMAGE
         if (mimeType.includes('image')) {
           // Firstly delete image and thumbnails from S3
-          deleteFromS3.deleteImage(id, function (err, data) {
+          deleteFromS3.deleteImage(id, (err, data) => {
             if (err) {
               res.json({ack:'err', msg: err});
             }
@@ -85,7 +119,7 @@ export function _delete(req, res){
         // If VIDEO
         else if (mimeType.includes('video')) {
           // Firstly delete image and thumbnails from S3
-          deleteFromS3.deleteVideo(id, function (err, data) {
+          deleteFromS3.deleteVideo(id, (err, data) => {
             if (err) {
               res.json({ack:'err', msg: err})
             }

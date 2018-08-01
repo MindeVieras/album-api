@@ -16,7 +16,7 @@ function doAuth(req, res, next, al) {
   if (typeof bearerHeader !== 'undefined') {
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
-    jwt.verify(bearerToken, secret_key, function(err, decoded){
+    jwt.verify(bearerToken, secret_key, (err, decoded) => {
       if (err) {
         res.json({ack:'err', msg: err.message})
       } else {
