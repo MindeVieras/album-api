@@ -8,7 +8,7 @@ let conn = new Database()
 const getImageMetadata = require('./aws/lambda/get_image_metadata')
 const getVideoMeta = require('./aws/lambda/get_video_metadata')
 const generateImageThumbs = require('./aws/lambda/generate_thumbs')
-const generateVideos = require('./aws/transcoder/generate_videos')
+const generateVideosTS = require('./aws/transcoder/generate_videos')
 const getRekognitionLabels = require('./aws/rekognition/get_labels')
 
 // Sets media location
@@ -323,17 +323,23 @@ export function getImageMeta(req, res) {
         res.json({ack:'err', msg: 'No metadata saved'})
       }
     })
-  } else {
+  }
+  else {
     res.json({ack: 'err', msg: 'No key'})
   }
 }
 
 // Generate Videos
-exports.generateVideos = function(req, res){
-  var key = req.body.key;
-  generateVideos.generate(key, function(err, response){
-    setTimeout(function(){
-      res.json({ack:'ok', msg: 'Image thumbnails generated', thumbs: response});
-    }, 2000);
-  });
-};
+export function generateVideos(req, res) {
+  const { key } = req.body
+  if (key) {
+    generateVideosTS.generate(key, (err, response) => {
+      setTimeout(() => {
+        res.json({ack:'ok', msg: 'Image thumbnails generated', thumbs: response})
+      }, 4000)
+    })
+  }
+  else {
+    res.json({ack: 'err', msg: 'No key'})
+  }
+}

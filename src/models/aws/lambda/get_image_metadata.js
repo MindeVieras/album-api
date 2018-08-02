@@ -34,6 +34,7 @@ export function get(key) {
           Expires: 10
         })
         // console.log(url)
+        // If cannot get any data from exif, the use Lambdas ffprobe
         // Get S3 file metadata from lambda
         let params = {
           FunctionName: 'aws-album_get_video_metadata',
