@@ -71,7 +71,7 @@ export function getList(req, res){
 export function restore(req, res){
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const id = req.params.id
-    const status = 1; //Enabled file
+    const status = 1 //Enabled file
     connection.query('UPDATE media SET status = ? WHERE id = ?', [status, id], (err, rows) => {
       if(err) {
         res.json({ack:'err', msg: err.sqlMessage})

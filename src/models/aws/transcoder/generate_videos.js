@@ -9,7 +9,7 @@ module.exports.generate = function(key, cb){
   // Firtly get video presets
   connection.query('SELECT * FROM video_presets', (err, rows) => {
 
-    if(err) cb(err);
+    if(err) cb(err)
 
     rows.forEach((row) => {
       var ext = path.extname(key)
