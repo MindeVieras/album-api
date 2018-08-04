@@ -5,6 +5,8 @@ import CryptoJS from 'crypto-js'
 import { bucket } from '../config/config'
 import { Database } from '../db'
 
+const getMediaDimensions = require('./aws/lambda/get_media_dimensions')
+
 let conn = new Database()
 
 const clientSecretKey = process.env.AWS_SECRET_ACCESS_KEY
@@ -214,33 +216,49 @@ function callS3(type, spec, callback) {
   }, callback)
 }
 
-
 // on uploader success
 export function onSuccess(req, res){
-  const { uuid, key, name, filesize, mime, entity, entity_id, status } = req.body
+  const { key, name, filesize, mime, entity, entity_id, status } = req.body
   const { uid } = req.app.get('user')
 
-  let fileData = {
-    uuid,
-    s3_key: key,
-    mime,
-    filesize,
-    org_filename: name,
-    entity: parseInt(entity),
-    entity_id: parseInt(entity_id),
-    status: parseInt(status),
-    author: uid,
-    weight: 0
-  }
+  if (key) {
 
-  // Insert file data to media table
-  conn.query(`INSERT INTO media set ?`, fileData)
-    .then( row => {
-      fileData.media_id = row.insertId
-      res.json({success: true, data: fileData})
-    })
-    .catch( err => {
-      let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
-    })
+    let fileData = {}
+
+    getMediaDimensions.get(key)
+      .then(dimensions => {
+
+        fileData = {
+          s3_key: key,
+          mime,
+          filesize: parseInt(filesize),
+          org_filename: name,
+          entity: parseInt(entity),
+          entity_id: parseInt(entity_id),
+          status: parseInt(status),
+          author: uid,
+          width: dimensions.width,
+          height: dimensions.height,
+          weight: 0
+        }
+
+        return conn.query(`INSERT INTO media set ?`, fileData)
+
+      })
+      .then( row => {
+        const { ...fileCopy } = fileData
+        fileData = {
+          ...fileCopy,
+          media_id: row.insertId
+        }
+        res.json({success: true, data: fileData})
+      })
+      .catch( err => {
+        let msg = err.sqlMessage ? err.sqlMessage : err
+        res.json({ack:'err', msg})
+      })
+  }
+  else {
+    res.json({ack: 'err', msg: 'No key'})
+  }
 }

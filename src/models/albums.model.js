@@ -2,6 +2,7 @@
 import _ from 'lodash'
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
+import ratio from 'aspect-ratio'
 
 import { Database } from '../db'
 let conn = new Database()
@@ -111,6 +112,8 @@ export function getOne(req, res) {
                               m.mime,
                               m.org_filename AS filename,
                               m.filesize,
+                              m.width,
+                              m.height,
                               m.weight,
                               CONCAT('{"lat":', l.lat, ',"lng":', l.lng, '}') AS location
                             FROM media AS m
@@ -178,20 +181,23 @@ export function getOne(req, res) {
       .then( ( mediaMeta ) => {
         metadata = mediaMeta
         album.media = album.media.map((m) => {
+
           const { ...mediaCopy } = m
           let metaObj = new Object()
-          let mm = mediaMeta.filter(mt => mt.media_id === m.media_id).map((mt) => {
-            metaObj['ack'] = 'ok'
+
+          metaObj['ack'] = 'ok'
+          metaObj['width'] = m.width
+          metaObj['height'] = m.height
+          metaObj['aspect'] = ratio(m.width, m.height)
+
+          mediaMeta.filter(mt => mt.media_id === m.media_id).map((mt) => {
             metaObj[mt.meta_name] = mt.meta_value
             if (mt.meta_name === 'duration') {
               let duration = Math.round(mt.meta_value)
               metaObj['duration'] = moment.duration(duration, 'seconds').format('h[h], m[min], s[s]')
             }
           })
-          if (_.isEmpty(mm)) {
-            metaObj['ack'] = 'err'
-            metaObj['msg'] = 'No metadata'
-          }
+
           return {
             ...mediaCopy,
             metadata: metaObj

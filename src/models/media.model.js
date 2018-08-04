@@ -343,3 +343,32 @@ export function generateVideos(req, res) {
     res.json({ack: 'err', msg: 'No key'})
   }
 }
+
+export function fixDb(req, res) {
+
+  let media
+
+  conn.query(`SELECT
+                m.*,
+                mw.meta_value AS meta_width,
+                mh.meta_value AS meta_height
+              FROM media AS m
+                LEFT JOIN media_meta AS mw ON m.id = mw.media_id AND mw.meta_name = 'width'
+                LEFT JOIN media_meta AS mh ON m.id = mh.media_id AND mh.meta_name = 'height'
+              LIMIT 10`)
+    .then(rows => {
+      media = rows.map(m => {
+        return conn.query(`UPDATE media SET width = ?, height = ?`, m.meta_width, m.meta_height)
+
+      })
+    })
+    .then(() => {
+
+      res.json({ack:'ok', media})
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+

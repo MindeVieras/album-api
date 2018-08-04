@@ -13,7 +13,8 @@ import {
   saveRekognitionLabels,
   generateImageThumbs,
   generateVideos,
-  getImageMeta
+  getImageMeta,
+  fixDb
 } from '../models/media.model'
 
 const router = express.Router()
@@ -31,5 +32,7 @@ router.post('/generate-image-thumbs', isAuthed, generateImageThumbs)
 router.post('/generate-videos', isAuthed, generateVideos)
 
 router.post('/get-image-meta', isAuthed, getImageMeta)
+
+router.get('/fix-db', isAuthed, fixDb)
 
 export default router

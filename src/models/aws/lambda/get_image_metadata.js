@@ -1,6 +1,5 @@
 
 import AWS from 'aws-sdk'
-import ratio from 'aspect-ratio'
 import { bucket } from '../../../config/config'
 
 const lambda = new AWS.Lambda()
@@ -17,58 +16,16 @@ export function get(key) {
 
     lambda.invoke(params, (err, data) => {
 
-      if (err) {
-        return reject(err.message)
-      }
+      if (err)
+        reject(err.message)
 
       const payload = JSON.parse(data.Payload)
 
-      if (payload !== null && typeof payload === 'object') {
+      if (payload !== null && typeof payload === 'object')
         resolve(pretifyExifMeta(payload))
-      }
-      else {
-        // Get presigned url
-        var url = s3.getSignedUrl('getObject', {
-          Bucket: bucket,
-          Key: key,
-          Expires: 10
-        })
-        // console.log(url)
-        // If cannot get any data from exif, the use Lambdas ffprobe
-        // Get S3 file metadata from lambda
-        let params = {
-          FunctionName: 'aws-album_get_video_metadata',
-          Payload: '{"url": "'+url+'"}'
-        }
 
-        lambda.invoke(params, (err, data) => {
-
-          if (err) {
-            return reject(err.message)
-          }
-
-          var payload = JSON.parse(data.Payload)
-
-          if (payload !== null && typeof payload === 'object') {
-
-            let meta = new Object()
-
-            // make meta object
-            payload.streams.forEach((row) => {
-              if (row.width && row.height) {
-                meta.width = row.width
-                meta.height = row.height
-                meta.aspect = ratio(row.width, row.height)
-              }
-            })
-
-            resolve(meta)
-          }
-          else {
-            return reject('No Meta found')
-          }
-        })
-      }
+      else
+        reject('No Meta found')
 
     })
 
@@ -78,14 +35,12 @@ export function get(key) {
 
 function pretifyExifMeta(payload) {
 
-  let meta = new Object()
+  let meta = {}
 
   // make exif object
   if (payload.exif) {
     Object.keys(payload.exif).forEach((key) => {
       if (key == 'DateTimeOriginal') meta.datetime = convertExifDate(payload.exif[key])
-      if (key == 'ExifImageWidth') meta.width = payload.exif[key]
-      if (key == 'ExifImageHeight') meta.height = payload.exif[key]
       if (key == 'Flash') meta.flash = payload.exif[key]
       if (key == 'ISO') meta.iso = payload.exif[key]
     })
@@ -113,11 +68,6 @@ function pretifyExifMeta(payload) {
   ) {
     const { GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef } = payload.gps
     meta.location = dmsToDecimal(GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef)
-  }
-
-  // add image aspect ratio
-  if (meta.width && meta.height) {
-    meta.aspect = ratio(meta.width, meta.height)
   }
 
   return meta
