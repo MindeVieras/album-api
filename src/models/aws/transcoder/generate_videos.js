@@ -1,45 +1,185 @@
 
-const connection = require('../../../config/db');
-const path = require('path');
-const AWS = require('aws-sdk');
-const elastictranscoder = new AWS.ElasticTranscoder();
-const config = require('../../../config/config');
+import path from 'path'
+import AWS from 'aws-sdk'
 
-module.exports.generate = function(key, cb){
-  // Firtly get video presets
-  connection.query('SELECT * FROM video_presets', (err, rows) => {
+import { Database } from '../../../db'
+import { transcoder_pipeline } from '../../../config/config'
 
-    if(err) cb(err)
+let conn = new Database()
 
-    rows.forEach((row) => {
-      var ext = path.extname(key)
-      var thumbPath = 'videos/thumbs/'+row.name+'/'+path.basename(key, ext)+'-'
-      var params = {
-        PipelineId: config.transcoder_pipeline,
-        Input: {
-          AspectRatio: 'auto',
-          Container: 'auto',
-          FrameRate: 'auto',
-          Interlaced: 'auto',
-          Key: key,
-          Resolution: 'auto',
-        },
-        Output: {
-          Key: 'videos/'+row.name+'/'+path.basename(key),
-          PresetId: row.preset_id,
-          Rotate: 'auto',
-          ThumbnailPattern: thumbPath+'{count}'
+const elastictranscoder = new AWS.ElasticTranscoder()
+
+export function generate(s3_key, width, height) {
+
+  return new Promise((resolve, reject) => {
+
+    const hdPerimeter = 1280 + 720
+    const fullhdPerimeter = 1920 + 1080
+    const videoPerimeter = width + height
+
+    let presets, jobsDone
+
+    conn.query(`SELECT * FROM video_presets`)
+      .then( rows => {
+        if (rows.length) {
+
+          presets = rows
+
+          if (videoPerimeter < hdPerimeter) {
+            return createJobs(['medium'], s3_key, presets)
+          }
+          else if (videoPerimeter < fullhdPerimeter) {
+            return createJobs(['medium', 'hd'], s3_key, presets)
+          }
+          else {
+            return createJobs(['medium', 'hd', 'fullhd'], s3_key, presets)
+          }
+
         }
-      }
-
-      elastictranscoder.createJob(params, (err, data) => {
-        if (err) cb(err)
-        else console.log(data)
+        else {
+          throw 'No video presets found'
+        }
       })
-    })
+      .then(jobs => {
+        return readJobs(jobs)
+      })
+      .then(jobCompleted => {
+        jobsDone = jobCompleted
 
-    cb(null, 'jobs created')
+        let response = {
+          medium: require('../../../helpers/media').video(s3_key, 'medium'),
+          hd: require('../../../helpers/media').video(s3_key, 'hd'),
+          thumbs: {
+            medium: require('../../../helpers/media').videoThumb(s3_key, 'medium')
+          }
+        }
+
+        resolve(response)
+      })
+      .catch(err => {
+        reject(err)
+      })
 
   })
+}
 
+// Create jobs async loop function
+async function createJobs(jobs, s3_key, presets) {
+
+  let responseList = []
+
+  for (let i = 0; i < jobs.length; i++) {
+
+    await new Promise(resolve => {
+
+      let name = jobs[i]
+      let preset = findPreset(name, presets)
+      let params = createJobParam(s3_key, name, preset.preset_id)
+
+      elastictranscoder.createJob(params, (err, tsData) => {
+
+        if (err)
+          console.log(err.stack)
+
+        else {
+          responseList.push(tsData)
+          resolve()
+        }
+
+      })
+
+    })
+
+  }
+
+  return responseList
+
+}
+
+// Create jobs async loop function
+async function readJobs(jobs) {
+
+  let responseList = []
+
+  for (let i = 0; i < jobs.length; i++) {
+
+    await new Promise(resolve => {
+
+      const { Id } = jobs[i].Job
+
+      // Status values: Submitted, Progressing, Complete, Canceled, or Error.
+
+      let params = { Id }
+
+      const readJobInterval = setInterval(() => {
+
+        elastictranscoder.readJob(params, (err, jobData) => {
+
+          if (err) {
+            clearInterval(readJobInterval)
+            console.log(err.stack)
+          }
+
+          else {
+
+            const { Status } = jobData.Job
+
+            if (Status === 'Complete' || Status === 'Canceled' || Status === 'Error') {
+              clearInterval(readJobInterval)
+              responseList.push(jobData)
+              resolve()
+            }
+          }
+
+        })
+
+      }, 500)
+
+    })
+
+  }
+
+  return responseList
+
+}
+
+// Find preset in presets array
+function findPreset(name, presets) {
+
+  let param
+
+  presets.map(p => {
+    if (p.name === name) {
+      param = p
+    }
+  })
+
+  return param
+}
+
+// Creates parameter object for TS
+function createJobParam(s3_key, name, preset_id) {
+
+  let ext = path.extname(s3_key)
+  let thumbPath = 'videos/thumbs/'+name+'/'+path.basename(s3_key, ext)+'-'
+
+  let params = {
+    PipelineId: transcoder_pipeline,
+    Input: {
+      AspectRatio: 'auto',
+      Container: 'auto',
+      FrameRate: 'auto',
+      Interlaced: 'auto',
+      Key: s3_key,
+      Resolution: 'auto',
+    },
+    Output: {
+      Key: 'videos/'+name+'/'+path.basename(s3_key),
+      PresetId: preset_id,
+      Rotate: 'auto',
+      ThumbnailPattern: thumbPath+'{count}'
+    }
+  }
+
+  return params
 }

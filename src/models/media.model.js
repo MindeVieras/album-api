@@ -5,10 +5,10 @@ import { Database } from '../db'
 
 let conn = new Database()
 
+import { generate as generateVideosTS } from './aws/transcoder/generate_videos'
 const getImageMetadata = require('./aws/lambda/get_image_metadata')
 const getVideoMeta = require('./aws/lambda/get_video_metadata')
 const generateImageThumbs = require('./aws/lambda/generate_thumbs')
-const generateVideosTS = require('./aws/transcoder/generate_videos')
 const getRekognitionLabels = require('./aws/rekognition/get_labels')
 
 // Sets media location
@@ -331,15 +331,31 @@ export function getImageMeta(req, res) {
 
 // Generate Videos
 export function generateVideos(req, res) {
-  const { key } = req.body
-  if (key) {
-    generateVideosTS.generate(key, (err, response) => {
-      setTimeout(() => {
-        res.json({ack:'ok', msg: 'Image thumbnails generated', thumbs: response})
-      }, 4000)
+
+  const { media_id } = req.body
+
+  conn.query(`SELECT s3_key, mime, width, height FROM media WHERE id = ?`, media_id)
+    .then( rows => {
+      if (rows.length) {
+
+        const { s3_key, mime, width, height } = rows[0]
+
+        if (mime.includes('video'))
+          return generateVideosTS(s3_key, width, height)
+
+        else
+          throw 'Invalid mime type'
+
+      }
+      else {
+        throw 'No such Album'
+      }
     })
-  }
-  else {
-    res.json({ack: 'err', msg: 'No key'})
-  }
+    .then(tsResponse => {
+      res.json({ack:'ok', msg: 'Videos generated', videos: tsResponse})
+    })
+    .catch(err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
 }

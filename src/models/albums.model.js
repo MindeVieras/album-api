@@ -140,8 +140,8 @@ export function getOne(req, res) {
             return {
               ...m,
               videos: {
-                video: require('../helpers/media').video(m.s3_key, 'medium'),
-                video_hd: require('../helpers/media').video(m.s3_key, 'hd'),
+                medium: require('../helpers/media').video(m.s3_key, 'medium'),
+                hd: require('../helpers/media').video(m.s3_key, 'hd'),
                 thumbs: {
                   medium: require('../helpers/media').videoThumb(m.s3_key, 'medium')
                 }
