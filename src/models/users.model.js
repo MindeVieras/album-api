@@ -12,7 +12,8 @@ let conn = new Database()
 export function getList(req, res){
 
   let users
-  conn.query(`SELECT * FROM users`)
+
+  conn.query(`SELECT id, username, display_name FROM users`)
     .then( rows => {
       users = rows.map(u => {
         const { id, username, display_name } = u
@@ -100,40 +101,35 @@ export function create(req, res) {
 
 // Gets one user
 export function getOne(req, res){
-  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
-    connection.query(`SELECT
-                        u.*,
-                        m.s3_key
-                      FROM users AS u
-                        LEFT JOIN media AS m ON u.id = m.entity_id
-                      WHERE u.id = ?
-                      LIMIT 1`, [req.params.id], (err, rows) => {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage})
-      } else {
-        if (rows.length) {
-          let initials = require('../helpers/utils').makeInitials(rows[0].username, rows[0].display_name)
-          let avatar = false
-          if (rows[0].s3_key) {
-            avatar = require('../helpers/media').img(rows[0].s3_key)
-          }
-          const user = {
-            id: rows[0].id,
-            initials,
-            username: rows[0].username,
-            display_name: rows[0].display_name,
-            email: rows[0].email,
-            avatar
-          }
-          res.json({ack:'ok', msg: 'One user', data: user})
-        } else {
-          res.json({ack:'err', msg: 'No such user'})
+
+
+  const { username } = req.params
+
+  conn.query(`SELECT * FROM users WHERE username = ?`, username)
+    .then( rows => {
+      if (rows.length) {
+
+        let initials = require('../helpers/utils').makeInitials(rows[0].username, rows[0].display_name)
+
+        let user = {
+          id: rows[0].id,
+          initials,
+          username: rows[0].username,
+          display_name: rows[0].display_name,
+          email: rows[0].email
         }
+
+        res.json({ack:'ok', msg: 'One user', data: user})
+
+      }
+      else {
+        throw 'No such User'
       }
     })
-  } else {
-    res.json({ack:'err', msg: 'bad parameter'})
-  }
+    .catch(err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
 }
 
 // Deletes user
