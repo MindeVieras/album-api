@@ -1,10 +1,10 @@
 
 import bcrypt from 'bcrypt'
 import validator from 'validator'
-const connection = require('../config/db')
-import { makeInitials } from '../helpers/utils'
 
 import { Database } from '../db'
+
+import { makeInitials } from '../helpers/utils'
 
 let conn = new Database()
 
