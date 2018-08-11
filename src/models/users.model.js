@@ -32,6 +32,8 @@ export function getList(req, res){
 // Creates user
 export function create(req, res) {
 
+  // res.json({ack:`err`, msg:`Username is required`})
+
   const { uid } = req.app.get('user')
   const { username, password, email, display_name, access_level, status } = req.body
 
