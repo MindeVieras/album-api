@@ -40,6 +40,8 @@ export function create(req, res) {
   // vlaidate username
   if (!username || validator.isEmpty(username))
     res.json({ack:`err`, msg:`Username is required`})
+  else if (!validator.isAlphanumeric(username))
+    res.json({ack:`err`, msg:`Username must be alphanumeric only`})
   else if (validator.isLength(username, {min:0, max:4}))
     res.json({ack:`err`, msg:`Username must be at least 5 chars long`})
 
