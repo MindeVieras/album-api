@@ -4,17 +4,17 @@ import jwt from 'jsonwebtoken'
 import { usersConstants } from '../constants'
 import { secret_key } from '../config/config'
 
-// check if user is viewer
-export function isViewer(req, res, next) {
-  doAuth(req, res, next, 25)
+// check if user admin
+export function isAdmin(req, res, next) {
+  doAuth(req, res, next, usersConstants.USER_ACCESS_ADMIN)
 }
 // check if user authenticated
 export function isAuthed(req, res, next) {
-  doAuth(req, res, next, 50)
+  doAuth(req, res, next, usersConstants.USER_ACCESS_AUTHED)
 }
-// // check if user admin
-export function isAdmin(req, res, next) {
-  doAuth(req, res, next, 100)
+// check if user is viewer
+export function isViewer(req, res, next) {
+  doAuth(req, res, next, usersConstants.USER_ACCESS_VIEWER)
 }
 
 function doAuth(req, res, next, al) {
@@ -23,17 +23,30 @@ function doAuth(req, res, next, al) {
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
     jwt.verify(bearerToken, secret_key, (err, decoded) => {
-      if (err) {
+
+      if (err)
         res.json({ack:'err', msg: err.message})
-      } else {
+
+      else {
         const { id, access_level } = decoded
-        if (access_level === 100) {
+        // Admin
+        if (access_level === usersConstants.USER_ACCESS_ADMIN) {
           req.app.set('user', { uid: id, access_level })
           next()
-        } else if (access_level <= 50 && al === 50) {
+        }
+        // Authed
+        else if (access_level === usersConstants.USER_ACCESS_AUTHED &&
+                  al === usersConstants.USER_ACCESS_AUTHED) {
           req.app.set('user', { uid: id, access_level })
           next()
-        } else {
+        }
+        // Viewer
+        else if (access_level === usersConstants.USER_ACCESS_VIEWER &&
+                  al === usersConstants.USER_ACCESS_VIEWER) {
+          req.app.set('user', { uid: id, access_level })
+          next()
+        }
+        else {
           res.json({ack:'err', msg: 'Access denied'})
         }
       }
