@@ -12,10 +12,10 @@ router.route('/app-settings')
   })
 
 router.route('/admin-settings')
-  .get(isAdmin, (req, res) => {
+  .get(isAuthed, (req, res) => {
     utilsModel.getAdminSettings(req, res)
   })
-  .post(isAdmin, (req, res) => {
+  .post(isAuthed, (req, res) => {
     utilsModel.saveAdminSetting(req, res);
   })
 

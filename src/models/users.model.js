@@ -1,9 +1,11 @@
 
 import bcrypt from 'bcrypt'
 import validator from 'validator'
+import moment from 'moment'
 
 import { Database } from '../db'
 
+import { usersConstants } from '../constants'
 import { makeInitials } from '../helpers/utils'
 
 let conn = new Database()
@@ -63,7 +65,7 @@ export function create(req, res) {
 
   else {
 
-    let userData
+    let userData, newUid, settings
 
     // check if user exists
     conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
@@ -89,6 +91,41 @@ export function create(req, res) {
           status: status ? 1 : 0
         }
         return conn.query(`INSERT INTO users set ? `, userData)
+      })
+
+      // Insret initial user settings
+      .then(userRow => {
+        if (userRow.affectedRows === 1) {
+          newUid = userRow.insertId
+
+          // make front settings array
+          let frontSettings = [
+            [newUid, 'c_menu_x', 90, 'front'],
+            [newUid, 'c_menu_y', 90, 'front']
+          ]
+          // make admin settings array
+          let filter_start_date = moment().subtract(100, 'year').format('YYYY-MM-DD')
+          let filter_end_date = moment().add(100, 'year').format('YYYY-MM-DD')
+          let adminSettings = [
+            [newUid, 'selected_album', 0, 'admin'],
+            [newUid, 'sidebar_width', usersConstants.USER_DEFAULT_SIDEBAR_WIDTH, 'admin'],
+            [newUid, 'list_filter_start_date', filter_start_date, 'admin'],
+            [newUid, 'list_filter_end_date', filter_end_date, 'admin']
+          ]
+
+          settings = frontSettings
+
+          if (userData.access_level >= usersConstants.USER_ACCESS_AUTHED) {
+            settings = [...frontSettings, ...adminSettings]
+          }
+
+          // insert settings to DB
+          const sql = `INSERT INTO users_settings (user_id, name, value, type) VALUES ?`
+          return conn.query(sql, [settings])
+        }
+        else {
+          throw 'Could not save user settings'
+        }
       })
 
       .then(rows => {

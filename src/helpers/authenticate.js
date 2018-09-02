@@ -1,7 +1,13 @@
 
 import jwt from 'jsonwebtoken'
+
+import { usersConstants } from '../constants'
 import { secret_key } from '../config/config'
 
+// check if user is viewer
+export function isViewer(req, res, next) {
+  doAuth(req, res, next, 25)
+}
 // check if user authenticated
 export function isAuthed(req, res, next) {
   doAuth(req, res, next, 50)
