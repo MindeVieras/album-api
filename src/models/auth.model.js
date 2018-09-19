@@ -13,7 +13,7 @@ let conn = new Database()
 export function authenticate(req, res) {
 
   const { username, password } = req.body
-  
+
   // // vlaidate input
   if (validator.isEmpty(username)) {
     res.json({ack:'err', msg: 'Username is required'})
@@ -49,13 +49,7 @@ export function authenticate(req, res) {
           const { id, username, access_level, display_name, email, created } = user
           const jwtData = { id, username, access_level }
           const token = jwt.sign(jwtData, secret_key)
-          let accessLevel = 'simple'
-          if (access_level >= 50 && access_level < 100) {
-            accessLevel = 'editor'
-          } else if (access_level === 100) {
-            accessLevel = 'admin'
-          }
-          let userData = { id, username, display_name, email, created, token, access_level: accessLevel }
+          let userData = { id, username, display_name, email, created, token, access_level }
           res.json({ack:'ok', msg: 'Authentication ok', data: userData})
         }
         else {
