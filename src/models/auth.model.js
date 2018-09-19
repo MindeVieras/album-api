@@ -13,14 +13,29 @@ let conn = new Database()
 export function authenticate(req, res) {
 
   const { username, password } = req.body
+  let  errors
 
-  // // vlaidate input
-  if (validator.isEmpty(username)) {
-    res.json({ack:'err', msg: 'Username is required'})
+  // validate username input
+  if (!username || validator.isEmpty(username)) {
+    errors = {
+      ...errors,
+      username: 'Username is required'
+    }
   }
-  else if (validator.isEmpty(password)) {
-    res.json({ack:'err', msg: 'Password is required'})
+
+  // validate password input
+  if (!password || validator.isEmpty(password)) {
+    errors = {
+      ...errors,
+      password: 'Password is required'
+    }
   }
+
+  // return errors if any
+  if (errors) {
+    res.json({ ack:'err', errors })
+  }
+
   else {
     let user
     conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
@@ -28,14 +43,20 @@ export function authenticate(req, res) {
         if (rows.length){
           let pass = rows[0].password
           let passMatch = bcrypt.compareSync(password, pass)
+
           if (passMatch) {
-            user = rows[0]
-            let uid = rows[0].id
+
+            // remove password from user object
+            const { password, ...noPasswordUser } = rows[0]
+            user = noPasswordUser
+
+            // Update user login datetime
+            let uid = user.id
             let login_date = moment().format('YYYY-MM-DD HH:mm:ss')
             return conn.query('UPDATE users SET last_login = ? WHERE id = ?', [login_date, uid])
           }
           else {
-            throw 'Incorect details'
+            throw 'Incorrect details'
           }
         }
         else {
@@ -46,19 +67,17 @@ export function authenticate(req, res) {
         // If last login date updated
         if (rows.affectedRows === 1) {
           // Return User object
-          const { id, username, access_level, display_name, email, created } = user
-          const jwtData = { id, username, access_level }
-          const token = jwt.sign(jwtData, secret_key)
-          let userData = { id, username, display_name, email, created, token, access_level }
-          res.json({ack:'ok', msg: 'Authentication ok', data: userData})
+          const token = jwt.sign(user, secret_key)
+          let data = { ...user, token }
+          res.json({ack:'ok', msg: 'Authentication ok', data})
         }
         else {
-          throw 'Connot set last login date'
+          throw 'Authentication failed. Please try again later.'
         }
       })
       .catch( err => {
-        let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
+        let msg = err.sqlMessage ? 'Authentication failed. Please try again later.' : err
+        res.json({ack:'err', errors: { _error: msg }})
       })
   }
 }
