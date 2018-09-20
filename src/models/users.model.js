@@ -15,15 +15,18 @@ export function getList(req, res){
 
   let users
 
-  conn.query(`SELECT id, username, display_name FROM users`)
+  conn.query(`SELECT id, username, display_name, email FROM users`)
     .then( rows => {
+
       users = rows.map(u => {
-        const { id, username, display_name } = u
+        const { username, display_name } = u
         const initials = makeInitials(username, display_name)
 
-        return { id, initials, username, display_name }
+        return { initials, ...u }
       })
+
       res.json({ack:`ok`, msg:`Users list`, list: users})
+
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
@@ -175,24 +178,25 @@ export function getOne(req, res){
 
 // Deletes user
 export function _delete(req, res){
-  if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
 
-    const { id } = req.params
+  const { id } = req.params
 
-    conn.query(`DELETE FROM users WHERE id = ?`, id)
-      .then( rows => {
-        if (rows.affectedRows === 1)
-          // Return success
-          res.json({ack:`ok`, msg:`User deleted`, id})
-        else
-          throw `No such user`
-      })
-      .catch( err => {
-        let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:`err`, msg})
-      })
+  conn.query(`DELETE FROM users WHERE id = ?`, id)
+    .then(rows => {
+      if (rows.affectedRows === 1)
+        // Also delete user settings
+        return conn.query(`DELETE FROM users_settings WHERE user_id = ?`, id)
+      else
+        throw `No such user`
+    })
 
-  } else {
-    res.json({ack:`err`, msg:`bad parameter`})
-  }
+    .then(_ => {
+      // Return success
+      res.json({ack:`ok`, msg:`User deleted`, id})
+    })
+
+    .catch(err => {
+      let msg = err.sqlMessage ? 'Cannot delete user, check system logs' : err
+      res.json({ack:`err`, msg})
+    })
 }
