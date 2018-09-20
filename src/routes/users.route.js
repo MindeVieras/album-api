@@ -11,8 +11,8 @@ import {
 
 const router = express.Router()
 
+router.get('/', isAdmin, getList)
 router.post('/create', isAdmin, create)
-router.get('/get-list', isAdmin, getList)
 router.get('/get-one/:username', isAdmin, getOne)
 router.delete('/delete/:id', isAdmin, _delete)
 
