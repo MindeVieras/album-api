@@ -179,24 +179,34 @@ export function getOne(req, res){
 // Deletes user
 export function _delete(req, res){
 
+  const { uid } = req.app.get('user')
   const { id } = req.params
 
-  conn.query(`DELETE FROM users WHERE id = ?`, id)
-    .then(rows => {
-      if (rows.affectedRows === 1)
-        // Also delete user settings
-        return conn.query(`DELETE FROM users_settings WHERE user_id = ?`, id)
-      else
-        throw `No such user`
-    })
+  // Prevent deleting yourself
+  if (uid != id) {
 
-    .then(_ => {
-      // Return success
-      res.json({ack:`ok`, msg:`User deleted`, id})
-    })
+    conn.query(`DELETE FROM users WHERE id = ?`, id)
+      .then(rows => {
+        if (rows.affectedRows === 1)
+          // Also delete user settings
+          return conn.query(`DELETE FROM users_settings WHERE user_id = ?`, id)
+        else
+          throw `No such user`
+      })
 
-    .catch(err => {
-      let msg = err.sqlMessage ? 'Cannot delete user, check system logs' : err
-      res.json({ack:`err`, msg})
-    })
+      .then(_ => {
+        // Return success
+        res.json({ack:`ok`, msg:`User deleted`, id})
+      })
+
+      .catch(err => {
+        let msg = err.sqlMessage ? 'Cannot delete user, check system logs' : err
+        res.json({ack:`err`, msg})
+      })
+  }
+  else {
+    res.json({ack:`err`, msg:`You cannot delete yoursef`})
+  }
+
+
 }
