@@ -15,14 +15,18 @@ export function getList(req, res){
 
   let users
 
-  conn.query(`SELECT id, username, display_name, email FROM users`)
+  conn.query(`SELECT * FROM users`)
     .then( rows => {
 
       users = rows.map(u => {
-        const { username, display_name } = u
+        // remove password from user object
+        let { password, ...user } = u
+
+        // make initials
+        let { username, display_name } = user
         const initials = makeInitials(username, display_name)
 
-        return { initials, ...u }
+        return { initials, ...user }
       })
 
       res.json({ack:`ok`, msg:`Users list`, list: users})
@@ -37,45 +41,49 @@ export function getList(req, res){
 // Creates user
 export function create(req, res) {
 
-  // res.json({ack:`err`, msg:`Username is required`})
-
   const { uid } = req.app.get('user')
   const { username, password, email, display_name, access_level, status } = req.body
+  let  errors
 
-  // vlaidate username
+  // validate username input
   if (!username || validator.isEmpty(username))
-    res.json({ack:`err`, msg:`Username is required`})
+    errors = { ...errors, username: `Username is required` }
   else if (!validator.isAlphanumeric(username))
-    res.json({ack:`err`, msg:`Username must be alphanumeric only`})
-  else if (validator.isLength(username, {min:0, max:4}))
-    res.json({ack:`err`, msg:`Username must be at least 5 chars long`})
+    errors = { ...errors, username: `Username must be alphanumeric only` }
+  else if (validator.isLength(username, { min: 0, max: 4 }))
+    errors = { ...errors, username: `Username must be at least 5 chars long` }
+
+  // vlaidate password input
+  if (!password || validator.isEmpty(password))
+    errors = { ...errors, password: `Password is required` }
+  else if (validator.isLength(password, { min: 0, max: 4 }))
+    errors = { ...errors, password: `Password must be at least 5 chars long` }
+
 
   // vlaidate email
-  else if (email && !validator.isEmail(email))
-    res.json({ack:`err`, msg:`Email must be valid`})
-
-  // vlaidate password
-  else if (!password || validator.isEmpty(password))
-    res.json({ack:`err`, msg:`Password is required`})
-  else if (validator.isLength(password, {min:0, max:4}))
-    res.json({ack:`err`, msg:`Password must be at least 5 chars long`})
+  if (email && !validator.isEmail(email))
+    errors = { ...errors, email: `Email must be valid` }
 
   // vlaidate access_level
-  else if (!access_level || validator.isEmpty(access_level))
-    res.json({ack:`err`, msg:`Access level is required`})
-  else if (!validator.isInt(access_level, {min:0, max:100}))
-    res.json({ack:`err`, msg:`Access level is invalid`})
+  if (!access_level || validator.isEmpty(access_level))
+    errors = { ...errors, access_level: `Access level is required` }
+  else if (!validator.isInt(access_level, { min: 0, max: 100 }))
+    errors = { ...errors, access_level: `Access level is invalid` }
+
+  // return errors if any
+  if (errors) {
+    res.json({ ack: `err`, errors })
+  }
 
   else {
 
-    let userData, newUid, settings
+    let userData
 
     // check if user exists
     conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
       .then(rows => {
         if (rows.length)
-          throw `Username already taken`
-
+          throw `Username already exists`
         else
           // hash password
           return bcrypt.hash(password, 10)
@@ -91,7 +99,7 @@ export function create(req, res) {
           display_name,
           access_level: parseInt(access_level),
           author: uid,
-          status: status ? 1 : 0
+          status: status ? usersConstants.USER_ACTIVE : usersConstants.USER_PASSIVE
         }
         return conn.query(`INSERT INTO users set ? `, userData)
       })
@@ -99,7 +107,9 @@ export function create(req, res) {
       // Insret initial user settings
       .then(userRow => {
         if (userRow.affectedRows === 1) {
-          newUid = userRow.insertId
+
+          let newUid = userRow.insertId
+          userData.id = newUid
 
           // make front settings array
           let frontSettings = [
@@ -116,10 +126,10 @@ export function create(req, res) {
             [newUid, 'list_filter_end_date', filter_end_date, 'admin']
           ]
 
-          settings = frontSettings
+          let settings = frontSettings
 
           if (userData.access_level >= usersConstants.USER_ACCESS_AUTHED) {
-            settings = [...frontSettings, ...adminSettings]
+            settings = [ ...frontSettings, ...adminSettings ]
           }
 
           // insert settings to DB
@@ -127,25 +137,33 @@ export function create(req, res) {
           return conn.query(sql, [settings])
         }
         else {
-          throw 'Could not save user settings'
+          throw `Could not save user settings`
         }
       })
 
       .then(rows => {
-        let {password, ...user} = userData
-        res.json({ack:`ok`, msg:`User saved`, user})
+
+        // Remove password from user object
+        let { password, ...userCopy } = userData
+
+        // make initials
+        let { username, display_name } = userCopy
+        let initials = makeInitials(username, display_name)
+
+        let user = { initials, ...userCopy }
+
+        res.json({ ack: `ok`, msg: `User saved`, user })
       })
 
       .catch( err => {
-        let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:`err`, msg})
+        let msg = err.sqlMessage ? `Cannot create user, check system logs` : err
+        res.json({ ack: `err`, errors: { _error: msg } })
       })
   }
 }
 
 // Gets one user
 export function getOne(req, res){
-
 
   const { username } = req.params
 
@@ -207,6 +225,4 @@ export function _delete(req, res){
   else {
     res.json({ack:`err`, msg:`You cannot delete yoursef`})
   }
-
-
 }
