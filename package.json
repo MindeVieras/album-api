@@ -9,6 +9,9 @@
     "start": "rimraf dist && babel src -D -d dist --no-comments && node dist/index.js",
     "test": "eslint src"
   },
+  "engines": {
+    "node": "8.11.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MindeVieras/album-api.git"
