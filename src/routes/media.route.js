@@ -3,16 +3,12 @@ import express from 'express'
 
 import { isAuthed } from '../helpers/authenticate'
 import {
-  setLocation,
-  updateLocation,
-  removeLocation,
+  setLocation, updateLocation, removeLocation,
   getAll,
   putToTrash,
   moveMedia,
-  saveMetadata,
-  saveRekognitionLabels,
-  generateImageThumbs,
-  generateVideos,
+  saveMetadata, saveRekognitionLabels,
+  generateImageThumbs, generateVideos,
   getImageMeta
 } from '../models/media.model'
 

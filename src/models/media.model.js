@@ -1,5 +1,6 @@
 
 import uuidv4 from 'uuid/v4'
+import ratio from 'aspect-ratio'
 const connection = require('../config/db');
 import { Database } from '../db'
 
@@ -153,13 +154,18 @@ export function saveMetadata(req, res) {
   const { media_id } = req.body
   const entity = 3 // media entity
 
-  let imageMeta
+  let initialMeta, imageMeta
 
-  conn.query(`SELECT s3_key, mime FROM media WHERE id = ?`, media_id)
+  conn.query(`SELECT s3_key, mime, height, width FROM media WHERE id = ?`, media_id)
     .then( rows => {
       if (rows.length) {
 
-        const { s3_key, mime } = rows[0]
+        const { s3_key, mime, height, width } = rows[0]
+        initialMeta = {
+          aspect: ratio(width, height),
+          height,
+          width
+        }
 
         if (mime.includes('image'))
           return getImageMetadata.get(s3_key)
@@ -177,53 +183,67 @@ export function saveMetadata(req, res) {
     })
     .then(metadata => {
 
-      imageMeta = metadata
-
-      return conn.query(`DELETE FROM media_meta WHERE media_id = ?`, media_id)
-    })
-    .then(deletedRows => {
-
-      // remove location from meta, it saves to locations table
-      let { location, ...restMeta } = imageMeta
-      let newMeta = { ...restMeta }
-      // make meta array
-      var values = []
-      Object.keys(newMeta).forEach((key) => {
-        let val = newMeta[key]
-        values.push([media_id, key, val])
-      })
-
-      // insert metadata to DB
-      const sql = `INSERT INTO media_meta (media_id, meta_name, meta_value) VALUES ?`
-      return conn.query(sql, [values])
-
-    })
-    .then(insertedRows => {
-      if (imageMeta !== null && typeof imageMeta === 'object') {
-        if (imageMeta.location) {
-          const sql = `DELETE FROM locations WHERE entity = ? AND entity_id = ?`
-          return conn.query(sql, [entity, media_id])
-        }
-        else {
-          return false
-        }
-      } else {
-        throw 'No metadata saved'
+      if (metadata) {
+        imageMeta = metadata
+        return conn.query(`DELETE FROM media_meta WHERE media_id = ?`, media_id)
       }
+
+      return
+
+    })
+    .then(() => {
+      
+      if (imageMeta) {
+        // remove location, it gets saved in locations table
+        let { location, ...restMeta } = imageMeta
+        let newMeta = { ...restMeta }
+        // make meta array
+        var values = []
+        Object.keys(newMeta).forEach((key) => {
+          let val = newMeta[key]
+          values.push([media_id, key, val])
+        })
+
+        // insert metadata to DB
+        const sql = `INSERT INTO media_meta (media_id, meta_name, meta_value) VALUES ?`
+        return conn.query(sql, [values])
+      }
+
+      return
+
+    })
+    .then(() => {
+
+      // If location found delete old
+      if (imageMeta && imageMeta.location) {
+        const sql = `DELETE FROM locations WHERE entity = ? AND entity_id = ?`
+        return conn.query(sql, [entity, media_id])
+      }
+      
+      return
+
     })
     .then(locDeletedRows => {
+
+      // Once old location deleted, insert new one
       if (locDeletedRows) {
         let values = [imageMeta.location.lat, imageMeta.location.lon, entity, media_id]
         // insert location to DB
         const sql = `INSERT INTO locations (lat, lng, entity, entity_id) VALUES (?, ?, ?, ?)`
         return conn.query(sql, values)
       }
-      else {
-        return false
-      }
+      
+      return
+      
     })
-    .then(_ => {
-      res.json({ack:'ok', msg: 'Metadata saved', metadata: imageMeta})
+    .then(() => {
+
+      // Make metadata object for final return
+      let metadata = initialMeta
+      if (imageMeta) {
+        metadata = { ...initialMeta, ...imageMeta }
+      }
+      res.json({ack:'ok', msg: 'Metadata saved', metadata})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err

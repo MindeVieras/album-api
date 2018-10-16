@@ -42,10 +42,6 @@ export function get(key) {
 
           // make dimensions object
           payload.streams.forEach(row => {
-            // if (row.codec_type == 'video') {
-            //   meta.width = row.width
-            //   meta.height = row.height
-            // }
             if (row.width && row.height) {
               meta.width = row.width
               meta.height = row.height

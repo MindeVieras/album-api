@@ -25,7 +25,7 @@ export function get(key) {
         resolve(pretifyExifMeta(payload))
 
       else
-        reject('No Meta found')
+        resolve(null)
 
     })
 
@@ -36,7 +36,7 @@ export function get(key) {
 function pretifyExifMeta(payload) {
 
   let meta = {}
-
+  
   // make exif object
   if (payload.exif) {
     Object.keys(payload.exif).forEach((key) => {
@@ -50,12 +50,12 @@ function pretifyExifMeta(payload) {
   if (payload.image) {
     Object.keys(payload.image).forEach((key) => {
 
-      // Cleanup make and model string from zeros /u00000
       const value = payload.image[key]
 
+      // Cleanup make and model string from zeros /u00000
       if (key == 'Make') meta.make = value.replace(/\0/g, '')
       if (key == 'Model') meta.model = value.replace(/\0/g, '')
-      if (key == 'Orientation') meta.orientation = payload.image[key]
+      if (key == 'Orientation') meta.orientation = value
     })
   }
 
