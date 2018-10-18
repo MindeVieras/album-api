@@ -178,7 +178,7 @@ export function saveMetadata(req, res) {
 
       }
       else {
-        throw 'No such Album'
+        throw 'No such media'
       }
     })
     .then(metadata => {
@@ -252,57 +252,67 @@ export function saveMetadata(req, res) {
 }
 
 // Get and Save Image Labels from AWS rekognition
-exports.saveRekognitionLabels = function(req, res) {
-  var mediaId = req.body.media_id;
-  if (!mediaId) {
-    res.json({ack:'err', msg: 'Wrong params'});
-  } else {
-    connection.query('SELECT s3_key, mime FROM media WHERE id = ?', mediaId, function(err, media) {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage});
-      } else {
-        const key = media[0].s3_key;
-        const mime = media[0].mime;
-        // Get Labels
-        getRekognitionLabels.get(key, mime, function(err, labels){
-          if (err) {
-            res.json({ack:'err', msg: err});
-          } else {
-            // save recognition labels to DB if any
-            if (labels !== null && typeof labels === 'object') {
-              // Delete old meta before save
-              connection.query('DELETE FROM rekognition WHERE media_id = ?', mediaId, function(err, rows) {
-                if(err) {
-                  res.json({ack:'err', msg: err.sqlMessage});
-                } else {
-                  // make meta array
-                  var values = [];
-                  var labelsObj = new Object();
-                  Object.keys(labels).forEach(function (key) {
-                    let obj = labels[key];
-                    values.push([mediaId, obj.Name, obj.Confidence]);
-                    labelsObj[obj.Name] = obj.Confidence;
-                  });
-                  // make DB query
-                  var sql = "INSERT INTO rekognition (media_id, label, confidence) VALUES ?";
-                  connection.query(sql, [values], function(err, rows) {
-                    if (err) {
-                      res.json({ack:'err', msg: err.sqlMessage});
-                    } else {
-                      res.json({ack:'ok', msg: 'Rekognition Labels saved', rekognition_labels: labelsObj});
-                    }
-                  });
-                }
-              });
-            } else {
-              res.json({ack:'err', msg: 'No rekognition labels saved'});
-            }
-          }
-        });
+export function saveRekognitionLabels(req, res) {
+  
+  const { media_id } = req.body
+
+  let labels
+
+  conn.query(`SELECT s3_key, mime FROM media WHERE id = ?`, media_id)
+    .then( rows => {
+      if (rows.length) {
+
+        const { s3_key, mime } = rows[0]
+
+        return getRekognitionLabels.get(s3_key, mime)
       }
-    });
-  }
-};
+      else {
+        throw 'No such media'
+      }
+    })
+
+    .then(recognitionLabels => {
+      
+      // if recognition labels found
+      if (recognitionLabels !== null && typeof recognitionLabels === 'object') {
+
+        // set labels
+        labels = recognitionLabels
+
+        // Delete old meta before save
+        return conn.query(`DELETE FROM rekognition WHERE media_id = ?`, media_id)
+      }
+
+      else throw `No rekognition labels found`
+    })
+    .then(() => {
+      
+      // make values array for db
+      let values = labels.map(label => {
+        return [media_id, label.Name, label.Confidence]
+      })
+
+      // Insert labels to DB
+      return conn.query(`INSERT INTO rekognition (media_id, label, confidence) VALUES ?`, [values])
+      
+    })
+    .then(() => {
+
+      // Make object for return
+      let rekognition_labels = {}
+      labels.map(label => {
+        rekognition_labels['ack'] = 'ok'
+        rekognition_labels[label.Name] = label.Confidence
+      })
+      
+      res.json({ack:'ok', msg: 'Rekognition Labels saved', rekognition_labels})
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+
+}
 
 // Generate Image Thumbnails
 exports.generateImageThumbs = function(req, res){

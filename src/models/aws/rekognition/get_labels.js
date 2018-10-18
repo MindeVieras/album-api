@@ -1,65 +1,71 @@
 
-const AWS = require('aws-sdk');
-const rekognition = new AWS.Rekognition();
-const config = require('../../../config/config');
+import AWS from 'aws-sdk'
+import { bucket } from '../../../config/config'
 
-module.exports.get = function(key, mime, cb){
-  if (mime.includes('image')) {
-    var params = {
-      Image: {
-        S3Object: {
-          Bucket: config.bucket,
-          Name: key
-        }
-      },
-      MaxLabels: 500,
-      MinConfidence: 1
-    };
+const rekognition = new AWS.Rekognition()
 
-    rekognition.detectLabels(params, function(err, data) {
-      if (err) {
-        cb(err.message);
-      } else {
-        cb(null, data.Labels);
+export function get(key, mime){
+
+  return new Promise((resolve, reject) => {
+
+    if (mime.includes('image')) {
+      const params = {
+        Image: {
+          S3Object: {
+            Bucket: bucket,
+            Name: key
+          }
+        },
+        MaxLabels: 500,
+        MinConfidence: 1
       }
-    });
-  }
-  else if (mime.includes('video')) {
-    cb(null, 'ffsfa');
-    // var startParams = {
-    //   Video: {
-    //     S3Object: {
-    //       Bucket: config.bucket,
-    //       Name: key
-    //     }
-    //   },
-    //   MinConfidence: 1
-    // };
 
-    // rekognition.startLabelDetection(startParams, function(err, job) {
-    //   if (err) {
-    //     cb(err);
-    //   }
-    //   else {
-    //     const jobId = job.JobId;
-    //     var getParams = {
-    //       JobId: jobId,
-    //       MaxResults: 1000
-    //     };
-    //     rekognition.getLabelDetection(getParams, function(err, data) {
-    //       if (err) {
-    //         cb(err);
-    //       }
-    //       else {
-    //         console.log(data);
-    //         cb(null, 'ffsfa');
-    //       }
-    //     });
-    //   }
-    // });
-
-  }
-  else {
-    cb('Invalid mime type');
-  }
+      rekognition.detectLabels(params, (err, data) => {
+        if (err) {
+          reject(err.message)
+        } else {
+          resolve(data.Labels)
+        }
+      })
+    }
+    else if (mime.includes('video')) {
+      resolve('getting video labels')
+      // cb(null, 'ffsfa');
+      // var startParams = {
+      //   Video: {
+      //     S3Object: {
+      //       Bucket: config.bucket,
+      //       Name: key
+      //     }
+      //   },
+      //   MinConfidence: 1
+      // };
+  
+      // rekognition.startLabelDetection(startParams, function(err, job) {
+      //   if (err) {
+      //     cb(err);
+      //   }
+      //   else {
+      //     const jobId = job.JobId;
+      //     var getParams = {
+      //       JobId: jobId,
+      //       MaxResults: 1000
+      //     };
+      //     rekognition.getLabelDetection(getParams, function(err, data) {
+      //       if (err) {
+      //         cb(err);
+      //       }
+      //       else {
+      //         console.log(data);
+      //         cb(null, 'ffsfa');
+      //       }
+      //     });
+      //   }
+      // });
+  
+    }
+    else {
+      reject('Invalid mime type')
+    }
+  })
 };

@@ -3,7 +3,6 @@ import AWS from 'aws-sdk'
 import { bucket } from '../../../config/config'
 
 const lambda = new AWS.Lambda()
-const s3 = new AWS.S3()
 
 export function get(key) {
 

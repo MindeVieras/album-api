@@ -1,7 +1,6 @@
 
 import _ from 'lodash'
 import moment from 'moment'
-import momentDurationFormatSetup from 'moment-duration-format'
 import ratio from 'aspect-ratio'
 
 import { Database } from '../db'
@@ -263,7 +262,9 @@ export function getOne(req, res) {
       }
     })
     .then( mediaRekognition => {
+
       rekognition = mediaRekognition
+
       album.media = album.media.map((m) => {
         const { ...mediaCopy } = m
         let rekognitionObj = new Object()
@@ -275,6 +276,7 @@ export function getOne(req, res) {
           rekognitionObj['ack'] = 'err'
           rekognitionObj['msg'] = 'No rokognition labels found'
         }
+        
         return {
           ...mediaCopy,
           rekognition_labels: rekognitionObj
