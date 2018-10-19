@@ -1,7 +1,7 @@
 
-import uuidv4 from 'uuid/v4'
 import ratio from 'aspect-ratio'
-const connection = require('../config/db');
+const connection = require('../config/db')
+import { commonConstants, mediaConstants } from '../constants'
 import { Database } from '../db'
 
 let conn = new Database()
@@ -89,36 +89,25 @@ export function removeLocation(req, res) {
   }
 }
 
-
-exports.getAll = function(req, res) {
-  // Get all media
-  connection.query('SELECT * FROM media', function(err, rows){
-    if(err) {
-      res.json({ack:'err', msg: err.sqlMessage});
-    } else {
-      let media = [];
-      rows.forEach(function(m){
-        media.push({
-          uuid: uuidv4(),
-          name: m.org_filename
-        });
-      });
-      res.json(media);
-    }
-  });
-}
-
-exports.putToTrash = function(req, res) {
-  const { media_id } = req.body;
-  const status = 2; // Media status TRASHED
+export function putToTrash(req, res) {
+  
+  const { media_id } = req.body
+  const status = mediaConstants.MEDIA_TRASHED // Media status TRASHED
+  
   //Put media file to trash
-  connection.query('UPDATE media SET status = ? WHERE id = ?', [status, media_id], function(err, rows){
-    if(err) {
-      res.json({ack:'err', msg: err.sqlMessage, error: err.sqlMessage});
-    } else {
-      res.json({ack: 'ok', msg: 'File moved to trash', success: true});
-    }
-  });
+  conn.query(`UPDATE media SET status = ? WHERE id = ?`, [status, media_id])
+    .then(row => {
+      if (row.affectedRows === 1) {
+        res.json({ack:'ok', msg: 'File moved to trash'})
+      }
+      else {
+        throw 'Cannot trash media'
+      }
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
 }
 
 // Moves media file to another album
@@ -128,13 +117,13 @@ export function moveMedia(req, res) {
   let data = [
     album_id,
     media_id,
-    2, // Album entity type
+    commonConstants.ENTITY_ALBUM // Album entity type
   ]
 
   conn.query(`UPDATE media
                 SET entity_id = ?
               WHERE id = ? AND entity = ?`, data)
-    .then( row => {
+    .then(row => {
       if (row.affectedRows === 1) {
         res.json({ack:'ok', msg: 'Media moved'})
       }
@@ -280,7 +269,7 @@ export function saveRekognitionLabels(req, res) {
         labels = recognitionLabels
 
         // Delete old meta before save
-        return conn.query(`DELETE FROM rekognition WHERE media_id = ?`, media_id)
+        return conn.query(`DELETE FROM rekognition_labels WHERE media_id = ?`, media_id)
       }
 
       else throw `No rekognition labels found`
@@ -293,7 +282,7 @@ export function saveRekognitionLabels(req, res) {
       })
 
       // Insert labels to DB
-      return conn.query(`INSERT INTO rekognition (media_id, label, confidence) VALUES ?`, [values])
+      return conn.query(`INSERT INTO rekognition_labels (media_id, label, confidence) VALUES ?`, [values])
       
     })
     .then(() => {

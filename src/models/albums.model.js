@@ -256,7 +256,7 @@ export function getOne(req, res) {
       else {
         return conn.query(`SELECT
                             r.*
-                          FROM rekognition AS r
+                          FROM rekognition_labels AS r
                             WHERE r.media_id IN (?)
                           ORDER BY r.confidence DESC`, [ids])
       }

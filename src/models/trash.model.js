@@ -111,7 +111,7 @@ export function _delete(req, res){
               // Delete meta
               connection.query('DELETE FROM media_meta WHERE media_id = ?', id);
               // Delete rekognition
-              connection.query('DELETE FROM rekognition WHERE media_id = ?', id);
+              connection.query('DELETE FROM rekognition_labels WHERE media_id = ?', id);
               res.json({ack:'ok', msg: 'Image deleted for good'});
             }
           });

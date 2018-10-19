@@ -4,7 +4,6 @@ import express from 'express'
 import { isAuthed } from '../helpers/authenticate'
 import {
   setLocation, updateLocation, removeLocation,
-  getAll,
   putToTrash,
   moveMedia,
   saveMetadata, saveRekognitionLabels,
@@ -18,7 +17,6 @@ router.post('/set-location', isAuthed, setLocation)
 router.post('/update-location', isAuthed, updateLocation)
 router.get('/remove-location/:id', isAuthed, removeLocation)
 
-router.get('/get-all', isAuthed, getAll)
 router.post('/put-to-trash', isAuthed, putToTrash)
 router.post('/move', isAuthed, moveMedia)
 router.post('/save-metadata', isAuthed, saveMetadata)
