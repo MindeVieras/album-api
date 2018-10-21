@@ -263,7 +263,7 @@ export function saveRekognitionLabels(req, res) {
     .then(recognitionLabels => {
       
       // if recognition labels found
-      if (recognitionLabels !== null && typeof recognitionLabels === 'object') {
+      if (recognitionLabels.length > 0) {
 
         // set labels
         labels = recognitionLabels
