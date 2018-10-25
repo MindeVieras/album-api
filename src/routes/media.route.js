@@ -6,7 +6,7 @@ import {
   setLocation, updateLocation, removeLocation,
   putToTrash,
   moveMedia,
-  saveMetadata, saveRekognitionLabels,
+  saveMetadata, saveRekognitionLabels, saveRekognitionText,
   generateImageThumbs, generateVideos,
   getImageMeta
 } from '../models/media.model'
@@ -21,6 +21,7 @@ router.post('/put-to-trash', isAuthed, putToTrash)
 router.post('/move', isAuthed, moveMedia)
 router.post('/save-metadata', isAuthed, saveMetadata)
 router.post('/save-rekognition-labels', isAuthed, saveRekognitionLabels)
+router.post('/save-rekognition-text', isAuthed, saveRekognitionText)
 router.post('/generate-image-thumbs', isAuthed, generateImageThumbs)
 router.post('/generate-videos', isAuthed, generateVideos)
 

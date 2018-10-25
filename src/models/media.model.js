@@ -11,6 +11,7 @@ const getImageMetadata = require('./aws/lambda/get_image_metadata')
 const getVideoMeta = require('./aws/lambda/get_video_metadata')
 const generateImageThumbs = require('./aws/lambda/generate_thumbs')
 const getRekognitionLabels = require('./aws/rekognition/get_labels')
+const getRekognitionText = require('./aws/rekognition/get_text')
 
 // Sets media location
 export function setLocation(req, res) {
@@ -295,6 +296,83 @@ export function saveRekognitionLabels(req, res) {
       })
       
       res.json({ack:'ok', msg: 'Rekognition Labels saved', rekognition_labels})
+    })
+    .catch( err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+
+}
+
+// Get and Save Image Text from AWS rekognition
+export function saveRekognitionText(req, res) {
+  
+  const { media_id } = req.body
+
+  let text
+
+  conn.query(`SELECT s3_key, mime FROM media WHERE id = ?`, media_id)
+    .then( rows => {
+      if (rows.length) {
+
+        const { s3_key, mime } = rows[0]
+
+        return getRekognitionText.get(s3_key, mime)
+      }
+      else {
+        throw 'No such media'
+      }
+    })
+
+    .then(recognitionText => {
+      
+      // if recognition labels found
+      if (recognitionText.length > 0) {
+
+        // set labels
+        text = recognitionText
+
+        // Delete old text before save
+        return conn.query(`DELETE FROM rekognition_text WHERE media_id = ?`, media_id)
+      }
+
+      else throw `No text found`
+    })
+    .then(() => {
+      
+      // make values array for db
+      let values = text.map(t => {
+        console.log(t.Geometry.Polygon)
+        const { BoundingBox, Polygon } = t.Geometry
+        return [
+          media_id, t.Id, t.ParentId, t.Type, t.DetectedText, t.Confidence,
+          BoundingBox.Width, BoundingBox.Height, BoundingBox.Top, BoundingBox.Left,
+          Polygon[0].X, Polygon[0].Y, Polygon[1].X, Polygon[1].Y,
+          Polygon[2].X, Polygon[2].Y, Polygon[3].X, Polygon[3].Y
+        ]
+      })
+
+      // Insert text to DB
+      const sql = `INSERT INTO rekognition_text
+                    (
+                      media_id, text_id, text_parent_id, type, text, confidence,
+                      bbox_width, bbox_height, bbox_top, bbox_left,
+                      p1_x, p1_y, p2_x, p2_y, p3_x, p3_y, p4_x, p4_y
+                    )
+                  VALUES ?`
+      return conn.query(sql, [values])
+      
+    })
+    .then(() => {
+
+      // Make object for return
+      let rekognition_text = {}
+      text.map(t => {
+        rekognition_text['ack'] = 'ok'
+        rekognition_text['Valio'] = 0.23
+      })
+      
+      res.json({ack:'ok', msg: 'Rekognition Labels saved', rekognition_text})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err

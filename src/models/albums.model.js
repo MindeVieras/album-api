@@ -110,7 +110,7 @@ export function getOne(req, res) {
   const { id } = req.params
   const albumEntity = 2 // Album type
   const mediaEntity = 3 // Media type
-  let album, metadata, rekognition
+  let album
   let totalSize = 0
 
   let sqlValues = [albumEntity, id, uid]
@@ -134,7 +134,7 @@ export function getOne(req, res) {
   }
 
   conn.query(sql, sqlValues)
-    .then( rows => {
+    .then(rows => {
       if (rows.length) {
 
         const albumData = rows[0]
@@ -168,7 +168,7 @@ export function getOne(req, res) {
         throw 'No album selected'
       }
     })
-    .then( albumMedia => {
+    .then(albumMedia => {
       // Get album media
       album.media = albumMedia.map((m, i) => {
 
@@ -222,8 +222,8 @@ export function getOne(req, res) {
       }
 
     })
-    .then( mediaMeta => {
-      metadata = mediaMeta
+    .then(mediaMeta => {
+      
       album.media = album.media.map((m) => {
 
         const { ...mediaCopy } = m
@@ -248,7 +248,7 @@ export function getOne(req, res) {
         }
       })
 
-      // Get media Rekognition
+      // Get media Rekognition labels
       let ids = album.media.map((m) => { return m.media_id })
       if (_.isEmpty(ids)) {
         return []
@@ -261,14 +261,12 @@ export function getOne(req, res) {
                           ORDER BY r.confidence DESC`, [ids])
       }
     })
-    .then( mediaRekognition => {
-
-      rekognition = mediaRekognition
+    .then(rekognitionLabels => {
 
       album.media = album.media.map((m) => {
         const { ...mediaCopy } = m
         let rekognitionObj = new Object()
-        let mm = mediaRekognition.filter(r => r.media_id === m.media_id).map((r) => {
+        let mm = rekognitionLabels.filter(r => r.media_id === m.media_id).map((r) => {
           rekognitionObj['ack'] = 'ok'
           rekognitionObj[r.label] = r.confidence
         })
@@ -280,6 +278,45 @@ export function getOne(req, res) {
         return {
           ...mediaCopy,
           rekognition_labels: rekognitionObj
+        }
+      })
+
+      // Get media Rekognition text
+      let ids = album.media.map((m) => { return m.media_id })
+      if (_.isEmpty(ids)) {
+        return []
+      }
+      else {
+        return conn.query(`SELECT
+                            r.*
+                          FROM rekognition_text AS r
+                            WHERE r.media_id IN (?)
+                          ORDER BY r.text_id DESC`, [ids])
+      }
+
+    })
+    .then(rekognitionText => {
+      album.media = album.media.map((m) => {
+        
+        const { ...mediaCopy } = m
+        let rekognitionObj = {}
+        
+        let textArray = rekognitionText.filter(t => t.media_id === m.media_id).map((t) => {
+          return t
+        })
+        
+        if (_.isEmpty(textArray)) {
+          rekognitionObj['ack'] = 'err'
+          rekognitionObj['msg'] = 'No text found'
+        }
+        else {
+          rekognitionObj['ack'] = 'ok'
+          rekognitionObj['text'] = textArray
+        }
+        
+        return {
+          ...mediaCopy,
+          rekognition_text: rekognitionObj
         }
       })
 
