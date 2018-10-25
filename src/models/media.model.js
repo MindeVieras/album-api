@@ -342,7 +342,7 @@ export function saveRekognitionText(req, res) {
       
       // make values array for db
       let values = text.map(t => {
-        console.log(t.Geometry.Polygon)
+        
         const { BoundingBox, Polygon } = t.Geometry
         return [
           media_id, t.Id, t.ParentId, t.Type, t.DetectedText, t.Confidence,
