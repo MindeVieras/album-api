@@ -2,7 +2,7 @@
 export const bucket = process.env.S3_BUCKET
 export const aws_region = process.env.AWS_REGION
 
-export const faces_collection = process.env.FACES_COLLECTION || 'album_faces_local'
+export const faces_collection = process.env.FACES_COLLECTION
 export const transcoder_pipeline = process.env.TRANSCODER_PIPELINE
 
 export const client_secret_key = process.env.CLIENT_SECRET_KEY || 'tmpciwvK07JglVVpsOkiVv11dGWpmXUK'
