@@ -10,7 +10,7 @@
     "test": "eslint src"
   },
   "engines": {
-    "node": "8.11.1"
+    "node": "11.0.0"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,7 @@
     "aspect-ratio": "^2.0.2",
     "aws-sdk": "^2.184.0",
     "babel-polyfill": "^6.26.0",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^3.0.2",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "crypto-js": "^3.1.9-1",
@@ -52,5 +52,9 @@
     "eslint": "^4.15.0",
     "nodemon": "^1.14.11",
     "rimraf": "^2.6.2"
+  },
+  "apidoc": {
+    "title": "Album API Documentation",
+    "url": "http://localhost:8080"
   }
 }

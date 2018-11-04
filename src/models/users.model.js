@@ -10,7 +10,33 @@ import { makeInitials } from '../helpers/utils'
 
 let conn = new Database()
 
-// Gets users list
+/**
+ * @api {get} /users Get all
+ * @apiName GetUsers
+ * @apiGroup Users
+ * 
+ * @apiPermission admin
+ *
+ * @apiSuccess {String} ack Response status.
+ * @apiSuccess {String} msg  Response message.
+ * @apiSuccess {Array} list  List of users.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "ack": "ok",
+ *       "msg": "Users list",
+ *       "list": "Users list"
+ *     }
+ *
+ * @apiError UserNotFound The id of the User was not found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "error": "UserNotFound"
+ *     }
+ */
 export function getList(req, res){
 
   let users

@@ -1,5 +1,4 @@
 
-import 'babel-polyfill'
 import path from 'path'
 import app from './config/express'
 import routes from './routes/index.route'
