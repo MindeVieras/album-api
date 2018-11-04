@@ -4,11 +4,10 @@ import express from 'express'
 import { isAuthed } from '../helpers/authenticate'
 import {
   setLocation, updateLocation, removeLocation,
-  putToTrash,
-  moveMedia,
-  saveMetadata, saveRekognitionLabels, saveRekognitionText,
-  generateImageThumbs, generateVideos,
-  getImageMeta
+  putToTrash, moveMedia,
+  getImageMeta, saveMetadata,
+  saveRekognitionLabels, saveRekognitionText,
+  generateImageThumbs, generateVideos
 } from '../models/media.model'
 
 const router = express.Router()
