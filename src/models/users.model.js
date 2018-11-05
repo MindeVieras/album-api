@@ -37,7 +37,7 @@ let conn = new Database()
  *       "error": "UserNotFound"
  *     }
  */
-export function getList(req, res){
+export function getUserList(req, res){
 
   let users
 
@@ -65,7 +65,7 @@ export function getList(req, res){
 }
 
 // Creates user
-export function create(req, res) {
+export function createUser(req, res) {
 
   const { uid } = req.app.get('user')
   const { username, password, email, display_name, access_level, status } = req.body
@@ -189,7 +189,7 @@ export function create(req, res) {
 }
 
 // Gets one user
-export function getOne(req, res){
+export function getUser(req, res){
 
   const { username } = req.params
 
@@ -221,7 +221,7 @@ export function getOne(req, res){
 }
 
 // Deletes user
-export function _delete(req, res){
+export function deleteUser(req, res){
 
   const { uid } = req.app.get('user')
   const { id } = req.params

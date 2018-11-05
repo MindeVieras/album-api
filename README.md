@@ -22,3 +22,8 @@ Run test
 ```
 > npm t
 ```
+
+Build documentation
+```
+> apidoc -i src -o apidoc
+```
