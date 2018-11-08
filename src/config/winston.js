@@ -7,7 +7,8 @@ const winston_mysql_options = {
   user     : process.env.DB_USER,
   password : process.env.DB_PASS,
   database : process.env.DB_NAME,
-  table    : 'logs'
+  table    : 'logs',
+  fields   : { level: 'level', meta: 'meta', message: 'type', timestamp: 'timestamp'}
 }
 
 const logger = new (winston.Logger)({

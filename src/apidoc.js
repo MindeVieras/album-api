@@ -26,3 +26,14 @@
  *       "error": "Internal server error, ckeck logs"
  *     }
  */
+
+ /**
+ * @api {get} /users Access error
+ * @apiName AccessError
+ * @apiGroup Errors
+ * 
+ * @apiPermission none
+ *
+ * @apiUse AccessForbiddenError
+ * 
+ */

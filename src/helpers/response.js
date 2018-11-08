@@ -15,7 +15,7 @@ function jsonResponseSuccess(res, data = null) {
 
 function jsonResponseError(res, error) {
 
-  let msg = error.sqlMessage ? error.sqlMessage : error
+  let msg = error.sqlMessage ? HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) : error
 
   return res.json({status: 'error', message: msg})
 }

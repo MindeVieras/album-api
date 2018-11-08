@@ -5,8 +5,8 @@
   "title": "Album API Documentation",
   "url": "http://localhost:8080",
   "order": [
-    "GetUser",
-    "PostUser"
+    "Users",
+    "Errors"
   ],
   "template": {
     "withCompare": true,

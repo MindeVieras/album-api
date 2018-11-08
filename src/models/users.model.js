@@ -54,9 +54,6 @@ let conn = new Database()
  *        }
  *     }
  *
- * @apiUse AccessForbiddenError
- * @apiUse InternalServerError
- * 
  */
 export function getList(req, res){
 

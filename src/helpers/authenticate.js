@@ -18,10 +18,14 @@ export function isViewer(req, res, next) {
 }
 
 function doAuth(req, res, next, al) {
+
   const bearerHeader = req.headers['authorization']
+  
   if (typeof bearerHeader !== 'undefined') {
+
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
+    
     jwt.verify(bearerToken, secret_key, (err, decoded) => {
 
       if (err)
@@ -51,7 +55,9 @@ function doAuth(req, res, next, al) {
         }
       }
     })
-  } else {
+  }
+  
+  else {
     res.json({ack:'err', msg: 'Not authorized'})
   }
 }
