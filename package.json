@@ -7,6 +7,7 @@
     "dev": "nodemon -w src --exec \"babel-node src\"",
     "build": "rimraf dist && babel src -D -d dist",
     "start": "rimraf dist && babel src -D -d dist --no-comments && node dist/index.js",
+    "apidoc": "apidoc -i src -o apidoc -t apidoc_template",
     "test": "eslint src"
   },
   "engines": {
