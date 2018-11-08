@@ -6,61 +6,87 @@ import moment from 'moment'
 import { Database } from '../db'
 
 import { usersConstants } from '../constants'
-import { makeInitials } from '../helpers/utils'
+import { jsonResponse, makeInitials } from '../helpers'
 
 let conn = new Database()
 
 /**
- * @api {get} /users Get all
+ * @api {get} /users Get list
  * @apiName GetUsers
  * @apiGroup Users
  * 
  * @apiPermission admin
  *
- * @apiSuccess {String} ack Response status.
- * @apiSuccess {String} msg  Response message.
- * @apiSuccess {Array} list  List of users.
+ * @apiSuccess {String}   status                 Response status
+ * @apiSuccess {Object}   data                   Response data
+ * @apiSuccess {Object[]} data.users               List of users (Array of Objects)
+ * @apiSuccess {Number}   data.users.id              User id
+ * @apiSuccess {String}   data.users.username        User username
+ * @apiSuccess {String}   data.users.email           User email address
+ * @apiSuccess {String}   data.users.displayName     User display name
+ * @apiSuccess {String}   data.users.initials        User initials made from username and display name
+ * @apiSuccess {Number}   data.users.accessLevel     User access level
+ * @apiSuccess {Number}   data.users.status          User status, enabled or disabled
+ * @apiSuccess {Number}   data.users.author          User author id
+ * @apiSuccess {Date}     data.users.created         User creation datetime
+ * @apiSuccess {Date}     data.users.lastLogin       User last login datetime or null
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "ack": "ok",
- *       "msg": "Users list",
- *       "list": "Users list"
+ *       "status": "success",
+ *       "data": {
+ *          users: [
+ *            {
+ *              "id": 1,
+ *              "username": "demouser",
+ *              "email": "demo@example.com",
+ *              "displayName": "Demo User",
+ *              "initials": "DU",
+ *              "accessLevel": 100,
+ *              "status": 1,
+ *              "author": 1,
+ *              "created": "2017-12-31T01:16:54.000Z",
+ *              "lastLogin": "2018-11-04T11:43:21.000Z"
+ *            },
+ *            ...
+ *          ]       
+ *        }
  *     }
  *
- * @apiError UserNotFound The id of the User was not found.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- *     {
- *       "error": "UserNotFound"
- *     }
+ * @apiUse AccessForbiddenError
+ * @apiUse InternalServerError
+ * 
  */
-export function getUserList(req, res){
+export function getList(req, res){
 
-  let users
+  conn.query(`SELECT idd, username, email, display_name, access_level, last_login, status, created, author FROM users`)
+    .then(rows => {
 
-  conn.query(`SELECT * FROM users`)
-    .then( rows => {
-
-      users = rows.map(u => {
-        // remove password from user object
-        let { password, ...user } = u
+      let data = { users: rows.map(u => {
 
         // make initials
-        let { username, display_name } = user
-        const initials = makeInitials(username, display_name)
+        const initials = makeInitials(u.username, u.display_name)
 
-        return { initials, ...user }
-      })
+        return {
+          id: u.id,
+          username: u.username,
+          email: u.email,
+          displayName: u.display_name,
+          initials,
+          accessLevel: u.access_level,
+          status: u.status,
+          author: u.author,
+          created: u.created,
+          lastLogin: u.last_login
+        }
+      })}
 
-      res.json({ack:`ok`, msg:`Users list`, list: users})
+      jsonResponse.success(res, data)
 
     })
-    .catch( err => {
-      let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:`err`, msg})
+    .catch(err => {
+      jsonResponse.error(res, err)
     })
 }
 

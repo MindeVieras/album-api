@@ -1,0 +1,15 @@
+{
+  "name": "Album API",
+  "version": "0.0.0",
+  "description": "apiDoc - album API documentation",
+  "title": "Album API Documentation",
+  "url": "http://localhost:8080",
+  "order": [
+    "GetUser",
+    "PostUser"
+  ],
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  }
+}
