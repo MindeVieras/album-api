@@ -57,7 +57,7 @@ let conn = new Database()
  */
 export function getList(req, res){
 
-  conn.query(`SELECT idd, username, email, display_name, access_level, last_login, status, created, author FROM users`)
+  conn.query(`SELECT id, username, email, display_name, access_level, last_login, status, created, author FROM users`)
     .then(rows => {
 
       let data = { users: rows.map(u => {
