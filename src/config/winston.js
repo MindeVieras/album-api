@@ -11,7 +11,7 @@ const winston_mysql_options = {
   fields   : { level: 'level', meta: 'meta', message: 'type', timestamp: 'timestamp'}
 }
 
-const logger = new (winston.Logger)({
+const logger = winston.createLogger({
   transports: [
     new winston_mysql(winston_mysql_options)
   ]
