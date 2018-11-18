@@ -2,8 +2,50 @@
 import fs from 'fs'
 
 import { Database } from '../db'
+import { jsonResponse } from '../helpers'
 
 let conn = new Database()
+
+/**
+ * @api {get} /utils/ip-location Get Ip Location
+ * @apiName GetIpLocation
+ * @apiGroup Utils
+ * 
+ * @apiPermission authed
+ *
+ * @apiSuccess {String} status   Response status
+ * @apiSuccess {Object} data     Response data
+ * @apiSuccess {Number} data.lat  Latitude
+ * @apiSuccess {Number} data.lng  Longitude
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "data": {
+ *          lat: 1.23456,
+ *          lng: -1.23456
+ *        }
+ *     }
+ *
+ */
+export function ipLocation(req, res) {
+  
+  var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+
+  let data = {
+    lat: 0,
+    lng: 0,
+    ip: {
+      remoteAddress: req.connection.remoteAddress,
+      remotePort:req.connection.remotePort,
+      localAddress: req.connection.localAddress,
+      localPort: req.connection.localPort   
+    }
+  }
+
+  jsonResponse.success(res, data)
+}
 
 // Gets App settings
 export function getAppSettings(req, res) {

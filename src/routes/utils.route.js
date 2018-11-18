@@ -6,8 +6,13 @@ import * as utilsModel from '../models/utils.model'
 
 const router = express.Router()
 
+router.route('/ip-location')
+  .get(isAuthed, (req, res) => {
+    utilsModel.ipLocation(req, res)
+  })
+
 router.route('/app-settings')
-  .get( (req, res) => {
+  .get((req, res) => {
     utilsModel.getAppSettings(req, res)
   })
 
