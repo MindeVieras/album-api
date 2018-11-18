@@ -87,6 +87,38 @@ export function getList(req, res){
     })
 }
 
+// Gets one user
+export function getUser(req, res){
+
+  const { username } = req.params
+
+  conn.query(`SELECT * FROM users WHERE username = ?`, username)
+    .then( rows => {
+      if (rows.length) {
+
+        let initials = require('../helpers/utils').makeInitials(rows[0].username, rows[0].display_name)
+
+        let user = {
+          id: rows[0].id,
+          initials,
+          username: rows[0].username,
+          display_name: rows[0].display_name,
+          email: rows[0].email
+        }
+
+        res.json({ack:'ok', msg: 'One user', data: user})
+
+      }
+      else {
+        throw 'No such User'
+      }
+    })
+    .catch(err => {
+      let msg = err.sqlMessage ? err.sqlMessage : err
+      res.json({ack:'err', msg})
+    })
+}
+
 // Creates user
 export function createUser(req, res) {
 
@@ -209,38 +241,6 @@ export function createUser(req, res) {
         res.json({ ack: `err`, errors: { _error: msg } })
       })
   }
-}
-
-// Gets one user
-export function getUser(req, res){
-
-  const { username } = req.params
-
-  conn.query(`SELECT * FROM users WHERE username = ?`, username)
-    .then( rows => {
-      if (rows.length) {
-
-        let initials = require('../helpers/utils').makeInitials(rows[0].username, rows[0].display_name)
-
-        let user = {
-          id: rows[0].id,
-          initials,
-          username: rows[0].username,
-          display_name: rows[0].display_name,
-          email: rows[0].email
-        }
-
-        res.json({ack:'ok', msg: 'One user', data: user})
-
-      }
-      else {
-        throw 'No such User'
-      }
-    })
-    .catch(err => {
-      let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
-    })
 }
 
 // Deletes user

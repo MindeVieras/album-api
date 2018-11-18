@@ -10,7 +10,7 @@ import {
 const router = express.Router()
 
 router.get('/', isAdmin, getList)
-router.get('/:id', isAdmin, getUser)
+router.get('/:username', isAdmin, getUser)
 router.post('/', isAdmin, createUser)
 router.delete('/:id', isAdmin, deleteUser)
 
