@@ -17,7 +17,9 @@ export function getAppSettings(req, res) {
 
       // Add AWS access key
       settings.access_key_id = process.env.AWS_ACCESS_KEY_ID
-
+      // Add AWS bucket
+      settings.bucket = process.env.S3_BUCKET
+      
       // Return settings
       res.json({ack:'ok', msg: 'App settings', data: settings})
     })
