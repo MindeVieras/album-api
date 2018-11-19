@@ -8,7 +8,7 @@
     "build": "rimraf dist && npx babel src -D -d dist",
     "start": "rimraf dist && npx babel src -D -d dist --no-comments && node dist/index.js",
     "apidoc": "apidoc -i src -o apidoc -t apidoc_template",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist apidoc",
     "test": "eslint src"
   },
   "engines": {

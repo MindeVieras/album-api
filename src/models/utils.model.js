@@ -7,11 +7,13 @@ import { jsonResponse, makeInitials } from '../helpers'
 let conn = new Database()
 
 /**
- * @api {get} /utils/ip-location Get Ip Location
+ * @api {get} /utils/ip-location/:ip Get Ip Location
  * @apiName GetIpLocation
  * @apiGroup Utils
  * 
  * @apiPermission authed
+ * 
+ * @apiParam {String} ip IP address
  *
  * @apiSuccess {String} status   Response status
  * @apiSuccess {Object} data     Response data
