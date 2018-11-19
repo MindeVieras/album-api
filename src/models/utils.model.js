@@ -1,8 +1,9 @@
 
-import fs from 'fs'
+import publicIp from 'public-ip'
+import request from 'superagent'
 
 import { Database } from '../db'
-import { jsonResponse } from '../helpers'
+import { jsonResponse, makeInitials } from '../helpers'
 
 let conn = new Database()
 
@@ -31,20 +32,30 @@ let conn = new Database()
  */
 export function ipLocation(req, res) {
   
-  var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-
   let data = {
     lat: 0,
-    lng: 0,
-    ip: {
-      remoteAddress: req.connection.remoteAddress,
-      remotePort:req.connection.remotePort,
-      localAddress: req.connection.localAddress,
-      localPort: req.connection.localPort   
-    }
+    lng: 0
   }
 
-  jsonResponse.success(res, data)
+  publicIp.v4()
+    .then(ip => {
+      return request.get(`https://ipapi.co/${ip}/json/`)
+    })
+    .then((ipRes) => {
+      let { latitude, longitude } = JSON.parse(ipRes.text)
+
+      if (latitude && longitude) {
+        data = {
+          lat: latitude,
+          lng: longitude
+        }
+      }
+
+      jsonResponse.success(res, data)
+    })
+    .catch(err => {
+      jsonResponse.success(res, data)
+    })
 }
 
 // Gets App settings
