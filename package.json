@@ -38,7 +38,6 @@
     "moment": "^2.22.2",
     "morgan": "^1.9.1",
     "mysql": "^2.16.0",
-    "public-ip": "^2.4.0",
     "superagent": "^4.0.0",
     "validator": "^10.9.0",
     "winston": "^3.1.0",

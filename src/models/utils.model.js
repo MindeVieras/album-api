@@ -1,5 +1,4 @@
 
-import publicIp from 'public-ip'
 import request from 'superagent'
 
 import { Database } from '../db'
@@ -32,16 +31,17 @@ let conn = new Database()
  */
 export function ipLocation(req, res) {
   
+  const { ip } = req.params
+
   let data = {
     lat: 0,
     lng: 0
   }
 
-  publicIp.v4()
-    .then(ip => {
-      return request.get(`https://ipapi.co/${ip}/json/`)
-    })
+  request
+    .get(`https://ipapi.co/${ip}/json/`)
     .then((ipRes) => {
+      console.log(ipRes)
       let { latitude, longitude } = JSON.parse(ipRes.text)
 
       if (latitude && longitude) {

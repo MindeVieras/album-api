@@ -6,7 +6,7 @@ import * as utilsModel from '../models/utils.model'
 
 const router = express.Router()
 
-router.route('/ip-location')
+router.route('/ip-location/:ip')
   .get(isAuthed, (req, res) => {
     utilsModel.ipLocation(req, res)
   })
