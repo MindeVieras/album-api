@@ -309,7 +309,7 @@ export function saveRekognitionText(req, res) {
   
   const { media_id } = req.body
 
-  let text
+  let text, values
 
   conn.query(`SELECT s3_key, mime FROM media WHERE id = ?`, media_id)
     .then( rows => {
@@ -341,7 +341,7 @@ export function saveRekognitionText(req, res) {
     .then(() => {
       
       // make values array for db
-      let values = text.map(t => {
+      values = text.map(t => {
         
         const { BoundingBox, Polygon } = t.Geometry
         return [
@@ -365,14 +365,17 @@ export function saveRekognitionText(req, res) {
     })
     .then(() => {
 
-      // Make object for return
-      let rekognition_text = {}
-      text.map(t => {
-        rekognition_text['ack'] = 'ok'
-        rekognition_text['Valio'] = 0.23
-      })
+      // Query new text for response
+      const sql = `SELECT * FROM rekognition_text WHERE media_id = ?`
+      return conn.query(sql, media_id)
+    })
+    .then(newText => {
+      let rekognitionObj = {}
+
+      rekognitionObj['ack'] = 'ok'
+      rekognitionObj['text'] = newText
       
-      res.json({ack:'ok', msg: 'Rekognition Labels saved', rekognition_text})
+      res.json({ack:'ok', msg: 'Rekognition Text saved', rekognition_text: rekognitionObj})
     })
     .catch( err => {
       let msg = err.sqlMessage ? err.sqlMessage : err

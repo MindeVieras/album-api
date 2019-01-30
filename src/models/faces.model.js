@@ -1,8 +1,10 @@
 
 import { Database } from '../db'
 
-import { getFaces, deleteFace } from './aws/rekognition/collection'
+import { describeCollection, getFaces, deleteFace } from './aws/rekognition/collection'
 import { detectFaces } from './aws/rekognition/faces'
+
+import { jsonResponse } from '../helpers'
 
 let conn = new Database()
 
@@ -83,15 +85,76 @@ export function detectImageFaces(req, res) {
     })
 }
 
-// Gets faces from rekognition collection
+
+/**
+ * @api {get} /faces/collection Get list
+ * @apiName GetFacesCollection
+ * @apiGroup Faces
+ * 
+ * @apiPermission authed
+ *
+ * @apiSuccess {String}   status                  Response status
+ * @apiSuccess {Object}   data                    Response data
+ * @apiSuccess {Number}   data.total                Total faces in collection
+ * @apiSuccess {String}   data.version              Collection model version
+ * @apiSuccess {Object[]} data.faces                List of faces (Array of Objects)
+ * @apiSuccess {String}   data.faces.FaceId           Face id
+ * @apiSuccess {Object}   data.faces.BoundingBox      Face bounding box points
+ * @apiSuccess {Object}   data.faces.BoundingBox.Width  Bounding box width
+ * @apiSuccess {Object}   data.faces.BoundingBox.Height Bounding box height
+ * @apiSuccess {Object}   data.faces.BoundingBox.Left   Bounding box left position
+ * @apiSuccess {Object}   data.faces.BoundingBox.Top    Bounding box top position
+ * @apiSuccess {String}   data.faces.ImageId          Image id
+ * @apiSuccess {String}   data.faces.ExternalImageId  External Id, used as S3 key
+ * @apiSuccess {Number}   data.faces.Confidence       Float, 0-100%
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "data": {
+ *          total: 123,
+ *          cersion: "1.0",
+ *          faces: [
+ *            {
+ *              "FaceId": ""4a9574d5-7e9d-5b82-9671-9aaa8e09cfb7"",
+ *              "BoundingBox": {
+ *                  "Width": 0.17777800559997559,
+ *                  "Height": 0.31422901153564453,
+ *                  "Left": 0.28444400429725647,
+ *                  "Top": 0.3972330093383789
+ *              },
+ *              "ImageId": "73767353-e046-5a2c-91bd-f7c3198caf1c",
+ *              "ExternalImageId": "1508640546629-959637.jpg",
+ *              "Confidence": 99.98970031738281
+ *            },
+ *            ...
+ *          ]       
+ *        }
+ *     }
+ *
+ */
 export function getCollectionFaces(req, res) {
 
-  getFaces()
-    .then(faces => {
-      res.json({ack:'ok', msg: 'Faces list', data: faces})
+  let collection
+
+  describeCollection()
+    .then(coll => {
+      collection = coll
+      return getFaces()
     })
-    .catch( err => {
-      res.json({ack:'err', msg: err})
+    .then(faces => {
+      
+      let data = {
+        total: collection.FaceCount,
+        version: collection.FaceModelVersion,
+        faces
+      }
+
+      jsonResponse.success(res, data)
+    })
+    .catch(err => {
+      jsonResponse.error(res, err, 404)
     })
 }
 
@@ -104,7 +167,7 @@ export function deleteCollectionFace(req, res) {
     .then(face => {
       res.json({ack:'ok', msg: 'Face deleted', data: face})
     })
-    .catch( err => {
+    .catch(err => {
       res.json({ack:'err', msg: err})
     })
 }

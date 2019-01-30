@@ -13,9 +13,9 @@ function jsonResponseSuccess(res, data = null) {
   return res.status(status).json({status: 'success', data})
 }
 
-function jsonResponseError(res, error) {
+function jsonResponseError(res, error, code = HttpStatus.INTERNAL_SERVER_ERROR) {
 
   let msg = error.sqlMessage ? HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) : error
 
-  return res.json({status: 'error', message: msg})
+  return res.status(code).json({status: 'error', message: msg})
 }

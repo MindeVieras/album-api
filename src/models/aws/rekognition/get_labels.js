@@ -17,7 +17,7 @@ export function get(key, mime){
           }
         },
         MaxLabels: 500,
-        MinConfidence: 1
+        MinConfidence: 50
       }
 
       rekognition.detectLabels(params, (err, data) => {

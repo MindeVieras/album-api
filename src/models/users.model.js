@@ -17,19 +17,19 @@ let conn = new Database()
  * 
  * @apiPermission admin
  *
- * @apiSuccess {String}   status                 Response status
- * @apiSuccess {Object}   data                   Response data
- * @apiSuccess {Object[]} data.users               List of users (Array of Objects)
- * @apiSuccess {Number}   data.users.id              User id
- * @apiSuccess {String}   data.users.username        User username
- * @apiSuccess {String}   data.users.email           User email address
- * @apiSuccess {String}   data.users.displayName     User display name
- * @apiSuccess {String}   data.users.initials        User initials made from username and display name
- * @apiSuccess {Number}   data.users.accessLevel     User access level
- * @apiSuccess {Number}   data.users.status          User status, enabled or disabled
- * @apiSuccess {Number}   data.users.author          User author id
- * @apiSuccess {Date}     data.users.created         User creation datetime
- * @apiSuccess {Date}     data.users.lastLogin       User last login datetime or null
+ * @apiSuccess {String}   status             Response status
+ * @apiSuccess {Object}   data               Response data
+ * @apiSuccess {Object[]} data.users           List of users (Array of Objects)
+ * @apiSuccess {Number}   data.users.id          User id
+ * @apiSuccess {String}   data.users.username    User username
+ * @apiSuccess {String}   data.users.email       User email address
+ * @apiSuccess {String}   data.users.displayName User display name
+ * @apiSuccess {String}   data.users.initials    User initials made from username and display name
+ * @apiSuccess {Number}   data.users.accessLevel User access level
+ * @apiSuccess {Number}   data.users.status      User status, enabled or disabled
+ * @apiSuccess {Number}   data.users.author      User author id
+ * @apiSuccess {Date}     data.users.created     User creation datetime
+ * @apiSuccess {Date}     data.users.lastLogin   User last login datetime or null
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
