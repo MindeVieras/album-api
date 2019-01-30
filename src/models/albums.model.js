@@ -169,6 +169,7 @@ export function getOne(req, res) {
       }
     })
     .then(albumMedia => {
+      console.log(albumMedia)
       // Get album media
       album.media = albumMedia.map((m, i) => {
 
@@ -238,7 +239,8 @@ export function getOne(req, res) {
           metaObj[mt.meta_name] = mt.meta_value
           if (mt.meta_name === 'duration') {
             let duration = Math.round(mt.meta_value)
-            metaObj['duration'] = moment.duration(duration, 'seconds').format('h[h], m[min], s[s]')
+            // metaObj['duration'] = moment.duration(duration, 'seconds').format('h[h], m[min], s[s]')
+            metaObj['duration'] = duration
           }
         })
 

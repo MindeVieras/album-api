@@ -58,6 +58,6 @@ function doAuth(req, res, next, al) {
   }
   
   else {
-    res.json({ack:'err', msg: 'Not authorized'})
+    res.status(401).json({ack:'err', msg: 'Not authorized'})
   }
 }
