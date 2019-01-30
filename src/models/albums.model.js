@@ -169,7 +169,7 @@ export function getOne(req, res) {
       }
     })
     .then(albumMedia => {
-      console.log(albumMedia)
+      
       // Get album media
       album.media = albumMedia.map((m, i) => {
 
