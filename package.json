@@ -7,8 +7,7 @@
     "dev": "nodemon -w src --exec \"babel-node src\"",
     "build": "rimraf dist && npx babel src -D -d dist",
     "start": "rimraf dist && npx babel src -D -d dist --no-comments && node dist/index.js",
-    "apidoc": "apidoc -i src -o apidoc -t apidoc_template",
-    "clean": "rimraf dist apidoc",
+    "clean": "rimraf dist",
     "test": "eslint src"
   },
   "engines": {
@@ -39,6 +38,7 @@
     "morgan": "^1.9.1",
     "mysql": "^2.16.0",
     "superagent": "^4.0.0",
+    "swagger-ui-express": "^4.0.6",
     "validator": "^10.9.0",
     "winston": "^3.1.0",
     "winston-mysql": "^0.9.0"
