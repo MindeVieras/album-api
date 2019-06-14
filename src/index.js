@@ -1,4 +1,5 @@
 
+import express from 'express'
 import path from 'path'
 import swaggerUi from 'swagger-ui-express'
   
@@ -14,6 +15,8 @@ const HOST = process.env.HOST || 'localhost'
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, './index.html'))
 })
+// Colony - modules dependancy visualization route
+app.use('/colony', express.static(path.join(__dirname, '../colony')))
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 // API routes
