@@ -6,7 +6,7 @@ import {
   detectImageFaces,
   getCollectionFaces,
   deleteCollectionFace
-} from '../models/faces.model'
+} from '../controllers/faces.controller'
 
 const router = express.Router()
 

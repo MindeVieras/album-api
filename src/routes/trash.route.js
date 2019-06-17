@@ -6,7 +6,7 @@ import {
   getList,
   restore,
   _delete
-} from '../models/trash.model'
+} from '../controllers/trash.controller'
 
 const router = express.Router()
 

@@ -4,7 +4,7 @@ import express from 'express'
 import {
   getSignature,
   onSuccess
-} from '../models/uploader.model'
+} from '../controllers/uploader.controller'
 
 const router = express.Router()
 

@@ -1,6 +1,8 @@
 
 import jwt from 'jsonwebtoken'
+import httpStatus from 'http-status-codes'
 
+import APIError from './APIError'
 import { usersConstants } from '../constants'
 import { secret_key } from '../config/config'
 
@@ -20,12 +22,12 @@ export function isViewer(req, res, next) {
 function doAuth(req, res, next, al) {
 
   const bearerHeader = req.headers['authorization']
-  
+
   if (typeof bearerHeader !== 'undefined') {
 
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
-    
+
     jwt.verify(bearerToken, secret_key, (err, decoded) => {
 
       if (err)
@@ -56,8 +58,11 @@ function doAuth(req, res, next, al) {
       }
     })
   }
-  
   else {
-    res.status(401).json({ack:'err', msg: 'Not authorized'})
+    const error = new APIError({
+      message: 'Not authorized',
+      status: httpStatus.UNAUTHORIZED
+    })
+    return next(error)
   }
 }

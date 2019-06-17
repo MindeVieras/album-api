@@ -2,7 +2,7 @@
 import express from 'express'
 
 import { isAuthed } from '../helpers/authenticate'
-import * as frontModel from '../models/front.model'
+import * as frontModel from '../controllers/front.controller'
 
 const router = express.Router()
 

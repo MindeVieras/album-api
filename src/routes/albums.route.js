@@ -13,7 +13,7 @@ import {
   updateLocation,
   removeLocation,
   moveToTrash
-} from '../models/albums.model'
+} from '../controllers/albums.controller'
 
 const router = express.Router()
 

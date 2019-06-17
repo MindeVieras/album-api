@@ -8,7 +8,7 @@ import {
   getImageMeta, saveMetadata,
   saveRekognitionLabels, saveRekognitionText,
   generateImageThumbs, generateVideos
-} from '../models/media.model'
+} from '../controllers/media.controller'
 
 const router = express.Router()
 

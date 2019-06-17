@@ -2,7 +2,7 @@
 import express from 'express'
 
 import { isAuthed, isAdmin } from '../helpers/authenticate'
-import * as utilsModel from '../models/utils.model'
+import * as utilsModel from '../controllers/utils.controller'
 
 const router = express.Router()
 
