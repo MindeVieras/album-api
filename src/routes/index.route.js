@@ -14,7 +14,7 @@ import usersRoutes from './users.route'
 const router = express.Router()
 
 router.use('/authenticate', authenticateRoutes)
-// router.use('/users', usersRoutes)
+router.use('/users', usersRoutes)
 // router.use('/albums', albumsRoutes)
 // router.use('/uploader', uploaderRoutes)
 // router.use('/media', mediaRoutes)

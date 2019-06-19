@@ -4,17 +4,17 @@ import httpStatus from 'http-status-codes'
 
 import APIError from './APIError'
 import { usersConstants } from '../constants'
-import { secret_key } from '../config/config'
+import config from '../config/config'
 
-// check if user admin
+// Check if user admin.
 export function isAdmin(req, res, next) {
   doAuth(req, res, next, usersConstants.USER_ACCESS_ADMIN)
 }
-// check if user authenticated
+// Check if user authenticated.
 export function isAuthed(req, res, next) {
   doAuth(req, res, next, usersConstants.USER_ACCESS_AUTHED)
 }
-// check if user is viewer
+// Check if user is viewer.
 export function isViewer(req, res, next) {
   doAuth(req, res, next, usersConstants.USER_ACCESS_VIEWER)
 }
@@ -28,39 +28,47 @@ function doAuth(req, res, next, al) {
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
 
-    jwt.verify(bearerToken, secret_key, (err, decoded) => {
+    jwt.verify(bearerToken, config.jwtSecret, (err, decoded) => {
 
-      if (err)
-        res.json({ack:'err', msg: err.message})
-
+      if (err) {
+        const error = new APIError({
+          message: httpStatus.getStatusText(httpStatus.UNAUTHORIZED),
+          status: httpStatus.UNAUTHORIZED
+        })
+        return next(error)
+      }
       else {
         const { id, access_level } = decoded
-        // Admin
+        // Admin.
         if (access_level === usersConstants.USER_ACCESS_ADMIN) {
           req.app.set('user', { uid: id, access_level })
-          next()
+          return next()
         }
-        // Authed
+        // Authed.
         else if (access_level === usersConstants.USER_ACCESS_AUTHED &&
                   al === usersConstants.USER_ACCESS_AUTHED) {
           req.app.set('user', { uid: id, access_level })
-          next()
+          return next()
         }
-        // Viewer
+        // Viewer.
         else if (access_level === usersConstants.USER_ACCESS_VIEWER &&
                   al === usersConstants.USER_ACCESS_VIEWER) {
           req.app.set('user', { uid: id, access_level })
-          next()
+          return next()
         }
         else {
-          res.json({ack:'err', msg: 'Access denied'})
+          const error = new APIError({
+            message: httpStatus.getStatusText(httpStatus.FORBIDDEN),
+            status: httpStatus.FORBIDDEN
+          })
+          return next(error)
         }
       }
     })
   }
   else {
     const error = new APIError({
-      message: 'Not authorized',
+      message: httpStatus.getStatusText(httpStatus.UNAUTHORIZED),
       status: httpStatus.UNAUTHORIZED
     })
     return next(error)

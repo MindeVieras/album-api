@@ -53,12 +53,12 @@ function databaseLogging(msg, query) {
 
 // Synchronizing any model changes with database.
 // sequelize.sync({force: true}).then(() => {
-//   // if (err) {
-//   //   console.error('An error occured %j', err)
-//   // }
-//   // else {
-//   //   console.info('Database synchronized')
-//   // }
+  // if (err) {
+  //   console.error('An error occured %j', err)
+  // }
+  // else {
+  //   console.info('Database synchronized')
+  // }
 // })
 
 // Assign the sequelize variables to the db object and returning the db.

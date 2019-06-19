@@ -14,7 +14,12 @@ export default {
   // POST /api/users
   createUser: {
     body: {
-      username: Joi.string().required()
+      username: Joi.string().alphanum().min(4).max(30).required(),
+      password: Joi.string().min(5).max(30).required(),
+      email: Joi.string().email({ minDomainAtoms: 2 }),
+      displayName: Joi.string().max(55),
+      accessLevel: Joi.number().integer().min(0).max(100),
+      status: Joi.boolean()
     }
   },
 
