@@ -5,7 +5,7 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
 
     // Check if user already exists.
-    return queryInterface.bulkDelete('users', {
+    return queryInterface.bulkDelete('Users', {
       username: process.env.ADMIN_USER
     })
       .then(() => {
@@ -27,7 +27,7 @@ module.exports = {
         }
 
         // Insert user to databse.
-        return queryInterface.bulkInsert('users', [admin], {})
+        return queryInterface.bulkInsert('Users', [admin], {})
       })
       .catch(error => {
         console.error(error)

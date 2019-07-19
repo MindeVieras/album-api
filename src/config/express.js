@@ -8,18 +8,22 @@ import morgan from 'morgan'
 import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 
+import config from './config'
+
 const swaggerDocument = require('../swagger.json')
 
 const app = express()
 
-// Set express-validation settings for the requests body/params.
+// Set express-validation settings.
 ev.options({
   status: httpStatus.UNPROCESSABLE_ENTITY,
   statusText: httpStatus.getStatusText(httpStatus.INTERNAL_SERVER_ERROR)
 })
 
 // Logger
-app.use(morgan('dev'))
+if (config.env == 'development') {
+  app.use(morgan('dev'))
+}
 
 // CORS
 app.use(cors())
@@ -37,8 +41,11 @@ app.use(bodyParser.json({
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'))
 })
-// Colony - modules dependancy visualization route
-app.use('/colony', express.static(path.join(__dirname, '../../colony')))
+
+if (config.env == 'development') {
+  // Colony - modules dependancy visualization route
+  app.use('/colony', express.static(path.join(__dirname, '../../colony')))
+}
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 

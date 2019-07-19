@@ -39,11 +39,11 @@ module.exports = {
       fakeUsers[Math.floor(Math.random() * totalFakeUsers)].lastLogin = faker.date.past(2)
     }
 
-    return queryInterface.bulkInsert('users', fakeUsers, {})
+    return queryInterface.bulkInsert('Users', fakeUsers, {})
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('users', null, {})
+    return queryInterface.bulkDelete('Users', null, {})
   }
 }
 

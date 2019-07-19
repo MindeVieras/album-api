@@ -6,9 +6,9 @@
 
 import { APIError, APISuccess } from '../helpers'
 // import { secret_key } from '../config/config'
-import db from '../config/sequelize'
+import { Users } from '../models'
 
-const Users = db.Users
+// const Users = db.Users
 
 // Authenticates user
 export function authenticate(req, res, next) {
@@ -19,9 +19,9 @@ export function authenticate(req, res, next) {
   // console.log(req.body)
   // console.log(db)
   Users.findAll({
-    where: {
-      username: 'minde'
-    }
+    // where: {
+    //   username: 'minde'
+    // }
   })
     .then(users => new APISuccess(res, users))
     .catch(error => next(error))

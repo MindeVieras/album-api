@@ -30,7 +30,7 @@ export const errorHandler = (err, req, res, next) => {
  * @public
  */
 export const errorConverter = (err, req, res, next) => {
-  console.log('error converter')
+
   let convertedError = err
 
   if (err instanceof expressValidation.ValidationError) {
