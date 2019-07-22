@@ -1,60 +1,27 @@
 
-// import bcrypt from 'bcrypt'
 // import validator from 'validator'
 // import jwt from 'jsonwebtoken'
 // import moment from 'moment'
 
 import { APIError, APISuccess } from '../helpers'
 // import { secret_key } from '../config/config'
-import { Users } from '../models'
+import UserClass from '../classes/UserClass'
 
 // const Users = db.Users
 
 // Authenticates user
-export function authenticate(req, res, next) {
+export async function authenticate(req, res, next) {
 
-  // return new APISuccess(res)
+  const { username, password } = req.body
 
-  // console.log('afsdfadfadsfasdf')
-  // console.log(req.body)
-  // console.log(db)
-  Users.findAll({
-    // where: {
-    //   username: 'minde'
-    // }
-  })
-    .then(users => new APISuccess(res, users))
-    .catch(error => next(error))
-
-  // const error = new APIError({
-  //   message: 'asfasasd',
-  //   status: 402
-  // })
-  // return next(error)
-
-  // const { username, password } = req.body
-  // let  errors
-
-  // // validate username input
-  // if (!username || validator.isEmpty(username)) {
-  //   errors = {
-  //     ...errors,
-  //     username: 'Username is required'
-  //   }
-  // }
-
-  // // validate password input
-  // if (!password || validator.isEmpty(password)) {
-  //   errors = {
-  //     ...errors,
-  //     password: 'Password is required'
-  //   }
-  // }
-
-  // // return errors if any
-  // if (errors) {
-  //   res.json({ ack:'err', errors })
-  // }
+  try {
+    const user = new UserClass()
+    const authedUser = await user.login(username, password)
+    return new APISuccess(res, authedUser, 200, 'Authentication ok')
+  }
+  catch(error) {
+    next(error)
+  }
 
   // else {
   //   let user

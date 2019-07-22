@@ -1,7 +1,7 @@
 
 import config from './config'
 
-export default {
+module.exports = {
   development: {
     username: config.db.user,
     password: config.db.pass,
