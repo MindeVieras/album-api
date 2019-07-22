@@ -9,10 +9,6 @@ import { Users } from '../models'
 
 class UserClass {
 
-  constructor() {
-    this.test = 'TESTAS!'
-  }
-
   /**
    * Authenticate user and return token.
    *
@@ -22,6 +18,7 @@ class UserClass {
    *   Password for the user.
    *
    * @returns
+   *   Object with JWT payload and a token.
    */
   async login(username, password) {
 
@@ -37,11 +34,13 @@ class UserClass {
           message: 'Incorrect details.'
         })
 
+      // Create JWT payload - data that can be decoded after verifying token.
       const jwtPayload = {
         id: user.get('id'),
         username: user.get('username')
       }
 
+      // Generate JWT token.
       const token = jwt.sign(jwtPayload, config.jwtSecret)
 
       // Set user last login date.
@@ -49,6 +48,7 @@ class UserClass {
         where: { id: user.get('id') }
       })
 
+      // Return payload with token.
       return { ...jwtPayload, token }
 
     }
