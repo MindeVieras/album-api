@@ -44,7 +44,7 @@ class UserClass {
       const token = jwt.sign(jwtPayload, config.jwtSecret)
 
       // Set user last login date.
-      await Users.update({ lastLogin: new Date() }, {
+      Users.update({ lastLogin: new Date() }, {
         where: { id: user.get('id') }
       })
 
