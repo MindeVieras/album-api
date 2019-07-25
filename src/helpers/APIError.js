@@ -16,7 +16,6 @@ class ExtendableError extends Error {
     this.isPublic = isPublic
     this.isOperational = true
     this.stack = stack
-    Error.captureStackTrace(this, this.constructor.name)
   }
 }
 
