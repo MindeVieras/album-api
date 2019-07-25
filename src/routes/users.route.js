@@ -13,8 +13,7 @@ const router = express.Router()
  * GET /api/users - Get list of users
  */
 router.route('/')
-  .get(isAdmin, usersList)
-  // .get(validate(paramValidation.usersList), isAdmin, usersList)
+  .get(validate(paramValidation.usersList), isAdmin, usersList)
 
 /**
  * POST /api/users - Creates new user

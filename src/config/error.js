@@ -40,20 +40,38 @@ export const errorConverter = (err, req, res, next) => {
 
   let convertedError = err
 
-  if (err instanceof expressValidation.ValidationError)
-    convertedError = new APIError({
-      message: 'Validation error',
-      errors: err.errors,
-      status: err.status,
-      stack: err.stack
-    })
+  if (err instanceof expressValidation.ValidationError) {
 
-  else if (!(err instanceof APIError))
+    let status = err.status
+    let message = httpStatus.getStatusText(httpStatus.BAD_REQUEST)
+    let errors = err.errors
+
+    // Check if any header errors.
+    let headersErrors = []
+    for (let i = 0; i < errors.length; i++) {
+      if (errors[i].location == 'headers') {
+        headersErrors.push(errors[i])
+      }
+    }
+
+    if (headersErrors.length) {
+      errors = headersErrors
+    }
+    else {
+      status = httpStatus.UNPROCESSABLE_ENTITY
+      message = 'Validation error'
+      errors = errors.filter((e) => e.location != 'headers')
+    }
+
+    convertedError = new APIError({status, message, errors})
+  }
+  else if (!(err instanceof APIError)) {
     convertedError = new APIError({
       message: err.message,
       status: err.status,
       stack: err.stack
     })
+  }
 
   return errorHandler(convertedError, req, res)
 }

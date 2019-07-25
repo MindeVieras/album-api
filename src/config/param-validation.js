@@ -1,8 +1,13 @@
 
 import Joi from 'joi'
 
-const headers = {
+const defaultHeaders = {
   'content-type': Joi.valid('application/json').required()
+}
+
+const headers = {
+  ...defaultHeaders,
+  'authorization': Joi.string().required()
 }
 
 export default {
@@ -13,17 +18,12 @@ export default {
       username: Joi.string().required(),
       password: Joi.string().required()
     },
-    headers
+    headers: defaultHeaders
   },
 
   // GET /api/users
   usersList: {
-    params: {
-      userId: Joi.string().hex().required()
-    },
-    headers: {
-      accesstoken: Joi.string().required()
-    }
+    headers
   },
 
   // POST /api/users
@@ -35,7 +35,8 @@ export default {
       displayName: Joi.string().max(55),
       accessLevel: Joi.number().integer().min(0).max(100),
       status: Joi.boolean()
-    }
+    },
+    headers
   },
 
   // UPDATE /api/users/:userId
@@ -45,6 +46,7 @@ export default {
     },
     params: {
       userId: Joi.string().hex().required()
-    }
+    },
+    headers
   }
 }

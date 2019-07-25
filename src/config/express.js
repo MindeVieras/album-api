@@ -17,12 +17,6 @@ const app = express()
 // Disable useless header.
 app.disable('x-powered-by')
 
-// Set express-validation settings.
-ev.options({
-  status: httpStatus.UNPROCESSABLE_ENTITY,
-  statusText: httpStatus.getStatusText(httpStatus.INTERNAL_SERVER_ERROR)
-})
-
 // Logger
 if (config.env == 'development') {
   app.use(morgan('dev'))
