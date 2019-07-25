@@ -1,15 +1,16 @@
 
-import bcrypt from 'bcrypt'
-import validator from 'validator'
-import moment from 'moment'
+// import bcrypt from 'bcrypt'
+// import validator from 'validator'
+// import moment from 'moment'
 
 // import { Database } from '../db'
 
-import { usersConstants } from '../constants'
-import { APIError, APISuccess, jsonResponse, makeInitials } from '../helpers'
-import db from '../config/sequelize'
+// import { usersConstants } from '../constants'
+import { APISuccess } from '../helpers'
+// import db from '../config/sequelize'
+import UserClass from '../classes/UserClass'
 
-const Users = db.Users
+// const Users = db.Users
 // let conn = new Database()
 
 /**
@@ -57,6 +58,21 @@ const Users = db.Users
  *     }
  *
  */
+
+// Get list of users user
+export async function usersList(req, res, next) {
+
+  try {
+    const user = new UserClass()
+    const users = await user.list()
+    return new APISuccess(res, users)
+  }
+  catch (error) {
+    next(error)
+  }
+
+}
+
 // export function getList(req, res){
 
 //   conn.query(`SELECT id, username, email, display_name, access_level, last_login, status, created, author FROM users`)

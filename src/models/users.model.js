@@ -11,12 +11,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     password: DataTypes.STRING,
     email: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      type: DataTypes.STRING(64),
+      allowNull: false,
       unique: true
     },
     displayName: DataTypes.STRING(55),
-    author: DataTypes.INTEGER.UNSIGNED,
+    author: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false
+    },
     accessLevel: {
       type: DataTypes.INTEGER(3).UNSIGNED,
       allowNull: false,
@@ -24,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.TINYINT(1).UNSIGNED,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 0
     },
     lastLogin: DataTypes.DATE
   })

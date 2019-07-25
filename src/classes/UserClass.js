@@ -60,6 +60,10 @@ class UserClass {
     })
   }
 
+  async list() {
+    return 'list of users...'
+  }
+
   /**
    * Check if user exists by given username.
    *

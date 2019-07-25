@@ -11,8 +11,18 @@ export default {
     }
   },
 
+  // GET /api/users
+  usersList: {
+    params: {
+      userId: Joi.string().hex().required()
+    },
+    headers: {
+      accesstoken: Joi.string().required()
+    }
+  },
+
   // POST /api/users
-  createUser: {
+  userCreate: {
     body: {
       username: Joi.string().alphanum().min(4).max(30).required(),
       password: Joi.string().min(5).max(30).required(),

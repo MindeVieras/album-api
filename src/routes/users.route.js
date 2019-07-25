@@ -5,17 +5,23 @@ import validate from 'express-validation'
 import paramValidation from '../config/param-validation'
 
 import { isAdmin } from '../helpers/authenticate'
-import { createUser } from '../controllers/users.controller'
+import { usersList } from '../controllers/users.controller'
 
 const router = express.Router()
 
 /**
- * POST /api/users - Creates new user
+ * GET /api/users - Get list of users
  */
 router.route('/')
-  .post(validate(paramValidation.createUser), isAdmin, createUser)
+  .get(isAdmin, usersList)
+  // .get(validate(paramValidation.usersList), isAdmin, usersList)
 
-// router.get('/', isAdmin, getList)
+/**
+ * POST /api/users - Creates new user
+ */
+// router.route('/')
+//   .post(validate(paramValidation.createUser), isAdmin, createUser)
+
 // router.get('/:username', isAdmin, getUser)
 // router.post('/', isAdmin, createUser)
 // router.delete('/:id', isAdmin, deleteUser)
