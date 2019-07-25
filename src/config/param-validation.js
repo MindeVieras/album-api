@@ -1,6 +1,10 @@
 
 import Joi from 'joi'
 
+const headers = {
+  'content-type': Joi.valid('application/json').required()
+}
+
 export default {
 
   // POST /api/authenticte
@@ -8,7 +12,8 @@ export default {
     body: {
       username: Joi.string().required(),
       password: Joi.string().required()
-    }
+    },
+    headers
   },
 
   // GET /api/users

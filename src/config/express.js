@@ -14,6 +14,9 @@ const swaggerDocument = require('../swagger.json')
 
 const app = express()
 
+// Disable useless header.
+app.disable('x-powered-by')
+
 // Set express-validation settings.
 ev.options({
   status: httpStatus.UNPROCESSABLE_ENTITY,
