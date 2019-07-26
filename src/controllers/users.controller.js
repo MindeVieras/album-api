@@ -13,52 +13,6 @@ import UserClass from '../classes/UserClass'
 // const Users = db.Users
 // let conn = new Database()
 
-/**
- * @api {get} /users Get list
- * @apiName GetUsers
- * @apiGroup Users
- *
- * @apiPermission admin
- *
- * @apiSuccess {String}   status             Response status
- * @apiSuccess {Object}   data               Response data
- * @apiSuccess {Object[]} data.users           List of users (Array of Objects)
- * @apiSuccess {Number}   data.users.id          User id
- * @apiSuccess {String}   data.users.username    User username
- * @apiSuccess {String}   data.users.email       User email address
- * @apiSuccess {String}   data.users.displayName User display name
- * @apiSuccess {String}   data.users.initials    User initials made from username and display name
- * @apiSuccess {Number}   data.users.accessLevel User access level
- * @apiSuccess {Number}   data.users.status      User status, enabled or disabled
- * @apiSuccess {Number}   data.users.author      User author id
- * @apiSuccess {Date}     data.users.created     User creation datetime
- * @apiSuccess {Date}     data.users.lastLogin   User last login datetime or null
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "status": "success",
- *       "data": {
- *          users: [
- *            {
- *              "id": 1,
- *              "username": "demouser",
- *              "email": "demo@example.com",
- *              "displayName": "Demo User",
- *              "initials": "DU",
- *              "accessLevel": 100,
- *              "status": 1,
- *              "author": 1,
- *              "created": "2017-12-31T01:16:54.000Z",
- *              "lastLogin": "2018-11-04T11:43:21.000Z"
- *            },
- *            ...
- *          ]
- *        }
- *     }
- *
- */
-
 // Get list of users user
 export async function usersList(req, res, next) {
 

@@ -38,22 +38,22 @@ function doAuth(req, res, next, al) {
         return next(error)
       }
       else {
-        const { id, access_level } = decoded
+        const { id, accessLevel } = decoded
         // Admin.
-        if (access_level === usersConstants.USER_ACCESS_ADMIN) {
-          req.app.set('user', { uid: id, access_level })
+        if (accessLevel === usersConstants.USER_ACCESS_ADMIN) {
+          req.app.set('user', { uid: id, accessLevel })
           return next()
         }
         // Authed.
-        else if (access_level === usersConstants.USER_ACCESS_AUTHED &&
+        else if (accessLevel === usersConstants.USER_ACCESS_AUTHED &&
                   al === usersConstants.USER_ACCESS_AUTHED) {
-          req.app.set('user', { uid: id, access_level })
+          req.app.set('user', { uid: id, accessLevel })
           return next()
         }
         // Viewer.
-        else if (access_level === usersConstants.USER_ACCESS_VIEWER &&
+        else if (accessLevel === usersConstants.USER_ACCESS_VIEWER &&
                   al === usersConstants.USER_ACCESS_VIEWER) {
-          req.app.set('user', { uid: id, access_level })
+          req.app.set('user', { uid: id, accessLevel })
           return next()
         }
         else {

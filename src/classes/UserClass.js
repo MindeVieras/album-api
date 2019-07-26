@@ -37,7 +37,8 @@ class UserClass {
       // Create JWT payload - data that can be decoded after verifying token.
       const jwtPayload = {
         id: user.get('id'),
-        username: user.get('username')
+        username: user.get('username'),
+        accessLevel: user.get('accessLevel')
       }
 
       // Generate JWT token.
@@ -60,8 +61,14 @@ class UserClass {
     })
   }
 
-  async list() {
-    return 'list of users...'
+  /**
+   * Get list of users.
+   *
+   * @param page
+   */
+  async list(offset = 0, limit = 10) {
+    const users = await Users.findAll({ offset, limit })
+    return users
   }
 
   /**
