@@ -42,28 +42,31 @@ export const errorConverter = (err, req, res, next) => {
 
   if (err instanceof expressValidation.ValidationError) {
 
-    let status = err.status
-    let message = httpStatus.getStatusText(httpStatus.BAD_REQUEST)
-    let errors = err.errors
-
-    // Check if any header errors.
-    let headersErrors = []
-    for (let i = 0; i < errors.length; i++) {
-      if (errors[i].location == 'headers') {
-        headersErrors.push(errors[i])
-      }
+    // Create default 'Bad request' error with a status of 400.
+    let error = {
+      status: httpStatus.BAD_REQUEST,
+      message: httpStatus.getStatusText(httpStatus.BAD_REQUEST),
+      errors: err.errors || []
     }
 
+    // Check if any headers errors.
+    let headersErrors = error.errors.filter((e) => e.location == 'headers')
+
+    // Set headers errors if any.
     if (headersErrors.length) {
-      errors = headersErrors
+      error.errors = headersErrors
+      // Headers errors are exposed only for developer.
+      if (!isDev) delete error.errors
     }
+    // Otherwise set the rest as validation error with status of 422
+    // and filter out headers errors.
     else {
-      status = httpStatus.UNPROCESSABLE_ENTITY
-      message = 'Validation error'
-      errors = errors.filter((e) => e.location != 'headers')
+      error.status = httpStatus.UNPROCESSABLE_ENTITY
+      error.message = 'Validation error'
+      erorr.errors = errors.filter((e) => e.location != 'headers')
     }
 
-    convertedError = new APIError({status, message, errors})
+    convertedError = new APIError(error)
   }
   else if (!(err instanceof APIError)) {
     convertedError = new APIError({
