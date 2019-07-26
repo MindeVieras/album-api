@@ -28,7 +28,7 @@
   "homepage": "https://github.com/MindeVieras/album-api#readme",
   "dependencies": {
     "aspect-ratio": "^2.0.2",
-    "aws-sdk": "^2.500.0",
+    "aws-sdk": "^2.501.0",
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
