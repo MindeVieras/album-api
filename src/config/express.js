@@ -1,7 +1,5 @@
 
 import express from 'express'
-import ev from 'express-validation'
-import httpStatus from 'http-status-codes'
 import path from 'path'
 import bodyParser from 'body-parser'
 import morgan from 'morgan'
