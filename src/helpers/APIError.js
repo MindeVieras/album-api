@@ -6,7 +6,7 @@ import httpStatus from 'http-status-codes'
  */
 class ExtendableError extends Error {
   constructor({
-    message, errors, status, isPublic, stack
+    message, errors, status, isPublic, stack,
   }) {
     super(message)
     this.name = this.constructor.name
@@ -21,11 +21,13 @@ class ExtendableError extends Error {
 
 /**
  * Class representing an API error.
+ *
  * @extends ExtendableError
  */
 class APIError extends ExtendableError {
   /**
    * Creates an API error.
+   *
    * @param {string} message - Error message.
    * @param {array} errors - Multiple error messages.
    * @param {string} stack - Stack trace for the error message.
@@ -37,10 +39,10 @@ class APIError extends ExtendableError {
     errors,
     stack,
     status = httpStatus.INTERNAL_SERVER_ERROR,
-    isPublic = false
+    isPublic = false,
   }) {
     super({
-      message, errors, status, isPublic, stack
+      message, errors, status, isPublic, stack,
     })
   }
 }

@@ -1,9 +1,0 @@
-
-{
-  "parser": "babel-eslint",
-  "rules": {
-    "semi": ["error", "never"],
-    "no-console": "off",
-  },
-  "extends": "airbnb-base"
-}

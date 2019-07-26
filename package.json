@@ -58,6 +58,7 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsdoc": "^15.7.2",
     "faker": "^4.1.0",
     "nodemon": "^1.18.6",
     "rimraf": "^2.6.2",

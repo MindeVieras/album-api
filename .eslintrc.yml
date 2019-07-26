@@ -1,0 +1,15 @@
+---
+root: true
+
+parser: babel-eslint
+
+plugins:
+  - jsdoc
+
+extends:
+  - airbnb-base
+  - plugin:jsdoc/recommended
+
+rules:
+  semi: [error, never]
+  no-console: off
