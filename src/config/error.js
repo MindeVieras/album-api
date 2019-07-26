@@ -9,6 +9,7 @@ const isDev = (config.env == 'development')
 
 /**
  * Error handler. Send stacktrace only during development
+ *
  * @public
  */
 export const errorHandler = (err, req, res, next) => {
@@ -19,7 +20,7 @@ export const errorHandler = (err, req, res, next) => {
     message = err.message
 
   const response = {
-    code: err.status,
+    status: err.status,
     message,
     errors: err.errors,
     stack: err.stack
@@ -28,12 +29,12 @@ export const errorHandler = (err, req, res, next) => {
   if (!isDev)
     delete response.stack
 
-  res.status(err.status)
-  res.json(response)
+  res.status(err.status).json(response)
 }
 
 /**
  * If error is not an instanceOf APIError, convert it.
+ *
  * @public
  */
 export const errorConverter = (err, req, res, next) => {
@@ -81,6 +82,7 @@ export const errorConverter = (err, req, res, next) => {
 
 /**
  * Catch 404 and forward to error handler
+ *
  * @public
  */
 export const errorNotFound = (req, res, next) => {
