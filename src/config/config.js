@@ -38,7 +38,7 @@ if (error) {
 }
 
 // Build config object.
-const config = {
+module.exports = {
   env: envVars.NODE_ENV,
   host: envVars.HOST,
   port: envVars.PORT,
@@ -51,5 +51,3 @@ const config = {
     pass: envVars.DB_PASS,
   },
 }
-
-export default config

@@ -16,7 +16,9 @@ app.use(errorHandler)
 
 // Start HTTP server.
 app.listen(config.port, () => {
-  console.log(`Server running at http://${config.host}:${config.port}`)
+  if (config.env === 'development') {
+    console.log(`Server running at http://${config.host}:${config.port}`)
+  }
 })
 
 export default app

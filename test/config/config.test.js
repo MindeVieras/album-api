@@ -1,13 +1,13 @@
 
 import { expect } from 'chai'
 
-import config from '../../src/config/config.js'
+import config from '../../src/config/config'
 
 describe('Environment configuration tests.', () => {
 
   it('Configuration should return valid object.', function () {
     // Environment value check.
-    expect(config).to.have.property('env', process.env.NODE_ENV)
+    expect(config).to.have.property('env', 'test')
     expect(config).to.have.property('host', process.env.HOST)
     expect(config).to.have.property('port', parseInt(process.env.PORT))
     expect(config).to.have.property('jwtSecret', process.env.JWT_SECRET)
