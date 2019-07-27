@@ -3,6 +3,8 @@
 /colony
 /coverage
 
+.nyc_output/
+
 .env
 
 node_modules

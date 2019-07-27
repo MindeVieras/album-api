@@ -13,7 +13,6 @@ describe('Environment configuration tests.', () => {
     expect(config).to.have.property('jwtSecret', process.env.JWT_SECRET)
 
     // Check database config.
-    // expect(config).to.have.deep.own.property('db', { name: process.env.DB_NAME })
     expect(config).to.have.nested.property('db.name', process.env.DB_NAME)
     expect(config).to.have.nested.property('db.host', process.env.DB_HOST)
     expect(config).to.have.nested.property('db.port', parseInt(process.env.DB_PORT))
