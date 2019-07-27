@@ -1,12 +1,18 @@
 
 import Joi from 'joi'
 
-const defaultHeaders = {
+// All reqests should accept data in JSON format.
+const headerAccept = {
+  accept: Joi.valid('application/json').required(),
+}
+
+// Content-Type header is required when sending JSON data.
+const headerContentType = {
   'content-type': Joi.valid('application/json').required(),
 }
 
 const headers = {
-  ...defaultHeaders,
+  ...headerAccept,
   authorization: Joi.string().required(),
 }
 
@@ -18,7 +24,10 @@ export default {
       username: Joi.string().required(),
       password: Joi.string().required(),
     },
-    headers: defaultHeaders,
+    headers: {
+      ...headerAccept,
+      ...headerContentType,
+    },
   },
 
   // GET /api/users
