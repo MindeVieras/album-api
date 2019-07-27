@@ -5,7 +5,7 @@ import expressValidation from 'express-validation'
 import APIError from '../helpers/APIError'
 import config from './config'
 
-const isDev = (config.env === 'development')
+const isProd = (config.env === 'production')
 
 /**
  * Error handler.
@@ -26,7 +26,7 @@ export const errorHandler = (err, req, res) => {
   let message = httpStatus.getStatusText(status)
 
   // Only developer can see custom messages.
-  if (isDev) {
+  if (!isProd) {
     message = err.message || httpStatus.getStatusText(status)
   }
 
@@ -39,7 +39,7 @@ export const errorHandler = (err, req, res) => {
   }
 
   // Make sure we only expose stack property to developer only.
-  if (!isDev) delete response.stack
+  if (isProd) delete response.stack
 
   return res.status(response.status).json(response)
 }
@@ -73,7 +73,7 @@ export const errorConverter = (err, req, res, next) => {
     if (headersErrors.length) {
       error.errors = headersErrors
       // Headers errors are exposed only for developer.
-      if (!isDev) delete error.errors
+      if (isProd) delete error.errors
     }
     // Otherwise set the rest as validation error with status of 422
     // and filter out headers errors.
