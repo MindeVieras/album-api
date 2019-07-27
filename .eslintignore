@@ -1,5 +1,4 @@
 
-lambda/**/*.js
 migrations/*
 seeders/*
 tests
