@@ -1,4 +1,4 @@
 
 migrations/*
 seeders/*
-tests
+test
