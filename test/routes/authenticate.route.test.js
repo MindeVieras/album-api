@@ -14,19 +14,17 @@ describe('## Authentication route.', () => {
       password: 'admin123',
     }
 
-    it('User authenticated successfully.', function (done) {
+    it('User authenticated successfully.', done => {
       request(app)
         .post('/api/authenticate')
         .send(user)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
         // .expect(httpStatus.OK)
-        .then(res => {
-          // console.log(res)
-          // expect(res.body.data.name).to.equal(member.name)
-          // expect(res.body.data.email).to.equal(member.email)
-          // member = res.body.data
-          done()
+        .end((err, res) => {
+          if (err) throw err
+          console.log(res)
         })
-        .catch(done)
     })
 
   })
