@@ -12,7 +12,7 @@
     "migrate": "npx sequelize-cli db:migrate",
     "seed": "npx sequelize-cli db:seed:all",
     "lint": "eslint src",
-    "test": "jest"
+    "test": "jest --watchAll"
   },
   "engines": {
     "node": "10.13.0"
