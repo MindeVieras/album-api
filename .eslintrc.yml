@@ -13,3 +13,4 @@ extends:
 rules:
   semi: [error, never]
   no-console: off
+  brace-style: [error, stroustrup]

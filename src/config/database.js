@@ -7,20 +7,20 @@ module.exports = {
     password: config.db.pass,
     database: config.db.name,
     host: config.db.host,
-    dialect: 'mysql'
+    dialect: 'mysql',
   },
   test: {
     username: config.db.user,
     password: config.db.pass,
     database: 'album_test',
     host: config.db.host,
-    dialect: 'mysql'
+    dialect: 'mysql',
   },
   production: {
     username: config.db.user,
     password: config.db.pass,
     database: config.db.name,
     host: config.db.host,
-    dialect: 'mysql'
-  }
+    dialect: 'mysql',
+  },
 }

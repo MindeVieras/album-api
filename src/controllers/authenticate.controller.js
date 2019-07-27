@@ -2,9 +2,18 @@
 import { APISuccess } from '../helpers'
 import UserClass from '../classes/UserClass'
 
-// Authenticates user
-export async function authenticate(req, res, next) {
-
+/**
+ * Authenticates user.
+ *
+ * @param {*} req - Request.
+ * @param {*} res - Response.
+ * @param {*} next - Send to error handler.
+ *
+ * @returns {Promise}
+ *  JSON user data including token.
+ */
+export default async function authenticate(req, res, next) {
+  // Get request body values.
   const { username, password } = req.body
 
   try {
@@ -12,8 +21,7 @@ export async function authenticate(req, res, next) {
     const authedUser = await user.login(username, password)
     return new APISuccess(res, authedUser)
   }
-  catch(error) {
-    next(error)
+  catch (error) {
+    return next(error)
   }
-
 }

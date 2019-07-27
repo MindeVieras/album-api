@@ -26,7 +26,7 @@ const envVarsSchema = Joi.object({
     .description('Database username'),
   DB_PASS: Joi.string()
     .allow('')
-    .description('Database password')
+    .description('Database password'),
 })
   .unknown()
   .required()
@@ -48,8 +48,8 @@ const config = {
     port: envVars.DB_PORT,
     host: envVars.DB_HOST,
     user: envVars.DB_USER,
-    pass: envVars.DB_PASS
-  }
+    pass: envVars.DB_PASS,
+  },
 }
 
 export default config

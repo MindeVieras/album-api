@@ -16,7 +16,7 @@ const app = express()
 app.disable('x-powered-by')
 
 // Logger
-if (config.env == 'development') {
+if (config.env === 'development') {
   app.use(morgan('dev'))
 }
 
@@ -26,10 +26,10 @@ app.use(cors())
 // Body parser
 app.use(bodyParser.urlencoded({
   extended: true,
-  limit: '50mb'
+  limit: '50mb',
 }))
 app.use(bodyParser.json({
-  limit : '50mb'
+  limit: '50mb',
 }))
 
 // Home route
@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'))
 })
 
-if (config.env == 'development') {
+if (config.env === 'development') {
   // Colony - modules dependancy visualization route
   app.use('/colony', express.static(path.join(__dirname, '../../colony')))
 }

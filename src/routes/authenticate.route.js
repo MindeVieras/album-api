@@ -3,7 +3,7 @@ import express from 'express'
 import validate from 'express-validation'
 
 import paramValidation from '../config/param-validation'
-import { authenticate } from '../controllers/authenticate.controller'
+import authenticate from '../controllers/authenticate.controller'
 
 const router = express.Router()
 

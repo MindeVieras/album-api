@@ -3,55 +3,71 @@ import httpStatus from 'http-status-codes'
 import expressValidation from 'express-validation'
 
 import APIError from '../helpers/APIError'
-import config from '../config/config'
+import config from './config'
 
-const isDev = (config.env == 'development')
+const isDev = (config.env === 'development')
 
 /**
- * Error handler. Send stacktrace only during development
+ * Error handler.
+ * Send stacktrace only during development
  *
- * @public
+ * @param {object} err - Error object created by errorConverter().
+ * @param {*} req - Request.
+ * @param {*} res - Response.
+ *
+ * @returns {Promise}
+ *  JSON user data including token.
  */
-export const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res) => {
+  // Set default status.
+  const status = err.status || httpStatus.INTERNAL_SERVER_ERROR
 
-  let message = httpStatus.getStatusText(err.status)
+  // Set default message by status code.
+  let message = httpStatus.getStatusText(status)
 
-  if (isDev)
-    message = err.message
-
-  const response = {
-    status: err.status,
-    message,
-    errors: err.errors,
-    stack: err.stack
+  // Only developer can see custom messages.
+  if (isDev) {
+    message = err.message || httpStatus.getStatusText(status)
   }
 
-  if (!isDev)
-    delete response.stack
+  // Final error response object.
+  const response = {
+    status,
+    message,
+    errors: err.errors,
+    stack: err.stack,
+  }
 
-  res.status(err.status).json(response)
+  // Make sure we only expose stack property to developer only.
+  if (!isDev) delete response.stack
+
+  return res.status(response.status).json(response)
 }
 
 /**
  * If error is not an instanceOf APIError, convert it.
  *
- * @public
+ * @param {object} err - The error thrown by express.
+ * @param {*} req - Request.
+ * @param {*} res - Response.
+ * @param {*} next - Next handler.
+ *
+ * @returns {errorHandler} - Return errorHandler()
  */
 export const errorConverter = (err, req, res, next) => {
-
+  // Set convertedError.
   let convertedError = err
 
   if (err instanceof expressValidation.ValidationError) {
-
     // Create default 'Bad request' error with a status of 400.
-    let error = {
+    const error = {
       status: httpStatus.BAD_REQUEST,
       message: httpStatus.getStatusText(httpStatus.BAD_REQUEST),
-      errors: err.errors || []
+      errors: err.errors || [],
     }
 
     // Check if any headers errors.
-    let headersErrors = error.errors.filter((e) => e.location == 'headers')
+    const headersErrors = error.errors.filter(e => e.location === 'headers')
 
     // Set headers errors if any.
     if (headersErrors.length) {
@@ -64,7 +80,7 @@ export const errorConverter = (err, req, res, next) => {
     else {
       error.status = httpStatus.UNPROCESSABLE_ENTITY
       error.message = 'Validation error'
-      erorr.errors = errors.filter((e) => e.location != 'headers')
+      error.errors = error.errors.filter(e => e.location !== 'headers')
     }
 
     convertedError = new APIError(error)
@@ -73,22 +89,26 @@ export const errorConverter = (err, req, res, next) => {
     convertedError = new APIError({
       message: err.message,
       status: err.status,
-      stack: err.stack
+      stack: err.stack,
     })
   }
 
-  return errorHandler(convertedError, req, res)
+  return errorHandler(convertedError, req, res, next)
 }
 
 /**
  * Catch 404 and forward to error handler
  *
- * @public
+ * @param {*} req - Request.
+ * @param {*} res - Response.
+ * @param {*} next - Next handler.
+ *
+ * @returns {errorHandler} - Return errorHandler()
  */
 export const errorNotFound = (req, res, next) => {
   const err = new APIError({
     message: 'Not found',
-    status: httpStatus.NOT_FOUND
+    status: httpStatus.NOT_FOUND,
   })
-  return errorHandler(err, req, res)
+  return errorHandler(err, req, res, next)
 }

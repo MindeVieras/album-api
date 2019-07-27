@@ -1,30 +1,30 @@
 
-// import bcrypt from 'bcrypt'
-// import validator from 'validator'
-// import moment from 'moment'
-
-// import { Database } from '../db'
-
-// import { usersConstants } from '../constants'
 import { APISuccess } from '../helpers'
-// import db from '../config/sequelize'
 import UserClass from '../classes/UserClass'
 
-// const Users = db.Users
-// let conn = new Database()
-
-// Get list of users user
+/**
+ * Get list of users.
+ *
+ * @param {*} req - Request.
+ * @param {*} res - Response.
+ * @param {*} next - Send to error handler.
+ *
+ * @returns {Promise}
+ *  Users list in JSON format.
+ */
 export async function usersList(req, res, next) {
-
   try {
     const user = new UserClass()
     const users = await user.list()
     return new APISuccess(res, users)
   }
   catch (error) {
-    next(error)
+    return next(error)
   }
+}
 
+export async function userCreate(req, res, next) {
+  return true
 }
 
 // export function getList(req, res){
