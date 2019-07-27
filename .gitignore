@@ -1,6 +1,7 @@
 
 /dist
 /colony
+/coverage
 
 .env
 
