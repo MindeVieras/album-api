@@ -1,7 +1,7 @@
 
 import faker from 'faker'
 
-const totalFakeUsers = 10
+const totalFakeUsers = 100
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
