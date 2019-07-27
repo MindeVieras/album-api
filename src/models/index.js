@@ -11,8 +11,23 @@ const dbConfig = dbConfiguration[config.env]
 
 const db = {}
 
+/**
+ * A function that gets executed every time Sequelize would log something.
+ *
+ * @param {string} message - Sequelize log message.
+ */
+function databaseLogging(message) {
+  // For now just simply console.log sequelize messages for developer only.
+  if (config.env === 'development') {
+    console.log(message)
+  }
+}
+
 // Connect to database
-const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, dbConfig)
+const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
+  ...dbConfig,
+  logging: databaseLogging,
+})
 
 // Loop through all files in models directory ignoring hidden files.
 fs.readdirSync(__dirname)
@@ -23,7 +38,8 @@ fs.readdirSync(__dirname)
     db[model.name] = model
   })
 
-// Calling all the associate function, in order to make the association between the models.
+// Calling all the associate function,
+// in order to make the association between the models.
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db)
