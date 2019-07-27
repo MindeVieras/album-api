@@ -13,8 +13,7 @@ module.exports = {
     username: config.db.user,
     password: config.db.pass,
     database: 'album_test',
-    host: config.db.host,
-    dialect: 'mysql',
+    dialect: 'sqlite',
   },
   production: {
     username: config.db.user,
