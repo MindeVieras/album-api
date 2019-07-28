@@ -27,7 +27,7 @@ class UserClass {
     if (user) {
 
       // Throw an error if passwords does not match.
-      const passMatch = await bcrypt.compare(password, user.get('password'))
+      const passMatch = await bcrypt.compare(password, user.get('hash'))
       if (!passMatch)
         throw new APIError({
           status: httpStatus.UNAUTHORIZED,

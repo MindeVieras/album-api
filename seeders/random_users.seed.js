@@ -30,7 +30,7 @@ module.exports = {
 
     // Randomize fake password fields.
     for (let step = 0; step < getRandomFieldIndex(totalFakeUsers); step++) {
-      fakeUsers[Math.floor(Math.random() * totalFakeUsers)].password = faker.internet.password()
+      fakeUsers[Math.floor(Math.random() * totalFakeUsers)].hash = faker.internet.password()
     }
     // Randomize fake displayName fields.
     for (let step = 0; step < getRandomFieldIndex(totalFakeUsers); step++) {
