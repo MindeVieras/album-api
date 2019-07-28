@@ -9,17 +9,15 @@ import app from '../../src/index'
 describe('## Authentication route.', () => {
   describe('# POST /api/authenticate', () => {
 
-    const user = {
-      username: 'admin',
-      password: 'admin123',
-    }
-
     let userErrMsg, passErrMsg
 
     it('Admin authentication success and data including token.', done => {
       request(app)
         .post('/api/authenticate')
-        .send(user)
+        .send({
+          username: 'admin',
+          password: 'admin123',
+        })
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(httpStatus.OK)
@@ -40,12 +38,114 @@ describe('## Authentication route.', () => {
         })
     })
 
-    it('Return error if username does not exist.', done => {
-      user.username = 'nonExistingUsername'
-
+    it('Editor authentication success and data including token.', done => {
       request(app)
         .post('/api/authenticate')
-        .send(user)
+        .send({
+          username: 'editor',
+          password: 'editor123',
+        })
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          if (err) throw err
+
+          expect(res.body).to.have.property('status', httpStatus.OK)
+          expect(res.body).to.have.property('message').to.be.a('string')
+
+          expect(res.body).to.have.nested.property('data.id').to.be.a('number')
+          expect(res.body).to.have.nested.property('data.username', 'editor')
+          expect(res.body).to.have.nested.property('data.accessLevel', 75)
+          expect(res.body).to.have.nested.property('data.token').to.be.a('string')
+
+          global.editorToken = res.body.data.token
+
+          done()
+        })
+    })
+
+    it('Authed user authentication success and data including token.', done => {
+      request(app)
+        .post('/api/authenticate')
+        .send({
+          username: 'authed',
+          password: 'authed123',
+        })
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          if (err) throw err
+
+          expect(res.body).to.have.property('status', httpStatus.OK)
+          expect(res.body).to.have.property('message').to.be.a('string')
+
+          expect(res.body).to.have.nested.property('data.id').to.be.a('number')
+          expect(res.body).to.have.nested.property('data.username', 'authed')
+          expect(res.body).to.have.nested.property('data.accessLevel', 50)
+          expect(res.body).to.have.nested.property('data.token').to.be.a('string')
+
+          global.authedToken = res.body.data.token
+
+          done()
+        })
+    })
+
+    it('Viewer authentication success and data including token.', done => {
+      request(app)
+        .post('/api/authenticate')
+        .send({
+          username: 'viewer',
+          password: 'viewer123',
+        })
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          if (err) throw err
+
+          expect(res.body).to.have.property('status', httpStatus.OK)
+          expect(res.body).to.have.property('message').to.be.a('string')
+
+          expect(res.body).to.have.nested.property('data.id').to.be.a('number')
+          expect(res.body).to.have.nested.property('data.username', 'viewer')
+          expect(res.body).to.have.nested.property('data.accessLevel', 25)
+          expect(res.body).to.have.nested.property('data.token').to.be.a('string')
+
+          global.viewerToken = res.body.data.token
+
+          done()
+        })
+    })
+
+    it('Return error if user is blocked.', done => {
+      request(app)
+        .post('/api/authenticate')
+        .send({
+          username: 'blocked',
+          password: 'blocked123',
+        })
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          if (err) throw err
+
+          expect(res.body).to.have.property('status', httpStatus.UNAUTHORIZED)
+          expect(res.body).to.have.property('message').to.be.a('string')
+
+          done()
+        })
+    })
+
+    it('Return error if username does not exist.', done => {
+      request(app)
+        .post('/api/authenticate')
+        .send({
+          username: 'IdontExist',
+          password: 'nonExistPassword',
+        })
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(httpStatus.UNAUTHORIZED)
@@ -62,12 +162,13 @@ describe('## Authentication route.', () => {
     })
 
     it('Return error if password is wrong.', done => {
-      user.username = 'admin'
-      user.password = 'wrongPassword'
 
       request(app)
         .post('/api/authenticate')
-        .send(user)
+        .send({
+          username: 'admin',
+          password: 'wrongPassword',
+        })
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(httpStatus.UNAUTHORIZED)

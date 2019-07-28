@@ -2,6 +2,8 @@
 import faker from 'faker'
 
 const totalFakeUsers = 100
+// How many custom users are seeded?
+const offset = 5
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -9,18 +11,18 @@ module.exports = {
     let fakeUsers = []
 
     // Loop through totalFakeUsers counter.
-    for (let step = 1; step < totalFakeUsers + 1; step++) {
+    for (let step = offset; step < totalFakeUsers + offset; step++) {
       // Required user fields.
       const user = {
         username: faker.internet.userName(),
         email: faker.internet.email(),
-        author: faker.random.number({ min: 1, max: totalFakeUsers }),
+        author: faker.random.number({ min: offset, max: totalFakeUsers }),
         createdAt: faker.date.past(5),
         updatedAt: faker.date.past()
       }
 
       // Optional fields.
-      user.accessLevel = faker.random.arrayElement([25, 50, 100])
+      user.accessLevel = faker.random.arrayElement([25, 50, 75, 100])
       user.status = faker.random.number({ min: 0, max: 1 })
 
       fakeUsers.push(user)

@@ -23,7 +23,7 @@ class UserClass {
   async login(username, password) {
 
     // First get user by username.
-    const user = await Users.findOne({ where: { username } })
+    const user = await Users.findOne({ where: { username, status: 1 } })
     if (user) {
 
       // Throw an error if passwords does not match.
