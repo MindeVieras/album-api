@@ -87,5 +87,23 @@ describe('## Authentication route.', () => {
       done()
     })
 
+    it('Return validation errors if request body is invalid.', done => {
+      request(app)
+        .post('/api/authenticate')
+        .send({})
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(httpStatus.UNPROCESSABLE_ENTITY)
+        .end((err, res) => {
+          if (err) throw err
+
+          expect(res.body).to.have.property('status', httpStatus.UNPROCESSABLE_ENTITY)
+          expect(res.body).to.have.property('message').to.be.a('string')
+          expect(res.body).to.have.property('errors').to.be.an('array')
+
+          done()
+        })
+    })
+
   })
 })
