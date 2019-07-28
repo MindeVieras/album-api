@@ -1,6 +1,6 @@
 
 import { APISuccess } from '../helpers'
-import UserClass from '../classes/UserClass'
+import AuthClass from '../classes/AuthClass'
 
 /**
  * Authenticates user.
@@ -17,8 +17,8 @@ export default async function authenticate(req, res, next) {
   const { username, password } = req.body
 
   try {
-    const user = new UserClass()
-    const authedUser = await user.login(username, password)
+    const Auth = new AuthClass()
+    const authedUser = await Auth.login(username, password)
     return new APISuccess(res, authedUser)
   }
   catch (error) {

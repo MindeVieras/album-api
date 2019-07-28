@@ -7,58 +7,56 @@ import config from '../config/config'
 import { APIError } from '../helpers'
 import { Users } from '../models'
 
+/**
+ * The main user class.
+ *
+ * @class
+ */
 class UserClass {
+  constructor() {
+    this.user = null
+    this.id = null
+    this.username = ''
+    this.hash = ''
+    this.email = ''
+    this.displayName = ''
+    this.author = null
+    this.accessLevel = null
+    this.status = null
+    this.lastLogin = null
+    this.createdAt = null
+    this.updatedAt = null
+  }
 
   /**
-   * Authenticate user and return token.
+   * Load user by username.
    *
-   * @param username
-   *   Username.
-   * @param password
-   *   Password for the user.
+   * @param {string} username - Username.
+   * @param {number} status - User status, defaults to active.
    *
-   * @returns
-   *   Object with JWT payload and a token.
+   * @returns {object|null} - User object or null if cannot find user.
    */
-  async login(username, password) {
+  async loadByUsername(username, status = 1) {
+    // Load by username.
+    this.user = await Users.findOne({ where: { username, status } })
+    return this.user
+    // if (user) {
+    //   this.id = user.get('id')
+    //   this.username = user.get('username')
+    //   this.hash = user.get('hash')
+    //   this.email = user.get('email')
+    //   this.displayName = user.get('displayName')
+    //   this.author = user.get('author')
+    //   this.accessLevel = user.get('accessLevel')
+    //   this.status = user.get('status')
+    //   this.lastLogin = user.get('lastLogin')
+    //   this.createdAt = user.get('createdAt')
+    //   this.updatedAt = user.get('updatedAt')
 
-    // First get user by username.
-    const user = await Users.findOne({ where: { username, status: 1 } })
-    if (user) {
+    //   return this
+    // }
 
-      // Throw an error if passwords does not match.
-      const passMatch = await bcrypt.compare(password, user.get('hash'))
-      if (!passMatch)
-        throw new APIError({
-          status: httpStatus.UNAUTHORIZED,
-          message: 'Incorrect details.'
-        })
-
-      // Create JWT payload - data that can be decoded after verifying token.
-      const jwtPayload = {
-        id: user.get('id'),
-        username: user.get('username'),
-        accessLevel: user.get('accessLevel')
-      }
-
-      // Generate JWT token.
-      const token = jwt.sign(jwtPayload, config.jwtSecret)
-
-      // Set user last login date.
-      Users.update({ lastLogin: new Date() }, {
-        where: { id: user.get('id') }
-      })
-
-      // Return payload with token.
-      return { ...jwtPayload, token }
-
-    }
-
-    // Throw an error if user by username not found.
-    throw new APIError({
-      status: httpStatus.UNAUTHORIZED,
-      message: 'Incorrect details.'
-    })
+    // return null
   }
 
   /**

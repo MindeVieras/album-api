@@ -1,9 +1,9 @@
 
+import '@babel/polyfill'
 import httpStatus from 'http-status-codes'
 import request from 'supertest'
 import { assert, expect } from 'chai'
 
-import '@babel/polyfill'
 import app from '../../src/index'
 
 describe('## Authentication route.', () => {
