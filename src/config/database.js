@@ -14,6 +14,7 @@ module.exports = {
     password: config.db.pass,
     database: 'album_test',
     dialect: 'sqlite',
+    storage: 'test.db',
   },
   production: {
     username: config.db.user,

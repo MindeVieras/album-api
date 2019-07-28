@@ -6,6 +6,7 @@
 .nyc_output/
 
 .env
+test.db
 
 node_modules
 package-lock.json

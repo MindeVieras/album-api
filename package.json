@@ -11,6 +11,8 @@
     "colony": "rimraf colony && npx babel src -D -d dist && npx colony dist/index.js --scale 4 --no-modules",
     "migrate": "npx sequelize-cli db:migrate",
     "seed": "npx sequelize-cli db:seed:all",
+    "test-migrate": "NODE_ENV=test npx sequelize-cli db:migrate",
+    "test-seed": "NODE_ENV=test npx sequelize-cli db:seed:all",
     "lint": "eslint src",
     "test": "NODE_ENV=test nyc mocha"
   },

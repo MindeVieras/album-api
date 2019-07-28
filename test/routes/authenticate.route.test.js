@@ -23,7 +23,8 @@ describe('## Authentication route.', () => {
         // .expect(httpStatus.OK)
         .end((err, res) => {
           if (err) throw err
-          console.log(res)
+          // console.log(res)
+          done()
         })
     })
 
