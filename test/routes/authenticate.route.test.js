@@ -10,8 +10,8 @@ describe('## Authentication route.', () => {
   describe('# POST /api/authenticate', () => {
 
     const user = {
-      username: process.env.ADMIN_USER,
-      password: process.env.ADMIN_PASS,
+      username: 'admin',
+      password: 'admin123',
     }
 
     let userErrMsg, passErrMsg
@@ -30,9 +30,11 @@ describe('## Authentication route.', () => {
           expect(res.body).to.have.property('message').to.be.a('string')
 
           expect(res.body).to.have.nested.property('data.id').to.be.a('number')
-          expect(res.body).to.have.nested.property('data.username', process.env.ADMIN_USER)
+          expect(res.body).to.have.nested.property('data.username', 'admin')
           expect(res.body).to.have.nested.property('data.accessLevel', 100)
           expect(res.body).to.have.nested.property('data.token').to.be.a('string')
+
+          global.adminToken = res.body.data.token
 
           done()
         })
@@ -59,9 +61,9 @@ describe('## Authentication route.', () => {
         })
     })
 
-    it('Return error if password invalid.', done => {
-      user.username = process.env.ADMIN_USER
-      user.password = 'nonExistingUsername'
+    it('Return error if password is wrong.', done => {
+      user.username = 'admin'
+      user.password = 'wrongPassword'
 
       request(app)
         .post('/api/authenticate')
