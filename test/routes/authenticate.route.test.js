@@ -1,7 +1,7 @@
 
 import httpStatus from 'http-status-codes'
 import request from 'supertest'
-import { expect } from 'chai'
+import { assert, expect } from 'chai'
 
 import '@babel/polyfill'
 import app from '../../src/index'
@@ -10,22 +10,81 @@ describe('## Authentication route.', () => {
   describe('# POST /api/authenticate', () => {
 
     const user = {
-      username: 'admin',
-      password: 'admin123',
+      username: process.env.ADMIN_USER,
+      password: process.env.ADMIN_PASS,
     }
 
-    it('User authenticated successfully.', done => {
+    let userErrMsg, passErrMsg
+
+    it('Admin authentication success and data including token.', done => {
       request(app)
         .post('/api/authenticate')
         .send(user)
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
-        // .expect(httpStatus.OK)
+        .expect(httpStatus.OK)
         .end((err, res) => {
           if (err) throw err
-          // console.log(res)
+
+          expect(res.body).to.have.property('status', httpStatus.OK)
+          expect(res.body).to.have.property('message').to.be.a('string')
+
+          expect(res.body).to.have.nested.property('data.id').to.be.a('number')
+          expect(res.body).to.have.nested.property('data.username', process.env.ADMIN_USER)
+          expect(res.body).to.have.nested.property('data.accessLevel', 100)
+          expect(res.body).to.have.nested.property('data.token').to.be.a('string')
+
           done()
         })
+    })
+
+    it('Return error if username does not exist.', done => {
+      user.username = 'nonExistingUsername'
+
+      request(app)
+        .post('/api/authenticate')
+        .send(user)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          if (err) throw err
+
+          expect(res.body).to.have.property('status', httpStatus.UNAUTHORIZED)
+          expect(res.body).to.have.property('message').to.be.a('string')
+
+          userErrMsg = res.body.message
+
+          done()
+        })
+    })
+
+    it('Return error if password invalid.', done => {
+      user.username = process.env.ADMIN_USER
+      user.password = 'nonExistingUsername'
+
+      request(app)
+        .post('/api/authenticate')
+        .send(user)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          if (err) throw err
+
+          expect(res.body).to.have.property('status', httpStatus.UNAUTHORIZED)
+          expect(res.body).to.have.property('message').to.be.a('string')
+
+          passErrMsg = res.body.message
+
+          done()
+        })
+    })
+
+    it('Error message is the same.', done => {
+      assert.strictEqual(userErrMsg, passErrMsg)
+
+      done()
     })
 
   })
