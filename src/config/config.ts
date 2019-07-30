@@ -38,7 +38,7 @@ if (error) {
 }
 
 // Build config object.
-module.exports = {
+export default {
   env: envVars.NODE_ENV,
   host: envVars.HOST,
   port: envVars.PORT,

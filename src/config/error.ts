@@ -1,6 +1,6 @@
 
-import httpStatus from 'http-status-codes'
 import expressValidation from 'express-validation'
+import httpStatus from 'http-status-codes'
 
 import APIError from '../helpers/APIError'
 import config from './config'
@@ -39,7 +39,9 @@ export const errorHandler = (err, req, res) => {
   }
 
   // Make sure we only expose stack property to developer only.
-  if (isProd) delete response.stack
+  if (isProd) {
+    delete response.stack
+  }
 
   return res.status(response.status).json(response)
 }
@@ -73,19 +75,20 @@ export const errorConverter = (err, req, res, next) => {
     if (headersErrors.length) {
       error.errors = headersErrors
       // Headers errors are exposed only for developer.
-      if (isProd) delete error.errors
-    }
-    // Otherwise set the rest as validation error with status of 422
-    // and filter out headers errors.
-    else {
+      if (isProd) {
+        delete error.errors
+      }
+    } else {
+      // Otherwise set the rest as validation error with status of 422
+      // and filter out headers errors.
       error.status = httpStatus.UNPROCESSABLE_ENTITY
       error.message = 'Validation error'
       error.errors = error.errors.filter(e => e.location !== 'headers')
     }
 
     convertedError = new APIError(error)
-  }
-  else if (!(err instanceof APIError)) {
+
+  } else if (!(err instanceof APIError)) {
     convertedError = new APIError({
       message: err.message,
       status: err.status,

@@ -1,6 +1,6 @@
 
 import { APISuccess } from '../helpers'
-import UserClass from '../classes/UserClass'
+// import UserClass from '../classes/UserClass'
 
 /**
  * Get list of users.
@@ -14,11 +14,11 @@ import UserClass from '../classes/UserClass'
  */
 export async function usersList(req, res, next) {
   try {
-    const user = new UserClass()
-    const users = await user.list()
-    return new APISuccess(res, users)
-  }
-  catch (error) {
+    // const user = new UserClass()
+    // const users = await user.list()
+    return new APISuccess(res, {})
+
+  } catch (error) {
     return next(error)
   }
 }

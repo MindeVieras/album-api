@@ -2,10 +2,10 @@
 import config from './config/config'
 import app from './config/express'
 import { errorConverter, errorNotFound, errorHandler } from './config/error'
-import routes from './routes/index.route'
+// import routes from './routes/index.route'
 
 // API routes.
-app.use('/api', routes)
+// app.use('/api', routes)
 
 // If error is not an instanceOf APIError, convert it.
 app.use(errorConverter)
