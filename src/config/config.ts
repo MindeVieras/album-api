@@ -1,10 +1,13 @@
 
+import dotenv from 'dotenv'
 import Joi from 'joi'
 
 // Require variables from .env file.
-require('dotenv').config()
+dotenv.config()
 
-// Define validation for all the env vars.
+/**
+ * Define validation for all the env vars.
+ */
 const envVarsSchema = Joi.object({
   NODE_ENV: Joi.string()
     .allow(['development', 'production', 'test'])
@@ -31,7 +34,9 @@ const envVarsSchema = Joi.object({
   .unknown()
   .required()
 
-// Validate env vars.
+/**
+ * Validate env vars.
+ */
 const { error, value: envVars } = Joi.validate(process.env, envVarsSchema)
 if (error) {
   throw new Error(`Config validation error: ${error.message}`)

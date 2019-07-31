@@ -4,17 +4,16 @@
   "description": "AWS album API",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsc --watch & nodemon dist",
-    "tsc": "tsc",
-    "build": "rimraf dist && npx babel src -D -d dist",
-    "start": "rimraf dist && npx babel src -D -d dist --no-comments && node dist/index.js",
-    "clean": "rimraf dist colony node_modules",
+    "dev": "nodemon src/index.ts",
+    "build": "rimraf dist && tsc",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist colony node_modules && npm install",
     "colony": "rimraf colony && tsc && npx colony dist/index.js --scale 4 --no-modules",
     "migrate": "npx sequelize-cli db:migrate",
     "seed": "npx sequelize-cli db:seed:all",
     "test-migrate": "NODE_ENV=test npx sequelize-cli db:migrate",
     "test-seed": "NODE_ENV=test npx sequelize-cli db:seed:all",
-    "lint": "eslint src",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "test": "NODE_ENV=test PORT=3003 nyc mocha"
   },
   "engines": {
@@ -43,7 +42,6 @@
     "joi": "^14.3.1",
     "jsonwebtoken": "^8.4.0",
     "moment": "^2.22.2",
-    "morgan": "^1.9.1",
     "mysql2": "^1.6.5",
     "sequelize": "^5.11.0",
     "sequelize-cli": "^5.5.0",
@@ -53,6 +51,11 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.5",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.0",
+    "@types/joi": "^14.3.3",
+    "@types/node": "^12.6.8",
     "chai": "^4.2.0",
     "colony": "0.0.7",
     "faker": "^4.1.0",
@@ -62,6 +65,7 @@
     "rimraf": "^2.6.2",
     "sqlite3": "^4.0.9",
     "supertest": "^4.0.2",
+    "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3"
   }

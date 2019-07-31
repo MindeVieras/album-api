@@ -1,0 +1,27 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "completed-docs": [
+            true,
+            "classes",
+            "enums",
+            "enum-members",
+            "functions",
+            "interfaces",
+            "methods",
+            "namespaces",
+            "properties",
+            "types",
+            "variables"
+        ],
+        "no-console": false,
+        "object-literal-sort-keys": false,
+        "semicolon": [true, "never"],
+        "quotemark": [true, "single"]
+    },
+    "rulesDirectory": []
+}

@@ -1,30 +1,14 @@
 
 import httpStatus from 'http-status-codes'
 
-/**
- * @augments Error
- */
-class ExtendableError extends Error {
-  constructor({
-    message, errors, status, isPublic, stack,
-  }) {
-    super(message)
-    this.name = this.constructor.name
-    this.message = message
-    this.errors = errors
-    this.status = status
-    this.isPublic = isPublic
-    this.isOperational = true
-    this.stack = stack
-  }
-}
+import ErrorClass from '../classes/ErrorClass'
 
 /**
  * Class representing an API error.
  *
- * @augments ExtendableError
+ * @augments ErrorClass
  */
-class APIError extends ExtendableError {
+class APIError extends ErrorClass {
   /**
    * Creates an API error.
    *

@@ -1,7 +1,7 @@
 
 import config from './config/config'
+import { errorConverter, errorHandler, errorNotFound } from './config/error'
 import app from './config/express'
-import { errorConverter, errorNotFound, errorHandler } from './config/error'
 // import routes from './routes/index.route'
 
 // API routes.

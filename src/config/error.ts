@@ -1,26 +1,30 @@
 
+import { NextFunction, Request, Response } from 'express'
 import expressValidation from 'express-validation'
 import httpStatus from 'http-status-codes'
 
 import APIError from '../helpers/APIError'
 import config from './config'
 
-const isProd = (config.env === 'production')
+/**
+ * Check for production.
+ */
+const isProd: boolean = (config.env === 'production')
 
 /**
  * Error handler.
  * Send stacktrace only during development
  *
- * @param {object} err - Error object created by errorConverter().
- * @param {*} req - Request.
- * @param {*} res - Response.
+ * @param {*} err - Error object created by errorConverter().
+ * @param {Request} req - Request.
+ * @param {Response} res - Response.
  *
  * @returns {Promise}
  *  JSON user data including token.
  */
-export const errorHandler = (err, req, res) => {
+export const errorHandler = (err: any, req: Request, res: Response) => {
   // Set default status.
-  const status = err.status || httpStatus.INTERNAL_SERVER_ERROR
+  const status: number = err.status || httpStatus.INTERNAL_SERVER_ERROR
 
   // Set default message by status code.
   let message = httpStatus.getStatusText(status)
@@ -30,7 +34,6 @@ export const errorHandler = (err, req, res) => {
     message = err.message || httpStatus.getStatusText(status)
   }
 
-  // Final error response object.
   const response = {
     status,
     message,
@@ -49,14 +52,14 @@ export const errorHandler = (err, req, res) => {
 /**
  * If error is not an instanceOf APIError, convert it.
  *
- * @param {object} err - The error thrown by express.
- * @param {*} req - Request.
- * @param {*} res - Response.
- * @param {*} next - Next handler.
+ * @param {*} err - The error thrown by express.
+ * @param {Request} req - Request.
+ * @param {Response} res - Response.
+ * @param {NextFunction} next - Next handler.
  *
  * @returns {errorHandler} - Return errorHandler()
  */
-export const errorConverter = (err, req, res, next) => {
+export const errorConverter = (err: any, req: Request, res: Response, next: NextFunction) => {
   // Set convertedError.
   let convertedError = err
 
@@ -69,7 +72,7 @@ export const errorConverter = (err, req, res, next) => {
     }
 
     // Check if any headers errors.
-    const headersErrors = error.errors.filter(e => e.location === 'headers')
+    const headersErrors = error.errors.filter((e: { location: string }) => e.location === 'headers')
 
     // Set headers errors if any.
     if (headersErrors.length) {
@@ -96,22 +99,22 @@ export const errorConverter = (err, req, res, next) => {
     })
   }
 
-  return errorHandler(convertedError, req, res, next)
+  return errorHandler(convertedError, req, res)
 }
 
 /**
  * Catch 404 and forward to error handler
  *
- * @param {*} req - Request.
- * @param {*} res - Response.
- * @param {*} next - Next handler.
+ * @param {Request} req - Request.
+ * @param {Response} res - Response.
+ * @param {NextFunction} next - Next handler.
  *
  * @returns {errorHandler} - Return errorHandler()
  */
-export const errorNotFound = (req, res, next) => {
-  const err = new APIError({
+export const errorNotFound = (req: Request, res: Response, next: NextFunction) => {
+  const err: APIError = new APIError({
     message: 'Not found',
     status: httpStatus.NOT_FOUND,
   })
-  return errorHandler(err, req, res, next)
+  return errorHandler(err, req, res)
 }
