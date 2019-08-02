@@ -9,6 +9,9 @@ import config from './config'
 
 // import swaggerDocument from '../swagger.json'
 
+/**
+ * Set express app.
+ */
 const app: Application = express()
 
 // Disable useless header.

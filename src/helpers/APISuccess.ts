@@ -1,26 +1,30 @@
 
+import { Response } from 'express'
 import httpStatus from 'http-status-codes'
 
 /**
  * Class representing an API success response.
+ *
+ * @class
  */
 class APISuccess {
+
   /**
    * Creates an API success response.
    *
-   * @param {object} res - Express response object.
+   * @param {Response} res - Express response object.
    * @param {Array|object|null} data - Response data, either array or object or null.
    * @param {number} status - HTTP status code of the response.
    * @param {string} message - Optional - response message.
    *
-   * @returns {Promise}
-   *   Successful JSON data object.
+   * @returns {Response}
+   *   Successful JSON response.
    */
   constructor(
-    res,
-    data = null,
-    status = httpStatus.OK,
-    message = httpStatus.getStatusText(httpStatus.OK),
+    res: Response,
+    data: any = null,
+    status: number = httpStatus.OK,
+    message: string = httpStatus.getStatusText(httpStatus.OK),
   ) {
     return res.status(status).send({
       status,

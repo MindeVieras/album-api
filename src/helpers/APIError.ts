@@ -9,25 +9,17 @@ import ErrorClass from '../classes/ErrorClass'
  * @augments ErrorClass
  */
 class APIError extends ErrorClass {
+
   /**
    * Creates an API error.
    *
    * @param {string} message - Error message.
+   * @param {number} status - HTTP status code of error.
    * @param {Array} errors - Multiple error messages.
    * @param {string} stack - Stack trace for the error message.
-   * @param {number} status - HTTP status code of error.
-   * @param {boolean} isPublic - Whether the message should be visible to user or not.
    */
-  constructor({
-    message,
-    errors,
-    stack,
-    status = httpStatus.INTERNAL_SERVER_ERROR,
-    isPublic = false,
-  }) {
-    super({
-      message, errors, status, isPublic, stack,
-    })
+  constructor(message: string, status: number, errors?: object[], stack?: string) {
+    super(message, status, errors, stack)
   }
 }
 

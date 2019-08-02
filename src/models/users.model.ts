@@ -1,5 +1,22 @@
 
 /**
+ * User Interface.
+ */
+export interface UserAttributes {
+  id?: string
+  username?: string
+  hash?: string
+  email?: string
+  displayName?: string
+  author?: number
+  accessLevel?: number
+  status?: number
+  lastLogin?: Date
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+/**
  * Users Schema.
  *
  * @param {any} sequelize - Sequelize instance.

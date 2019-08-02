@@ -68,7 +68,8 @@ export const errorConverter = (err: any, req: Request, res: Response, next: Next
     const error = {
       status: httpStatus.BAD_REQUEST,
       message: httpStatus.getStatusText(httpStatus.BAD_REQUEST),
-      errors: err.errors || [],
+      errors: [],
+      // errors: err.errors || [],
     }
 
     // Check if any headers errors.
@@ -86,17 +87,13 @@ export const errorConverter = (err: any, req: Request, res: Response, next: Next
       // and filter out headers errors.
       error.status = httpStatus.UNPROCESSABLE_ENTITY
       error.message = 'Validation error'
-      error.errors = error.errors.filter(e => e.location !== 'headers')
+      error.errors = error.errors.filter((e: { location: string }) => e.location !== 'headers')
     }
 
-    convertedError = new APIError(error)
+    convertedError = new APIError(error.message, error.status)
 
   } else if (!(err instanceof APIError)) {
-    convertedError = new APIError({
-      message: err.message,
-      status: err.status,
-      stack: err.stack,
-    })
+    convertedError = new APIError(err.message, err.status, [], err.stack)
   }
 
   return errorHandler(convertedError, req, res)
@@ -112,9 +109,6 @@ export const errorConverter = (err: any, req: Request, res: Response, next: Next
  * @returns {errorHandler} - Return errorHandler()
  */
 export const errorNotFound = (req: Request, res: Response, next: NextFunction) => {
-  const err: APIError = new APIError({
-    message: 'Not found',
-    status: httpStatus.NOT_FOUND,
-  })
+  const err: APIError = new APIError('Not found', 400)
   return errorHandler(err, req, res)
 }

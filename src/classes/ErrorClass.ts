@@ -6,26 +6,36 @@
  * @class
  */
 class ErrorClass extends Error {
-  constructor() {
+
+  /**
+   * Errors property.
+   *
+   * Array of error objects,
+   * for example express validation errors.
+   */
+  public errors?: object[]
+
+  /**
+   * Http status code.
+   */
+  public status: number
+
+  /**
+   * ErrorClass constructor.
+   *
+   * @param {string} message - Error message.
+   * @param {number} status - Http status code.
+   * @param {Array} errors - Array of errors.
+   * @param {string} stack - Stack trace of the error.
+   */
+  constructor(message: string, status: number, errors?: object[], stack?: string) {
     super(message)
     this.name = this.constructor.name
     this.message = message
     this.errors = errors
     this.status = status
-    this.isPublic = isPublic
-    this.isOperational = true
     this.stack = stack
   }
 }
 
 export default ErrorClass
-
-// constructor(message, status, isPublic) {
-//   super(message)
-//   this.name = this.constructor.name
-//   this.message = message
-//   this.status = status
-//   this.isPublic = isPublic
-//   this.isOperational = true // This is required since bluebird 4 doesn't append it anymore.
-//   Error.captureStackTrace(this, this.constructor.name)
-// }
