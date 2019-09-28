@@ -1,11 +1,11 @@
 
-import bcrypt from 'bcrypt'
-import httpStatus from 'http-status-codes'
-import jwt from 'jsonwebtoken'
+// import bcrypt from 'bcrypt'
+// import httpStatus from 'http-status-codes'
+// import jwt from 'jsonwebtoken'
 
-import config from '../config/config'
-import { APIError } from '../helpers'
-import { Users } from '../models'
+// import config from '../config/config'
+// import { APIError } from '../helpers'
+// import { Users } from '../models'
 
 /**
  * The main user class.
@@ -13,6 +13,9 @@ import { Users } from '../models'
  * @class
  */
 class UserClass {
+
+
+
   constructor() {
     this.user = null
     this.id = null

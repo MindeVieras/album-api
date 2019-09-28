@@ -22,7 +22,7 @@ const isProd: boolean = (config.env === 'production')
  * @returns {Promise}
  *  JSON user data including token.
  */
-export const errorHandler = (err: any, req: Request, res: Response) => {
+export const errorHandler = (err: any, req: Request, res: Response): Response => {
   // Set default status.
   const status: number = err.status || httpStatus.INTERNAL_SERVER_ERROR
 
@@ -59,7 +59,7 @@ export const errorHandler = (err: any, req: Request, res: Response) => {
  *
  * @returns {errorHandler} - Return errorHandler()
  */
-export const errorConverter = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const errorConverter = (err: any, req: Request, res: Response, next: NextFunction): Response => {
   // Set convertedError.
   let convertedError = err
 
@@ -108,7 +108,7 @@ export const errorConverter = (err: any, req: Request, res: Response, next: Next
  *
  * @returns {errorHandler} - Return errorHandler()
  */
-export const errorNotFound = (req: Request, res: Response, next: NextFunction) => {
+export const errorNotFound = (req: Request, res: Response, next: NextFunction): Response => {
   const err: APIError = new APIError('Not found', 400)
   return errorHandler(err, req, res)
 }

@@ -22,6 +22,7 @@ module.exports = {
         unique: true
       },
       displayName: Sequelize.STRING(55),
+      locale: Sequelize.STRING(12),
       author: {
         allowNull: false,
         type: Sequelize.INTEGER.UNSIGNED

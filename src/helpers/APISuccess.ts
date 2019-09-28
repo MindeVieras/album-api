@@ -1,13 +1,13 @@
 
 import { Response } from 'express'
-import httpStatus from 'http-status-codes'
+import { OK, getStatusText } from 'http-status-codes'
 
 /**
  * Class representing an API success response.
  *
  * @class
  */
-class APISuccess {
+export class APISuccess {
 
   /**
    * Creates an API success response.
@@ -21,17 +21,15 @@ class APISuccess {
    *   Successful JSON response.
    */
   constructor(
-    res: Response,
-    data: any = null,
-    status: number = httpStatus.OK,
-    message: string = httpStatus.getStatusText(httpStatus.OK),
+    private res: Response,
+    private data: any = null,
+    private status: number = OK,
+    private message: string = getStatusText(OK),
   ) {
-    return res.status(status).send({
-      status,
-      message,
-      data,
+    this.res.status(this.status).send({
+      status: this.status,
+      message: this.message,
+      data: this.data,
     })
   }
 }
-
-export default APISuccess

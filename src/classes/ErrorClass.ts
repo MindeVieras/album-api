@@ -1,12 +1,21 @@
 
 /**
+ * Error interface.
+ */
+interface ErrorProps {
+  message: string
+  status: number
+  errors?: object[]
+  stack?: string
+}
+
+/**
  * Main extendable ErrorClass extended from native JS Error.
  *
  * @augments Error
  * @class
  */
-class ErrorClass extends Error {
-
+export default class ErrorClass extends Error implements ErrorProps {
   /**
    * Errors property.
    *
@@ -28,7 +37,12 @@ class ErrorClass extends Error {
    * @param {Array} errors - Array of errors.
    * @param {string} stack - Stack trace of the error.
    */
-  constructor(message: string, status: number, errors?: object[], stack?: string) {
+  constructor(
+    message: string,
+    status: number,
+    errors?: object[],
+    stack?: string,
+  ) {
     super(message)
     this.name = this.constructor.name
     this.message = message
@@ -37,5 +51,3 @@ class ErrorClass extends Error {
     this.stack = stack
   }
 }
-
-export default ErrorClass

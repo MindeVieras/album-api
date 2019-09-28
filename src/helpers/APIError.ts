@@ -1,6 +1,4 @@
 
-import httpStatus from 'http-status-codes'
-
 import ErrorClass from '../classes/ErrorClass'
 
 /**

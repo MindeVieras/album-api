@@ -11,6 +11,11 @@ import authenticateRoutes from './authenticate.route'
 // import frontRoutes from './front.route'
 // import utilsRoutes from './utils.route'
 
+/**
+ * Set express router.
+ *
+ * For endpoints to match all /api/*
+ */
 const router = express.Router()
 
 router.use('/authenticate', authenticateRoutes)

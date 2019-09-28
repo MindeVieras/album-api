@@ -16,6 +16,7 @@ module.exports = {
       const user = {
         username: faker.internet.userName(),
         email: faker.internet.email(),
+        locale: faker.random.locale(),
         author: faker.random.number({ min: offset, max: totalFakeUsers }),
         createdAt: faker.date.past(5),
         updatedAt: faker.date.past()

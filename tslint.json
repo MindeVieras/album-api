@@ -22,6 +22,7 @@
         "interface-name": false,
         "no-console": false,
         "object-literal-sort-keys": false,
+        "ordered-imports": false,
         "semicolon": [true, "never"],
         "quotemark": [true, "single"]
     },
