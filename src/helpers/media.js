@@ -2,7 +2,7 @@
 import path from 'path'
 import AWS from 'aws-sdk'
 
-import config from '../config/config'
+import { config } from '../config'
 
 const s3 = new AWS.S3()
 const EXPIRE = 600 // 10mins

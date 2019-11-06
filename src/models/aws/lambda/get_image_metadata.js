@@ -1,6 +1,6 @@
 
 import AWS from 'aws-sdk'
-import config from '../../../config/config'
+import { config } from '../../../config'
 
 const lambda = new AWS.Lambda()
 

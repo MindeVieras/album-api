@@ -1,7 +1,7 @@
 
 import AWS from 'aws-sdk'
 
-import config from '../../../config/config'
+import { config } from '../../../config'
 import logger from '../../../config/winston'
 
 const lambda = new AWS.Lambda()

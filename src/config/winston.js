@@ -2,7 +2,7 @@
 import winston from 'winston'
 import winston_mysql from 'winston-mysql'
 
-import config from './config'
+import { config } from './config'
 
 const winston_mysql_options = {
   host: config.db.host,

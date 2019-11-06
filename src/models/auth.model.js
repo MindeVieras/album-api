@@ -4,7 +4,7 @@ import validator from 'validator'
 import jwt from 'jsonwebtoken'
 import moment from 'moment'
 
-import config from '../config/config'
+import { config } from '../config'
 
 import { Database } from '../db'
 let conn = new Database()

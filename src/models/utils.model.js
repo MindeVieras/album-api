@@ -1,7 +1,7 @@
 
 import request from 'superagent'
 
-import config from '../config/config'
+import { config } from '../config'
 import { Database } from '../db'
 import { jsonResponse, makeInitials } from '../helpers'
 

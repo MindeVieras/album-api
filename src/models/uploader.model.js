@@ -2,7 +2,7 @@
 import AWS from 'aws-sdk'
 import CryptoJS from 'crypto-js'
 
-import config from '../config/config'
+import { config } from '../config'
 import { Database } from '../db'
 
 const getMediaDimensions = require('./aws/lambda/get_media_dimensions')

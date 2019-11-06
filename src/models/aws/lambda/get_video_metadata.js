@@ -1,7 +1,7 @@
 
 import AWS from 'aws-sdk'
 import ratio from 'aspect-ratio'
-import config from '../../../config/config'
+import { config } from '../../../config'
 
 const lambda = new AWS.Lambda()
 const s3 = new AWS.S3()

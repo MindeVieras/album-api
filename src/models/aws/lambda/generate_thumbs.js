@@ -3,7 +3,7 @@ const connection = require('../../../config/db');
 const path = require('path');
 const AWS = require('aws-sdk');
 const lambda = new AWS.Lambda();
-import config from '../../../config/config'
+import { config } from '../../../config'
 
 module.exports.generate = function (key, cb) {
 

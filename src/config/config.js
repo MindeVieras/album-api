@@ -60,7 +60,7 @@ if (error) {
 }
 
 // Build config object.
-const config = {
+export const config = {
   env: envVars.NODE_ENV,
   host: envVars.HOST,
   port: envVars.PORT,
@@ -81,5 +81,3 @@ const config = {
     transcoderPipeline: envVars.TRANSCODER_PIPELINE
   }
 }
-
-export default config

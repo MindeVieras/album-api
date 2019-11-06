@@ -3,7 +3,7 @@ import path from 'path'
 import AWS from 'aws-sdk'
 
 import { Database } from '../../../db'
-import config from '../../../config/config'
+import { config } from '../../../config'
 
 let conn = new Database()
 

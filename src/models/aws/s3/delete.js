@@ -3,7 +3,7 @@ const connection = require('../../../config/db');
 const path = require('path');
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
-import config from '../../../config/config'
+import { config } from '../../../config'
 
 module.exports.deleteImage = function (id, cb) {
   // Get media S3 key form DB

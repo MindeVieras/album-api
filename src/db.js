@@ -1,7 +1,7 @@
 
 import mysql from 'mysql'
 
-import config from './config/config'
+import { config } from './config'
 import logger from './config/winston'
 
 const dbConfig = {

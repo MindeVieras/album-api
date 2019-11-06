@@ -2,7 +2,7 @@
 import jwt from 'jsonwebtoken'
 
 import { usersConstants } from '../constants'
-import config from '../config/config'
+import { config } from '../config'
 
 // check if user admin
 export function isAdmin(req, res, next) {

@@ -1,7 +1,7 @@
 
 import AWS from 'aws-sdk'
 
-import config from '../../../config/config'
+import { config } from '../../../config'
 
 const rekognition = new AWS.Rekognition()
 
