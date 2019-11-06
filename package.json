@@ -8,7 +8,6 @@
     "build": "rimraf dist && npx babel src -D -d dist",
     "start": "rimraf dist && npx babel src -D -d dist --no-comments && node dist/index.js",
     "clean": "rimraf dist colony node_modules",
-    "colony": "rimraf colony && npx babel src -D -d dist && npx colony dist/index.js --scale 4 --no-modules && rimraf dist",
     "test": "eslint src"
   },
   "engines": {
@@ -50,7 +49,6 @@
     "@babel/node": "^7.7.0",
     "@babel/preset-env": "^7.7.1",
     "babel-eslint": "^10.0.3",
-    "colony": "0.0.7",
     "eslint": "^6.6.0",
     "nodemon": "^1.19.4",
     "rimraf": "^3.0.0"
