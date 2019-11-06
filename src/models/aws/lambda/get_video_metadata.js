@@ -1,7 +1,7 @@
 
 import AWS from 'aws-sdk'
 import ratio from 'aspect-ratio'
-import { bucket } from '../../../config/config'
+import config from '../../../config/config'
 
 const lambda = new AWS.Lambda()
 const s3 = new AWS.S3()
@@ -12,7 +12,7 @@ export function get(key) {
 
     // Get presigned url
     var url = s3.getSignedUrl('getObject', {
-      Bucket: bucket,
+      Bucket: config.aws.bucket,
       Key: key,
       Expires: 60
     })
@@ -20,7 +20,7 @@ export function get(key) {
     // Get S3 file metadata from lambda
     let params = {
       FunctionName: 'aws-album_get_video_metadata',
-      Payload: '{"url": "'+url+'"}'
+      Payload: '{"url": "' + url + '"}'
     }
 
     lambda.invoke(params, (err, data) => {

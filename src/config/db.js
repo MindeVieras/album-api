@@ -1,16 +1,14 @@
 
 import mysql from 'mysql'
 
-const host = process.env.DB_HOST
-const user = process.env.DB_USER
-const pass = process.env.DB_PASS
-const name = process.env.DB_NAME
+import config from './config'
 
 const connection = mysql.createConnection({
-  host: host,
-  user: user,
-  password : pass,
-  database: name,
+  host: config.db.host,
+  user: config.db.user,
+  password: config.db.pass,
+  database: config.db.name,
+  port: config.db.port,
   acquireTimeout: 1000000
 })
 

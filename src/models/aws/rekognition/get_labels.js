@@ -1,10 +1,10 @@
 
 import AWS from 'aws-sdk'
-import { bucket } from '../../../config/config'
+import config from '../../../config/config'
 
 const rekognition = new AWS.Rekognition()
 
-export function get(key, mime){
+export function get(key, mime) {
 
   return new Promise((resolve, reject) => {
 
@@ -12,7 +12,7 @@ export function get(key, mime){
       const params = {
         Image: {
           S3Object: {
-            Bucket: bucket,
+            Bucket: config.aws.bucket,
             Name: key
           }
         },
@@ -34,13 +34,13 @@ export function get(key, mime){
       // var startParams = {
       //   Video: {
       //     S3Object: {
-      //       Bucket: config.bucket,
+      //       Bucket: config.aws.bucket,
       //       Name: key
       //     }
       //   },
       //   MinConfidence: 1
       // };
-  
+
       // rekognition.startLabelDetection(startParams, function(err, job) {
       //   if (err) {
       //     cb(err);
@@ -62,7 +62,7 @@ export function get(key, mime){
       //     });
       //   }
       // });
-  
+
     }
     else {
       reject('Invalid mime type')

@@ -4,9 +4,6 @@ import bodyParser from 'body-parser'
 import morgan from 'morgan'
 import cors from 'cors'
 
-// Require variables from .env file.
-require('dotenv').config()
-
 const app = express()
 
 // Logger
