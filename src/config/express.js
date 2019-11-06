@@ -4,10 +4,10 @@ import bodyParser from 'body-parser'
 import morgan from 'morgan'
 import cors from 'cors'
 
-const app = express()
-
-// Require variables from .env file if available
+// Require variables from .env file.
 require('dotenv').config()
+
+const app = express()
 
 // Logger
 app.use(morgan('dev'))
@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({
   limit: '50mb'
 }))
 app.use(bodyParser.json({
-  limit : '50mb'
+  limit: '50mb'
 }))
 
 export default app
