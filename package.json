@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "nodemon -w src --exec \"babel-node src\"",
     "build": "rimraf dist && npx babel src -D -d dist",
+    "dev-ts": "nodemon src/index.ts",
+    "build-ts": "rimraf dist && tsc",
     "start": "rimraf dist && npx babel src -D -d dist --no-comments && node dist/index.js",
     "clean": "rimraf dist colony node_modules",
     "test": "eslint src"
@@ -53,6 +55,7 @@
     "eslint": "^6.6.0",
     "nodemon": "^1.19.4",
     "rimraf": "^3.0.0",
+    "ts-node": "^8.4.1",
     "typescript": "^3.7.2"
   }
 }
