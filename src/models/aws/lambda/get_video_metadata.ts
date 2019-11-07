@@ -28,7 +28,7 @@ export function get(key) {
       if (err) {
         return reject(err.message)
       }
-
+      // @ts-ignore
       const payload = JSON.parse(data.Payload)
 
       if (payload !== null && typeof payload === 'object') {
@@ -38,14 +38,21 @@ export function get(key) {
         // make meta object
         payload.streams.forEach(row => {
           if (row.codec_type == 'video') {
+            // @ts-ignore
             meta.width = row.width
+            // @ts-ignore
             meta.height = row.height
+            // @ts-ignore
             meta.duration = parseFloat(row.duration)
+            // @ts-ignore
             meta.frame_rate = eval(row.r_frame_rate)
+            // @ts-ignore
             meta.codec = row.codec_name
             if (row.width && row.height) {
+              // @ts-ignore
               meta.aspect = ratio(row.width, row.height)
             }
+            // @ts-ignore
             if (row.tags && 'creation_time' in row.tags) meta.datetime = row.tags.creation_time
           }
         })

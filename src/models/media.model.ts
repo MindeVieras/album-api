@@ -18,24 +18,26 @@ export function setLocation(req, res) {
   const { media_id, location } = req.body
 
   let data = {
-    lat : location.lat,
-    lng : location.lng,
+    lat: location.lat,
+    lng: location.lng,
     entity: 3, // Media entity type
     entity_id: media_id
   }
 
   conn.query(`INSERT INTO locations SET ?`, data)
-    .then( row => {
+    .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location set', id: row.insertId})
+        // @ts-ignore
+        res.json({ ack: 'ok', msg: 'Location set', id: row.insertId })
       }
       else {
         throw 'Location not set'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -53,17 +55,18 @@ export function updateLocation(req, res) {
   conn.query(`UPDATE locations
                 SET lat = ?, lng = ?
               WHERE entity = ? AND entity_id = ?`, data)
-    .then( row => {
+    .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location updated'})
+        res.json({ ack: 'ok', msg: 'Location updated' })
       }
       else {
         throw 'Location not updated'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -74,40 +77,41 @@ export function removeLocation(req, res) {
     const entity = 3 // Media type
     let location
     conn.query(`DELETE FROM locations WHERE entity = ? AND entity_id = ?`, [entity, id])
-      .then( rows => {
+      .then(rows => {
         location = rows
         // Return media locations
-        res.json({ack:'ok', msg: 'Location removed', data: location});
+        res.json({ ack: 'ok', msg: 'Location removed', data: location });
       })
-      .catch( err => {
+      .catch(err => {
         console.log(err)
         let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
+        res.json({ ack: 'err', msg })
       })
 
   } else {
-    res.json({ack:'err', msg: 'bad parameter'})
+    res.json({ ack: 'err', msg: 'bad parameter' })
   }
 }
 
 export function putToTrash(req, res) {
-  
+
   const { media_id } = req.body
   const status = mediaConstants.MEDIA_TRASHED // Media status TRASHED
-  
+
   //Put media file to trash
   conn.query(`UPDATE media SET status = ? WHERE id = ?`, [status, media_id])
     .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'File moved to trash'})
+        res.json({ ack: 'ok', msg: 'File moved to trash' })
       }
       else {
         throw 'Cannot trash media'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -125,16 +129,17 @@ export function moveMedia(req, res) {
                 SET entity_id = ?
               WHERE id = ? AND entity = ?`, data)
     .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Media moved'})
+        res.json({ ack: 'ok', msg: 'Media moved' })
       }
       else {
         throw 'Cannot move media'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -147,7 +152,8 @@ export function saveMetadata(req, res) {
   let initialMeta, imageMeta
 
   conn.query(`SELECT s3_key, mime, height, width FROM media WHERE id = ?`, media_id)
-    .then( rows => {
+    .then(rows => {
+      // @ts-ignore
       if (rows.length) {
 
         const { s3_key, mime, height, width } = rows[0]
@@ -182,7 +188,7 @@ export function saveMetadata(req, res) {
 
     })
     .then(() => {
-      
+
       if (imageMeta) {
         // remove location, it gets saved in locations table
         let { location, ...restMeta } = imageMeta
@@ -209,7 +215,7 @@ export function saveMetadata(req, res) {
         const sql = `DELETE FROM locations WHERE entity = ? AND entity_id = ?`
         return conn.query(sql, [entity, media_id])
       }
-      
+
       return
 
     })
@@ -222,9 +228,9 @@ export function saveMetadata(req, res) {
         const sql = `INSERT INTO locations (lat, lng, entity, entity_id) VALUES (?, ?, ?, ?)`
         return conn.query(sql, values)
       }
-      
+
       return
-      
+
     })
     .then(() => {
 
@@ -233,23 +239,24 @@ export function saveMetadata(req, res) {
       if (imageMeta) {
         metadata = { ...initialMeta, ...imageMeta }
       }
-      res.json({ack:'ok', msg: 'Metadata saved', metadata})
+      res.json({ ack: 'ok', msg: 'Metadata saved', metadata })
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
 // Get and Save Image Labels from AWS rekognition
 export function saveRekognitionLabels(req, res) {
-  
+
   const { media_id } = req.body
 
   let labels
 
   conn.query(`SELECT s3_key, mime FROM media WHERE id = ?`, media_id)
-    .then( rows => {
+    .then(rows => {
+      // @ts-ignore
       if (rows.length) {
 
         const { s3_key, mime } = rows[0]
@@ -262,7 +269,7 @@ export function saveRekognitionLabels(req, res) {
     })
 
     .then(recognitionLabels => {
-      
+
       // if recognition labels found
       if (recognitionLabels.length > 0) {
 
@@ -276,7 +283,7 @@ export function saveRekognitionLabels(req, res) {
       else throw `No rekognition labels found`
     })
     .then(() => {
-      
+
       // make values array for db
       let values = labels.map(label => {
         return [media_id, label.Name, label.Confidence]
@@ -284,7 +291,7 @@ export function saveRekognitionLabels(req, res) {
 
       // Insert labels to DB
       return conn.query(`INSERT INTO rekognition_labels (media_id, label, confidence) VALUES ?`, [values])
-      
+
     })
     .then(() => {
 
@@ -294,25 +301,26 @@ export function saveRekognitionLabels(req, res) {
         rekognition_labels['ack'] = 'ok'
         rekognition_labels[label.Name] = label.Confidence
       })
-      
-      res.json({ack:'ok', msg: 'Rekognition Labels saved', rekognition_labels})
+
+      res.json({ ack: 'ok', msg: 'Rekognition Labels saved', rekognition_labels })
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 
 }
 
 // Get and Save Image Text from AWS rekognition
 export function saveRekognitionText(req, res) {
-  
+
   const { media_id } = req.body
 
   let text, values
 
   conn.query(`SELECT s3_key, mime FROM media WHERE id = ?`, media_id)
-    .then( rows => {
+    .then(rows => {
+      // @ts-ignore
       if (rows.length) {
 
         const { s3_key, mime } = rows[0]
@@ -325,7 +333,7 @@ export function saveRekognitionText(req, res) {
     })
 
     .then(recognitionText => {
-      
+
       // if recognition labels found
       if (recognitionText.length > 0) {
 
@@ -339,10 +347,10 @@ export function saveRekognitionText(req, res) {
       else throw `No text found`
     })
     .then(() => {
-      
+
       // make values array for db
       values = text.map(t => {
-        
+
         const { BoundingBox, Polygon } = t.Geometry
         return [
           media_id, t.Id, t.ParentId, t.Type, t.DetectedText, t.Confidence,
@@ -361,7 +369,7 @@ export function saveRekognitionText(req, res) {
                     )
                   VALUES ?`
       return conn.query(sql, [values])
-      
+
     })
     .then(() => {
 
@@ -374,33 +382,33 @@ export function saveRekognitionText(req, res) {
 
       rekognitionObj['ack'] = 'ok'
       rekognitionObj['text'] = newText
-      
-      res.json({ack:'ok', msg: 'Rekognition Text saved', rekognition_text: rekognitionObj})
+
+      res.json({ ack: 'ok', msg: 'Rekognition Text saved', rekognition_text: rekognitionObj })
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 
 }
 
 // Generate Image Thumbnails
-exports.generateImageThumbs = function(req, res){
+exports.generateImageThumbs = function (req, res) {
   var mediaId = req.body.media_id;
   if (!mediaId) {
-    res.json({ack:'err', msg: 'Wrong params'});
+    res.json({ ack: 'err', msg: 'Wrong params' });
   } else {
-    connection.query('SELECT s3_key FROM media WHERE id = ?', mediaId, function(err, s3_key) {
-      if(err) {
-        res.json({ack:'err', msg: err.sqlMessage});
+    connection.query('SELECT s3_key FROM media WHERE id = ?', mediaId, function (err, s3_key) {
+      if (err) {
+        res.json({ ack: 'err', msg: err.sqlMessage });
       } else {
         const key = s3_key[0].s3_key;
         // Generate Thumbnails
-        generateImageThumbs.generate(key, function(err, response){
+        generateImageThumbs.generate(key, function (err, response) {
           if (err) {
-            res.json({ack:'err', msg: err});
+            res.json({ ack: 'err', msg: err });
           } else {
-            res.json({ack:'ok', msg: 'Image thumbnails generated', thumbs: response});
+            res.json({ ack: 'ok', msg: 'Image thumbnails generated', thumbs: response });
           }
         });
       }
@@ -414,18 +422,18 @@ export function getImageMeta(req, res) {
   if (key) {
     getImageMetadata.get(key, (err, metadata) => {
       if (err) {
-        res.json({ack:'err', msg: err})
+        res.json({ ack: 'err', msg: err })
       }
       // save metadata to DB if any
       if (metadata !== null && typeof metadata === 'object') {
-        res.json({ack:'ok', msg: 'Image metadata', metadata: metadata})
+        res.json({ ack: 'ok', msg: 'Image metadata', metadata: metadata })
       } else {
-        res.json({ack:'err', msg: 'No metadata saved'})
+        res.json({ ack: 'err', msg: 'No metadata saved' })
       }
     })
   }
   else {
-    res.json({ack: 'err', msg: 'No key'})
+    res.json({ ack: 'err', msg: 'No key' })
   }
 }
 
@@ -435,7 +443,8 @@ export function generateVideos(req, res) {
   const { media_id } = req.body
 
   conn.query(`SELECT s3_key, mime, width, height FROM media WHERE id = ?`, media_id)
-    .then( rows => {
+    .then(rows => {
+      // @ts-ignore
       if (rows.length) {
 
         const { s3_key, mime, width, height } = rows[0]
@@ -452,10 +461,10 @@ export function generateVideos(req, res) {
       }
     })
     .then(tsResponse => {
-      res.json({ack:'ok', msg: 'Videos generated', videos: tsResponse})
+      res.json({ ack: 'ok', msg: 'Videos generated', videos: tsResponse })
     })
     .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }

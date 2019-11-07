@@ -18,7 +18,7 @@ export function generate(s3_key, width, height) {
     const videoPerimeter = width + height
 
     let presets, jobsDone
-
+    // @ts-ignore
     conn.query(`SELECT * FROM video_presets`)
       .then(rows => {
         if (rows.length) {

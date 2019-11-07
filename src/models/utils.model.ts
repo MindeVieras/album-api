@@ -64,6 +64,7 @@ export function ipLocation(req, res) {
 // Gets App settings
 export function getAppSettings(req, res) {
   let settings = new Object()
+  // @ts-ignore
   conn.query(`SELECT * FROM settings WHERE type = 'app'`)
     .then(rows => {
       // let settingsObj = new Object()
@@ -72,8 +73,10 @@ export function getAppSettings(req, res) {
       })
 
       // Add AWS access key
+      // @ts-ignore
       settings.access_key_id = config.aws.accessKey
       // Add AWS bucket
+      // @ts-ignore
       settings.bucket = config.aws.bucket
 
       // Return settings
@@ -92,6 +95,7 @@ export function getAdminSettings(req, res) {
   conn.query(`SELECT * FROM users_settings WHERE user_id = ? AND type = 'admin'`, uid)
     .then(rows => {
       // let settingsObj = new Object()
+      // @ts-ignore
       rows.map((s) => {
         settings[s.name] = s.value
       })
@@ -116,6 +120,7 @@ export function saveAdminSetting(req, res) {
                 SET value = ?
               WHERE user_id = ? AND name = ? AND type = 'admin'`, data)
     .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
         res.json({ ack: 'ok', msg: 'Setting saved' })
       }
@@ -137,6 +142,7 @@ export function getFrontSettings(req, res) {
   conn.query(`SELECT * FROM users_settings WHERE user_id = ? AND type = 'front'`, uid)
     .then(rows => {
       // let settingsObj = new Object()
+      // @ts-ignore
       rows.map((s) => {
         settings[s.name] = s.value
       })
@@ -161,6 +167,7 @@ export function saveFrontSetting(req, res) {
                 SET value = ?
               WHERE user_id = ? AND name = ? AND type = 'front'`, data)
     .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
         res.json({ ack: 'ok', msg: 'Setting saved' })
       }

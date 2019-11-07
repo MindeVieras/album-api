@@ -4,11 +4,11 @@ import { Database } from '../db'
 let conn = new Database()
 
 // Gets albums
-export function getList(req, res){
+export function getList(req, res) {
 
   // console.log(req.app.get('user'));
   const { page, limit, media_limit } = req.body
-  
+
   let l_page = parseInt(page) || 0
   let l_limit = parseInt(limit) || 5
   let l_media_limit = parseInt(media_limit) || 5
@@ -22,7 +22,8 @@ export function getList(req, res){
                 LEFT JOIN media AS m ON a.id = m.entity_id
               GROUP BY a.id
               LIMIT ?, ?`, [l_page, l_limit])
-    .then( rows => {
+    .then(rows => {
+      // @ts-ignore
       albums = rows.map((a) => {
         let mediaArr = new Array()
         const { ...albumCopy } = a
@@ -56,7 +57,8 @@ export function getList(req, res){
                         WHERE m.id IN (?)`, [mids])
 
     })
-    .then( (mediaRows) => {
+    .then((mediaRows) => {
+      // @ts-ignore
       media = mediaRows.map((m) => {
         let mime, key
         mime = m.mime.includes('image') ? 'image' : 'video'
@@ -83,12 +85,12 @@ export function getList(req, res){
         }
       })
 
-      res.json({ack:'ok', msg: 'Albums list', data: albums})
+      res.json({ ack: 'ok', msg: 'Albums list', data: albums })
     })
-    .catch( err => {
+    .catch(err => {
       console.log(err)
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 
 }

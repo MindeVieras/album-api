@@ -7,7 +7,7 @@ import { Database } from '../db'
 let conn = new Database()
 
 // Creates album
-export function create(req, res){
+export function create(req, res) {
   const { uid } = req.app.get('user')
   const { name, start_date, end_date, access, status } = req.body
 
@@ -21,22 +21,24 @@ export function create(req, res){
   }
 
   conn.query(`INSERT INTO albums SET ?`, data)
-    .then( row => {
+    .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Album created', id: row.insertId})
+        // @ts-ignore
+        res.json({ ack: 'ok', msg: 'Album created', id: row.insertId })
       }
       else {
         throw 'Could not create album'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
 // Gets albums
-export function getList(req, res){
+export function getList(req, res) {
 
   const { uid, access_level } = req.app.get('user')
   const { start_date, end_date } = req.body
@@ -57,18 +59,18 @@ export function getList(req, res){
   }
 
   conn.query(sql, sqlValues)
-    .then( rows => {
+    .then(rows => {
       albums = rows
-      res.json({ack:'ok', msg: 'Albums list', list: albums})
+      res.json({ ack: 'ok', msg: 'Albums list', list: albums })
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
 // Gets albums dates
-export function getListDates(req, res){
+export function getListDates(req, res) {
 
   const { uid, access_level } = req.app.get('user')
 
@@ -88,17 +90,18 @@ export function getListDates(req, res){
   }
 
   conn.query(sql, sqlValues)
-    .then( rows => {
+    .then(rows => {
+      // @ts-ignore
       dates = rows.map(d => {
         return d.date
       }).sort((a, b) => {
         return moment(a, 'YYYY-M-D').diff(moment(b, 'YYYY-M-D'))
       })
-      res.json({ack:'ok', msg: 'Albums list dates', dates})
+      res.json({ ack: 'ok', msg: 'Albums list dates', dates })
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -135,6 +138,7 @@ export function getOne(req, res) {
 
   conn.query(sql, sqlValues)
     .then(rows => {
+      // @ts-ignore
       if (rows.length) {
 
         const albumData = rows[0]
@@ -169,8 +173,9 @@ export function getOne(req, res) {
       }
     })
     .then(albumMedia => {
-      
+
       // Get album media
+      // @ts-ignore
       album.media = albumMedia.map((m, i) => {
 
         // count total files size
@@ -206,6 +211,7 @@ export function getOne(req, res) {
       })
 
       // Count all media
+      // @ts-ignore
       album.total_media = albumMedia.length
       // Count all media filesize
       album.total_filesize = totalSize
@@ -224,7 +230,7 @@ export function getOne(req, res) {
 
     })
     .then(mediaMeta => {
-      
+      // @ts-ignore
       album.media = album.media.map((m) => {
 
         const { ...mediaCopy } = m
@@ -234,7 +240,7 @@ export function getOne(req, res) {
         metaObj['width'] = m.width
         metaObj['height'] = m.height
         metaObj['aspect'] = ratio(m.width, m.height)
-
+        // @ts-ignore
         mediaMeta.filter(mt => mt.media_id === m.media_id).map((mt) => {
           metaObj[mt.meta_name] = mt.meta_value
           if (mt.meta_name === 'duration') {
@@ -268,6 +274,7 @@ export function getOne(req, res) {
       album.media = album.media.map((m) => {
         const { ...mediaCopy } = m
         let rekognitionObj = new Object()
+        // @ts-ignore
         let mm = rekognitionLabels.filter(r => r.media_id === m.media_id).map((r) => {
           rekognitionObj['ack'] = 'ok'
           rekognitionObj[r.label] = r.confidence
@@ -276,7 +283,7 @@ export function getOne(req, res) {
           rekognitionObj['ack'] = 'err'
           rekognitionObj['msg'] = 'No rokognition labels found'
         }
-        
+
         return {
           ...mediaCopy,
           rekognition_labels: rekognitionObj
@@ -299,14 +306,14 @@ export function getOne(req, res) {
     })
     .then(rekognitionText => {
       album.media = album.media.map((m) => {
-        
+
         const { ...mediaCopy } = m
         let rekognitionObj = {}
-        
+        // @ts-ignore
         let textArray = rekognitionText.filter(t => t.media_id === m.media_id).map((t) => {
           return t
         })
-        
+
         if (_.isEmpty(textArray)) {
           rekognitionObj['ack'] = 'err'
           rekognitionObj['msg'] = 'No text found'
@@ -315,7 +322,7 @@ export function getOne(req, res) {
           rekognitionObj['ack'] = 'ok'
           rekognitionObj['text'] = textArray
         }
-        
+
         return {
           ...mediaCopy,
           rekognition_text: rekognitionObj
@@ -323,51 +330,55 @@ export function getOne(req, res) {
       })
 
       // Return album
-      res.json({ack:'ok', msg: 'One album', data: album})
+      res.json({ ack: 'ok', msg: 'One album', data: album })
     })
-    .catch( err => {
+    .catch(err => {
       console.log(err)
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
 // Renames album
-export function rename(req, res){
+export function rename(req, res) {
 
   const { album_id, name } = req.body
 
   conn.query(`UPDATE albums SET name = ? WHERE id = ?`, [name, album_id])
-    .then( row => {
+    .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Album renamed', id: row.insertId})
+        // @ts-ignore
+        res.json({ ack: 'ok', msg: 'Album renamed', id: row.insertId })
       }
       else {
         throw 'No such Album'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
 // Changes album date
-export function changeDate(req, res){
+export function changeDate(req, res) {
 
   const { album_id, start_date, end_date } = req.body
   conn.query(`UPDATE albums SET start_date = ?, end_date = ? WHERE id = ?`, [start_date, end_date, album_id])
-    .then( row => {
+    .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Album date changed', id: row.insertId})
+        // @ts-ignore
+        res.json({ ack: 'ok', msg: 'Album date changed', id: row.insertId })
       }
       else {
         throw 'No such Album'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -376,24 +387,26 @@ export function setLocation(req, res) {
   const { album_id, location } = req.body
 
   let data = {
-    lat : location.lat,
-    lng : location.lng,
+    lat: location.lat,
+    lng: location.lng,
     entity: 2, // Album entity type
     entity_id: album_id
   }
 
   conn.query(`INSERT INTO locations SET ?`, data)
-    .then( row => {
+    .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location set', id: row.insertId})
+        // @ts-ignore
+        res.json({ ack: 'ok', msg: 'Location set', id: row.insertId })
       }
       else {
         throw 'Location not set'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -411,17 +424,18 @@ export function updateLocation(req, res) {
   conn.query(`UPDATE locations
                 SET lat = ?, lng = ?
               WHERE entity = ? AND entity_id = ?`, data)
-    .then( row => {
+    .then(row => {
+      // @ts-ignore
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Location updated'})
+        res.json({ ack: 'ok', msg: 'Location updated' })
       }
       else {
         throw 'Location not updated'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -432,44 +446,45 @@ export function removeLocation(req, res) {
     const entity = 2 // Album type
     let location
     conn.query(`DELETE FROM locations WHERE entity = ? AND entity_id = ?`, [entity, id])
-      .then( rows => {
+      .then(rows => {
         location = rows
         // Return media locations
-        res.json({ack:'ok', msg: 'Location removed', data: location})
+        res.json({ ack: 'ok', msg: 'Location removed', data: location })
       })
-      .catch( err => {
+      .catch(err => {
         console.log(err)
         let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
+        res.json({ ack: 'err', msg })
       })
 
   } else {
-    res.json({ack:'err', msg: 'bad parameter'})
+    res.json({ ack: 'err', msg: 'bad parameter' })
   }
 }
 
 // Moves album to trash
-export function moveToTrash(req, res){
+export function moveToTrash(req, res) {
   if (typeof req.params.id != 'undefined' && !isNaN(req.params.id) && req.params.id > 0 && req.params.id.length) {
     const { id } = req.params
     const status = 2 // Trashed
 
     conn.query(`UPDATE albums SET status = ? WHERE id = ?`, [status, id])
-      .then( rows => {
+      .then(rows => {
+        // @ts-ignore
         if (rows.affectedRows === 1) {
-          res.json({ack:'ok', msg: 'Album moved to trash'})
+          res.json({ ack: 'ok', msg: 'Album moved to trash' })
         }
         else {
           throw 'No such album'
         }
       })
-      .catch( err => {
+      .catch(err => {
         console.log(err)
         let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
+        res.json({ ack: 'err', msg })
       })
 
   } else {
-    res.json({ack:'err', msg: 'bad parameter'})
+    res.json({ ack: 'err', msg: 'bad parameter' })
   }
 }

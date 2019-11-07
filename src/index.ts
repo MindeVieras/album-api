@@ -2,7 +2,7 @@
 import path from 'path'
 import swaggerUi from 'swagger-ui-express'
 
-const swaggerDocument = require('./swagger.json')
+const swaggerDocument = require('../swagger.json')
 
 import { config } from './config'
 import app from './config/express'

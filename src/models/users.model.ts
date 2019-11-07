@@ -55,29 +55,31 @@ let conn = new Database()
  *     }
  *
  */
-export function getList(req, res){
-
+export function getList(req, res) {
+  // @ts-ignore
   conn.query(`SELECT id, username, email, display_name, access_level, last_login, status, created, author FROM users`)
     .then(rows => {
 
-      let data = { users: rows.map(u => {
+      let data = {
+        users: rows.map(u => {
 
-        // make initials
-        const initials = makeInitials(u.username, u.display_name)
+          // make initials
+          const initials = makeInitials(u.username, u.display_name)
 
-        return {
-          id: u.id,
-          username: u.username,
-          email: u.email,
-          displayName: u.display_name,
-          initials,
-          accessLevel: u.access_level,
-          status: u.status,
-          author: u.author,
-          created: u.created,
-          lastLogin: u.last_login
-        }
-      })}
+          return {
+            id: u.id,
+            username: u.username,
+            email: u.email,
+            displayName: u.display_name,
+            initials,
+            accessLevel: u.access_level,
+            status: u.status,
+            author: u.author,
+            created: u.created,
+            lastLogin: u.last_login
+          }
+        })
+      }
 
       jsonResponse.success(res, data)
 
@@ -88,12 +90,13 @@ export function getList(req, res){
 }
 
 // Gets one user
-export function getUser(req, res){
+export function getUser(req, res) {
 
   const { username } = req.params
 
   conn.query(`SELECT * FROM users WHERE username = ?`, username)
-    .then( rows => {
+    .then(rows => {
+      // @ts-ignore
       if (rows.length) {
 
         let initials = require('../helpers/utils').makeInitials(rows[0].username, rows[0].display_name)
@@ -106,7 +109,7 @@ export function getUser(req, res){
           email: rows[0].email
         }
 
-        res.json({ack:'ok', msg: 'One user', data: user})
+        res.json({ ack: 'ok', msg: 'One user', data: user })
 
       }
       else {
@@ -115,7 +118,7 @@ export function getUser(req, res){
     })
     .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -124,7 +127,7 @@ export function createUser(req, res) {
 
   const { uid } = req.app.get('user')
   const { username, password, email, display_name, access_level, status } = req.body
-  let  errors
+  let errors
 
   // validate username input
   if (!username || validator.isEmpty(username))
@@ -163,6 +166,7 @@ export function createUser(req, res) {
     // check if user exists
     conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
       .then(rows => {
+        // @ts-ignore
         if (rows.length)
           throw `Username already exists`
         else
@@ -187,8 +191,9 @@ export function createUser(req, res) {
 
       // Insret initial user settings
       .then(userRow => {
+        // @ts-ignore
         if (userRow.affectedRows === 1) {
-
+          // @ts-ignore
           let newUid = userRow.insertId
           userData.id = newUid
 
@@ -210,7 +215,7 @@ export function createUser(req, res) {
           let settings = frontSettings
 
           if (userData.access_level >= usersConstants.USER_ACCESS_AUTHED) {
-            settings = [ ...frontSettings, ...adminSettings ]
+            settings = [...frontSettings, ...adminSettings]
           }
 
           // insert settings to DB
@@ -236,7 +241,7 @@ export function createUser(req, res) {
         res.json({ ack: `ok`, msg: `User saved`, user })
       })
 
-      .catch( err => {
+      .catch(err => {
         let msg = err.sqlMessage ? `Cannot create user, check system logs` : err
         res.json({ ack: `err`, errors: { _error: msg } })
       })
@@ -244,7 +249,7 @@ export function createUser(req, res) {
 }
 
 // Deletes user
-export function deleteUser(req, res){
+export function deleteUser(req, res) {
 
   const { uid } = req.app.get('user')
   const { id } = req.params
@@ -254,6 +259,7 @@ export function deleteUser(req, res){
 
     conn.query(`DELETE FROM users WHERE id = ?`, id)
       .then(rows => {
+        // @ts-ignore
         if (rows.affectedRows === 1)
           // Also delete user settings
           return conn.query(`DELETE FROM users_settings WHERE user_id = ?`, id)
@@ -263,15 +269,15 @@ export function deleteUser(req, res){
 
       .then(_ => {
         // Return success
-        res.json({ack:`ok`, msg:`User deleted`, id})
+        res.json({ ack: `ok`, msg: `User deleted`, id })
       })
 
       .catch(err => {
         let msg = err.sqlMessage ? 'Cannot delete user, check system logs' : err
-        res.json({ack:`err`, msg})
+        res.json({ ack: `err`, msg })
       })
   }
   else {
-    res.json({ack:`err`, msg:`You cannot delete yoursef`})
+    res.json({ ack: `err`, msg: `You cannot delete yoursef` })
   }
 }
