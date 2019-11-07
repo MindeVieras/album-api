@@ -16,7 +16,7 @@ const envVarsSchema = Joi.object({
     .default(3000),
 
   // Security variables.
-  TOKEN_SECRET_KEY: Joi.string()
+  JWT_SECRET: Joi.string()
     .required()
     .description('JWT Secret required to sign'),
 
@@ -42,11 +42,11 @@ const envVarsSchema = Joi.object({
     .required(),
   AWS_SECRET_ACCESS_KEY: Joi.string()
     .required(),
-  S3_BUCKET: Joi.string()
+  AWS_BUCKET: Joi.string()
     .required(),
-  FACES_COLLECTION: Joi.string()
+  AWS_FACES_COLLECTION: Joi.string()
     .required(),
-  TRANSCODER_PIPELINE: Joi.string()
+  AWS_TRANSCODER_PIPELINE: Joi.string()
     .required(),
 })
   .unknown()
@@ -64,7 +64,7 @@ export const config = {
   env: envVars.NODE_ENV,
   host: envVars.HOST,
   port: envVars.PORT,
-  jwtSecret: envVars.TOKEN_SECRET_KEY,
+  jwtSecret: envVars.JWT_SECRET,
   db: {
     host: envVars.DB_HOST,
     user: envVars.DB_USER,
@@ -76,8 +76,8 @@ export const config = {
     region: envVars.AWS_REGION,
     accessKey: envVars.AWS_ACCESS_KEY_ID,
     secretKey: envVars.AWS_SECRET_ACCESS_KEY,
-    bucket: envVars.S3_BUCKET,
-    facesCollection: envVars.FACES_COLLECTION,
-    transcoderPipeline: envVars.TRANSCODER_PIPELINE
+    bucket: envVars.AWS_BUCKET,
+    facesCollection: envVars.AWS_FACES_COLLECTION,
+    transcoderPipeline: envVars.AWS_TRANSCODER_PIPELINE
   }
 }
