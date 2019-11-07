@@ -52,6 +52,7 @@
     "babel-eslint": "^10.0.3",
     "eslint": "^6.6.0",
     "nodemon": "^1.19.4",
-    "rimraf": "^3.0.0"
+    "rimraf": "^3.0.0",
+    "typescript": "^3.7.2"
   }
 }
