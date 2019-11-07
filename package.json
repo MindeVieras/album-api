@@ -39,7 +39,6 @@
     "morgan": "^1.9.1",
     "mysql": "^2.17.1",
     "superagent": "^5.1.0",
-    "swagger-ui-express": "^4.1.2",
     "validator": "^12.0.0",
     "winston": "^3.2.1",
     "winston-mysql": "^0.9.0"
@@ -54,7 +53,6 @@
     "@types/mysql": "^2.15.8",
     "@types/node": "^12.12.6",
     "@types/superagent": "^4.1.4",
-    "@types/swagger-ui-express": "^3.0.1",
     "@types/validator": "^10.11.3",
     "nodemon": "^1.19.4",
     "rimraf": "^3.0.0",
