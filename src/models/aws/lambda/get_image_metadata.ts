@@ -18,6 +18,7 @@ export function get(key) {
       if (err)
         reject(err.message)
 
+      // @ts-ignore
       const payload = JSON.parse(data.Payload)
 
       if (payload !== null && typeof payload === 'object')
@@ -39,8 +40,11 @@ function pretifyExifMeta(payload) {
   // make exif object
   if (payload.exif) {
     Object.keys(payload.exif).forEach((key) => {
+      // @ts-ignore
       if (key == 'DateTimeOriginal') meta.datetime = convertExifDate(payload.exif[key])
+      // @ts-ignore
       if (key == 'Flash') meta.flash = payload.exif[key]
+      // @ts-ignore
       if (key == 'ISO') meta.iso = payload.exif[key]
     })
   }
@@ -52,8 +56,11 @@ function pretifyExifMeta(payload) {
       const value = payload.image[key]
 
       // Cleanup make and model string from zeros /u00000
+      // @ts-ignore
       if (key == 'Make') meta.make = value.replace(/\0/g, '')
+      // @ts-ignore
       if (key == 'Model') meta.model = value.replace(/\0/g, '')
+      // @ts-ignore
       if (key == 'Orientation') meta.orientation = value
     })
   }
@@ -66,6 +73,7 @@ function pretifyExifMeta(payload) {
     && payload.gps.GPSLongitudeRef
   ) {
     const { GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef } = payload.gps
+    // @ts-ignore
     meta.location = dmsToDecimal(GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef)
   }
 

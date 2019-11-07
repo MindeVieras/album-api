@@ -8,8 +8,7 @@ const connection = mysql.createConnection({
   user: config.db.user,
   password: config.db.pass,
   database: config.db.name,
-  port: config.db.port,
-  acquireTimeout: 1000000
+  port: config.db.port
 })
 
 connection.connect(err => {

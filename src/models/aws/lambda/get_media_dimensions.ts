@@ -33,7 +33,7 @@ export function get(key) {
         reject('Lambda error')
       }
       else {
-
+        // @ts-ignore
         const payload = JSON.parse(data.Payload)
 
         if (payload !== null && typeof payload === 'object') {
@@ -43,7 +43,9 @@ export function get(key) {
           // make dimensions object
           payload.streams.forEach(row => {
             if (row.width && row.height) {
+              // @ts-ignore
               meta.width = row.width
+              // @ts-ignore
               meta.height = row.height
             }
           })

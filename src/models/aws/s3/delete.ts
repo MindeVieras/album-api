@@ -93,8 +93,10 @@ module.exports.deleteVideo = function (id, cb) {
             keyObj['Key'] = 'videos/' + row.name + '/' + path.basename(key);
             keysArray.push(keyObj);
             // video thumbs
+            // @ts-ignore
             for (i = 0; i < thumbCount; i++) {
               var ext = path.extname(key);
+              // @ts-ignore
               var thumbKey = makeCount(i + 1) + '.jpg';
               var formattedKey = path.basename(key, ext) + '-' + thumbKey;
 

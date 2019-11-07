@@ -14,11 +14,11 @@ const dbConfig = {
 }
 
 export class Database {
-
+  connection: mysql.Connection
   constructor() {
     this.connection = mysql.createConnection(dbConfig)
   }
-
+  // @ts-ignore
   query(sql, args) {
     return new Promise((resolve, reject) => {
       this.connection.query(sql, args, (err, rows) => {
