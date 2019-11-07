@@ -6,9 +6,6 @@ import cors from 'cors'
 
 const app = express()
 
-// Require variables from .env file if available
-require('dotenv').config()
-
 // Logger
 app.use(morgan('dev'))
 
@@ -21,7 +18,7 @@ app.use(bodyParser.urlencoded({
   limit: '50mb'
 }))
 app.use(bodyParser.json({
-  limit : '50mb'
+  limit: '50mb'
 }))
 
 export default app

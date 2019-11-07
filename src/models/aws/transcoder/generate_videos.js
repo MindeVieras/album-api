@@ -3,7 +3,7 @@ import path from 'path'
 import AWS from 'aws-sdk'
 
 import { Database } from '../../../db'
-import { transcoder_pipeline } from '../../../config/config'
+import { config } from '../../../config'
 
 let conn = new Database()
 
@@ -20,7 +20,7 @@ export function generate(s3_key, width, height) {
     let presets, jobsDone
 
     conn.query(`SELECT * FROM video_presets`)
-      .then( rows => {
+      .then(rows => {
         if (rows.length) {
 
           presets = rows
@@ -161,10 +161,10 @@ function findPreset(name, presets) {
 function createJobParam(s3_key, name, preset_id) {
 
   let ext = path.extname(s3_key)
-  let thumbPath = 'videos/thumbs/'+name+'/'+path.basename(s3_key, ext)+'-'
+  let thumbPath = 'videos/thumbs/' + name + '/' + path.basename(s3_key, ext) + '-'
 
   let params = {
-    PipelineId: transcoder_pipeline,
+    PipelineId: config.aws.transcoderPipeline,
     Input: {
       AspectRatio: 'auto',
       Container: 'auto',
@@ -174,10 +174,10 @@ function createJobParam(s3_key, name, preset_id) {
       Resolution: 'auto',
     },
     Output: {
-      Key: 'videos/'+name+'/'+path.basename(s3_key),
+      Key: 'videos/' + name + '/' + path.basename(s3_key),
       PresetId: preset_id,
       Rotate: 'auto',
-      ThumbnailPattern: thumbPath+'{count}'
+      ThumbnailPattern: thumbPath + '{count}'
     }
   }
 

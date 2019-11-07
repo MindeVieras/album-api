@@ -2,17 +2,17 @@
 import AWS from 'aws-sdk'
 import CryptoJS from 'crypto-js'
 
-import { bucket } from '../config/config'
+import { config } from '../config'
 import { Database } from '../db'
 
 const getMediaDimensions = require('./aws/lambda/get_media_dimensions')
 
 let conn = new Database()
 
-const clientSecretKey = process.env.AWS_SECRET_ACCESS_KEY
+const clientSecretKey = config.aws.secretKey
 // Set these two values to match your environment
-const expectedBucket = bucket
-const expectedHostname = `${bucket}.s3.eu-west-1.amazonaws.com`
+const expectedBucket = config.aws.bucket
+const expectedHostname = `${config.aws.bucket}.s3.eu-west-1.amazonaws.com`
 
 // CHANGE TO INTEGERS TO ENABLE POLICY DOCUMENT VERIFICATION ON FILE SIZE
 // (recommended)
@@ -23,7 +23,7 @@ const s3 = new AWS.S3()
 
 
 // get AWS signature for client fineuploader
-export function getSignature(req, res){
+export function getSignature(req, res) {
 
   if (typeof req.query.success !== 'undefined') {
     verifyFileInS3(req, res)
@@ -60,7 +60,7 @@ function signRestRequest(req, res) {
   }
   else {
     res.status(400)
-    res.end(JSON.stringify({invalid: true}))
+    res.end(JSON.stringify({ invalid: true }))
   }
 }
 
@@ -95,7 +95,7 @@ function signPolicy(req, res) {
   }
   else {
     res.status(400)
-    res.end(JSON.stringify({invalid: true}))
+    res.end(JSON.stringify({ invalid: true }))
   }
 }
 
@@ -164,11 +164,11 @@ function verifyFileInS3(req, res) {
     if (err) {
       res.status(500)
       console.log(err)
-      res.end(JSON.stringify({error: 'Problem querying S3!'}))
+      res.end(JSON.stringify({ error: 'Problem querying S3!' }))
     }
     else if (expectedMaxSize != null && data.ContentLength > expectedMaxSize) {
       res.status(400)
-      res.write(JSON.stringify({error: 'Too big!'}))
+      res.write(JSON.stringify({ error: 'Too big!' }))
       deleteFile(req.body.bucket, req.body.key, err => {
         if (err) {
           console.log('Couldn\'t delete invalid file!')
@@ -217,7 +217,7 @@ function callS3(type, spec, callback) {
 }
 
 // on uploader success
-export function onSuccess(req, res){
+export function onSuccess(req, res) {
   const { key, name, filesize, mime, entity, entity_id, status } = req.body
   const { uid } = req.app.get('user')
 
@@ -245,20 +245,20 @@ export function onSuccess(req, res){
         return conn.query(`INSERT INTO media set ?`, fileData)
 
       })
-      .then( row => {
+      .then(row => {
         const { ...fileCopy } = fileData
         fileData = {
           ...fileCopy,
           media_id: row.insertId
         }
-        res.json({success: true, data: fileData})
+        res.json({ success: true, data: fileData })
       })
-      .catch( err => {
+      .catch(err => {
         let msg = err.sqlMessage ? err.sqlMessage : err
-        res.json({ack:'err', msg})
+        res.json({ ack: 'err', msg })
       })
   }
   else {
-    res.json({ack: 'err', msg: 'No key'})
+    res.json({ ack: 'err', msg: 'No key' })
   }
 }

@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/MindeVieras/album-api#readme",
   "dependencies": {
+    "@hapi/joi": "^16.1.7",
     "aspect-ratio": "^2.1.0",
     "aws-sdk": "^2.565.0",
     "bcrypt": "^3.0.6",

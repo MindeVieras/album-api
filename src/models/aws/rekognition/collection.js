@@ -1,11 +1,11 @@
 
 import AWS from 'aws-sdk'
 
-import { faces_collection } from '../../../config/config'
+import { config } from '../../../config'
 
 const rekognition = new AWS.Rekognition()
 
-export function describeCollection(){
+export function describeCollection() {
 
   return new Promise((resolve, reject) => {
 
@@ -23,12 +23,12 @@ export function describeCollection(){
   })
 }
 
-export function getFaces(max = 4096, next = null){
+export function getFaces(max = 4096, next = null) {
 
   return new Promise((resolve, reject) => {
 
     const params = {
-      CollectionId: faces_collection,
+      CollectionId: config.aws.facesCollection,
       MaxResults: max,
       NextToken: null
     }
@@ -43,15 +43,15 @@ export function getFaces(max = 4096, next = null){
   })
 }
 
-export function deleteFace(id){
+export function deleteFace(id) {
 
   return new Promise((resolve, reject) => {
 
     const params = {
-      CollectionId: faces_collection,
-      FaceIds: [ id ]
+      CollectionId: config.aws.facesCollection,
+      FaceIds: [id]
     }
-    
+
     rekognition.deleteFaces(params, (err, data) => {
       if (err) {
         reject(err.message)

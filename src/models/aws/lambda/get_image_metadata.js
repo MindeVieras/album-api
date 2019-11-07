@@ -1,6 +1,6 @@
 
 import AWS from 'aws-sdk'
-import { bucket } from '../../../config/config'
+import { config } from '../../../config'
 
 const lambda = new AWS.Lambda()
 
@@ -10,7 +10,7 @@ export function get(key) {
     // Get S3 file metadata from lambda
     let params = {
       FunctionName: 'aws-album_get_image_metadata',
-      Payload: '{"srcKey": "'+key+'", "bucket": "'+bucket+'"}'
+      Payload: '{"srcKey": "' + key + '", "bucket": "' + config.aws.bucket + '"}'
     }
 
     lambda.invoke(params, (err, data) => {
@@ -35,7 +35,7 @@ export function get(key) {
 function pretifyExifMeta(payload) {
 
   let meta = {}
-  
+
   // make exif object
   if (payload.exif) {
     Object.keys(payload.exif).forEach((key) => {
@@ -74,7 +74,7 @@ function pretifyExifMeta(payload) {
 
 function dmsToDecimal(lat, latRef, lon, lonRef) {
 
-  const ref = {'N': 1, 'E': 1, 'S': -1, 'W': -1}
+  const ref = { 'N': 1, 'E': 1, 'S': -1, 'W': -1 }
   const sep = [' ,', ' ', ',']
   let i
 
@@ -118,12 +118,12 @@ function dmsToDecimal(lat, latRef, lon, lonRef) {
 
 // converts exif date to normal date
 function convertExifDate(date) {
-  if(date){
+  if (date) {
     let newDateTime
     let dateTime = date.split(' ')
     let regex = new RegExp(':', 'g')
     dateTime[0] = dateTime[0].replace(regex, '-')
-    if(typeof date === 'undefined' || !date){
+    if (typeof date === 'undefined' || !date) {
       newDateTime = ''
     } else {
       newDateTime = dateTime[0] + ' ' + dateTime[1]

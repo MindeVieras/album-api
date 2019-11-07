@@ -1,6 +1,7 @@
 
 import request from 'superagent'
 
+import { config } from '../config'
 import { Database } from '../db'
 import { jsonResponse, makeInitials } from '../helpers'
 
@@ -32,7 +33,7 @@ let conn = new Database()
  *
  */
 export function ipLocation(req, res) {
-  
+
   const { ip } = req.params
 
   let data = {
@@ -64,23 +65,23 @@ export function ipLocation(req, res) {
 export function getAppSettings(req, res) {
   let settings = new Object()
   conn.query(`SELECT * FROM settings WHERE type = 'app'`)
-    .then( rows => {
+    .then(rows => {
       // let settingsObj = new Object()
       rows.map((s) => {
         settings[s.name] = s.value
       })
 
       // Add AWS access key
-      settings.access_key_id = process.env.AWS_ACCESS_KEY_ID
+      settings.access_key_id = config.aws.accessKey
       // Add AWS bucket
-      settings.bucket = process.env.S3_BUCKET
-      
+      settings.bucket = config.aws.bucket
+
       // Return settings
-      res.json({ack:'ok', msg: 'App settings', data: settings})
+      res.json({ ack: 'ok', msg: 'App settings', data: settings })
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -89,18 +90,18 @@ export function getAdminSettings(req, res) {
   const { uid } = req.app.get('user')
   let settings = new Object()
   conn.query(`SELECT * FROM users_settings WHERE user_id = ? AND type = 'admin'`, uid)
-    .then( rows => {
+    .then(rows => {
       // let settingsObj = new Object()
       rows.map((s) => {
         settings[s.name] = s.value
       })
 
       // Return settings
-      res.json({ack:'ok', msg: 'Admin settings', data: settings})
+      res.json({ ack: 'ok', msg: 'Admin settings', data: settings })
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -109,22 +110,22 @@ export function saveAdminSetting(req, res) {
   const { name, value } = req.body
   const { uid } = req.app.get('user')
 
-  let data = [ value, uid, name ]
+  let data = [value, uid, name]
 
   conn.query(`UPDATE users_settings
                 SET value = ?
               WHERE user_id = ? AND name = ? AND type = 'admin'`, data)
-    .then( row => {
+    .then(row => {
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Setting saved'})
+        res.json({ ack: 'ok', msg: 'Setting saved' })
       }
       else {
         throw 'Setting not saved'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -134,18 +135,18 @@ export function getFrontSettings(req, res) {
   const { uid } = req.app.get('user')
   let settings = new Object()
   conn.query(`SELECT * FROM users_settings WHERE user_id = ? AND type = 'front'`, uid)
-    .then( rows => {
+    .then(rows => {
       // let settingsObj = new Object()
       rows.map((s) => {
         settings[s.name] = s.value
       })
 
       // Return settings
-      res.json({ack:'ok', msg: 'Front settings', data: settings})
+      res.json({ ack: 'ok', msg: 'Front settings', data: settings })
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
 
@@ -154,21 +155,21 @@ export function saveFrontSetting(req, res) {
   const { name, value } = req.body
   const { uid } = req.app.get('user')
 
-  let data = [ value, uid, name ]
+  let data = [value, uid, name]
 
   conn.query(`UPDATE users_settings
                 SET value = ?
               WHERE user_id = ? AND name = ? AND type = 'front'`, data)
-    .then( row => {
+    .then(row => {
       if (row.affectedRows === 1) {
-        res.json({ack:'ok', msg: 'Setting saved'})
+        res.json({ ack: 'ok', msg: 'Setting saved' })
       }
       else {
         throw 'Setting not saved'
       }
     })
-    .catch( err => {
+    .catch(err => {
       let msg = err.sqlMessage ? err.sqlMessage : err
-      res.json({ack:'err', msg})
+      res.json({ ack: 'err', msg })
     })
 }
