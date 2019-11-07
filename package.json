@@ -4,11 +4,11 @@
   "description": "AWS album API",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon -w src --exec \"babel-node src\"",
-    "build": "rimraf dist && npx babel src -D -d dist",
-    "start": "rimraf dist && npx babel src -D -d dist --no-comments && node dist/index.js",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "build": "rimraf dist && tsc",
     "clean": "rimraf dist colony node_modules",
-    "test": "eslint src"
+    "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
   "engines": {
     "node": "10.13.0"
@@ -39,19 +39,25 @@
     "morgan": "^1.9.1",
     "mysql": "^2.17.1",
     "superagent": "^5.1.0",
-    "swagger-ui-express": "^4.1.2",
     "validator": "^12.0.0",
     "winston": "^3.2.1",
     "winston-mysql": "^0.9.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.0",
-    "@babel/core": "^7.7.0",
-    "@babel/node": "^7.7.0",
-    "@babel/preset-env": "^7.7.1",
-    "babel-eslint": "^10.0.3",
-    "eslint": "^6.6.0",
+    "@types/bcrypt": "^3.0.0",
+    "@types/cors": "^2.8.6",
+    "@types/crypto-js": "^3.1.43",
+    "@types/hapi__joi": "^16.0.3",
+    "@types/jsonwebtoken": "^8.3.5",
+    "@types/lodash": "^4.14.145",
+    "@types/mysql": "^2.15.8",
+    "@types/node": "^12.12.6",
+    "@types/superagent": "^4.1.4",
+    "@types/validator": "^10.11.3",
     "nodemon": "^1.19.4",
-    "rimraf": "^3.0.0"
+    "rimraf": "^3.0.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.2"
   }
 }

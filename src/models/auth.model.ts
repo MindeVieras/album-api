@@ -40,6 +40,7 @@ export function authenticate(req, res) {
     let user
     conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
       .then(rows => {
+        // @ts-ignore
         if (rows.length) {
           let pass = rows[0].password
           let passMatch = bcrypt.compareSync(password, pass)
@@ -65,6 +66,7 @@ export function authenticate(req, res) {
       })
       .then(rows => {
         // If last login date updated
+        // @ts-ignore
         if (rows.affectedRows === 1) {
           // Return User object
           const token = jwt.sign(user, config.jwtSecret)

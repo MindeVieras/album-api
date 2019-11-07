@@ -1,0 +1,16 @@
+{
+  "editor.tabSize": 2,
+  "editor.autoIndent": true,
+  "editor.insertSpaces": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": false,
+  "editor.renderWhitespace": "boundary",
+  "editor.wordWrapColumn": 120,
+  "editor.wordWrap": "off",
+  "editor.detectIndentation": true,
+  "editor.rulers": [
+    120
+  ],
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
+}
