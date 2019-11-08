@@ -50,6 +50,7 @@
     "@types/hapi__joi": "^16.0.3",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.145",
+    "@types/morgan": "^1.7.37",
     "@types/mysql": "^2.15.8",
     "@types/node": "^12.12.6",
     "@types/superagent": "^4.1.4",
