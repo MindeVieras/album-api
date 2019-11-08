@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = __importDefault(require("express"));
+var auth_route_1 = __importDefault(require("./auth.route"));
+var users_route_1 = __importDefault(require("./users.route"));
+var albums_route_1 = __importDefault(require("./albums.route"));
+var uploader_route_1 = __importDefault(require("./uploader.route"));
+var media_route_1 = __importDefault(require("./media.route"));
+var faces_route_1 = __importDefault(require("./faces.route"));
+var trash_route_1 = __importDefault(require("./trash.route"));
+var front_route_1 = __importDefault(require("./front.route"));
+var utils_route_1 = __importDefault(require("./utils.route"));
+var router = express_1.default.Router();
+router.use('/auth', auth_route_1.default);
+router.use('/users', users_route_1.default);
+router.use('/albums', albums_route_1.default);
+router.use('/uploader', uploader_route_1.default);
+router.use('/media', media_route_1.default);
+router.use('/faces', faces_route_1.default);
+router.use('/trash', trash_route_1.default);
+router.use('/front', front_route_1.default);
+router.use('/utils', utils_route_1.default);
+exports.default = router;

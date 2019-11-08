@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = __importDefault(require("express"));
+var authenticate_1 = require("../helpers/authenticate");
+var albums_model_1 = require("../models/albums.model");
+var router = express_1.default.Router();
+router.post('/list', authenticate_1.isAuthed, albums_model_1.getList);
+router.get('/list-dates', authenticate_1.isAuthed, albums_model_1.getListDates);
+router.get('/one/:id', authenticate_1.isAuthed, albums_model_1.getOne);
+router.post('/create', authenticate_1.isAuthed, albums_model_1.create);
+router.post('/rename', authenticate_1.isAuthed, albums_model_1.rename);
+router.post('/change-date', authenticate_1.isAuthed, albums_model_1.changeDate);
+router.post('/set-location', authenticate_1.isAuthed, albums_model_1.setLocation);
+router.post('/update-location', authenticate_1.isAuthed, albums_model_1.updateLocation);
+router.get('/remove-location/:id', authenticate_1.isAuthed, albums_model_1.removeLocation);
+router.delete('/move-to-trash/:id', authenticate_1.isAuthed, albums_model_1.moveToTrash);
+exports.default = router;

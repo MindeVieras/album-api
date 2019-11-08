@@ -1,6 +1,6 @@
 {
   "name": "album-api",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "AWS album API",
   "main": "dist/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
   "engines": {
-    "node": "10.13.0"
+    "node": "12.13.0"
   },
   "repository": {
     "type": "git",
@@ -25,36 +25,20 @@
   "homepage": "https://github.com/MindeVieras/album-api#readme",
   "dependencies": {
     "@hapi/joi": "^16.1.7",
-    "aspect-ratio": "^2.1.0",
-    "aws-sdk": "^2.565.0",
-    "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "crypto-js": "^3.1.9-1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "http-status-codes": "^1.4.0",
     "jsonwebtoken": "^8.5.1",
-    "moment": "^2.24.0",
-    "morgan": "^1.9.1",
-    "mysql": "^2.17.1",
-    "superagent": "^5.1.0",
-    "validator": "^12.0.0",
-    "winston": "^3.2.1",
-    "winston-mysql": "^0.9.0"
+    "morgan": "^1.9.1"
   },
   "devDependencies": {
-    "@types/bcrypt": "^3.0.0",
     "@types/cors": "^2.8.6",
-    "@types/crypto-js": "^3.1.43",
     "@types/hapi__joi": "^16.0.3",
     "@types/jsonwebtoken": "^8.3.5",
-    "@types/lodash": "^4.14.145",
     "@types/morgan": "^1.7.37",
-    "@types/mysql": "^2.15.8",
     "@types/node": "^12.12.6",
-    "@types/superagent": "^4.1.4",
-    "@types/validator": "^10.11.3",
     "nodemon": "^1.19.4",
     "rimraf": "^3.0.0",
     "ts-node": "^8.4.1",
