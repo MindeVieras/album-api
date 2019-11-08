@@ -1,8 +1,6 @@
-# Aws album api using Node.js, Express, Passport and MySql.
+# Aws album api using Node.js, Express, MongoDB and TypeScript.
 
-This is a aws album app using Node.js, Express, Passport and MySql.
-API documentation is available on /api-docs path.
-
+This is a aws album app using Node.js, Express, MongoDB and TypeScript.
 
 To get started, first install all the necessary dependencies.
 ```
@@ -19,7 +17,17 @@ Build production version
 > npm run build
 ```
 
+Run conde linting
+```
+> npm run lint
+```
+
 Run test
 ```
 > npm t
+```
+
+Run Node server
+```
+> npm start
 ```
