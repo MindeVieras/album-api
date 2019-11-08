@@ -1,10 +1,38 @@
 
+import dotenv from 'dotenv'
 import Joi from '@hapi/joi'
 
 // Require variables from .env file.
-require('dotenv').config()
+dotenv.config()
 
-// Define validation for all the env vars.
+/**
+ * Configuration interface.
+ */
+interface Config {
+  env: string,
+  host: string,
+  port: number,
+  jwtSecret: string,
+  db: {
+    host: string,
+    user: string,
+    pass: string,
+    name: string,
+    port: number,
+  },
+  aws: {
+    region: string,
+    accessKey: string,
+    secretKey: string,
+    bucket: string,
+    facesCollection: string,
+    transcoderPipeline: string,
+  }
+}
+
+/**
+ * Define validation for all the env vars.
+ */
 const envVarsSchema = Joi.object({
   // Environment variables.
   NODE_ENV: Joi.string()
@@ -52,15 +80,20 @@ const envVarsSchema = Joi.object({
   .unknown()
   .required()
 
-// Validate env vars.
+/**
+ * Validate env vars.
+ */
 const { error, value: envVars } = envVarsSchema.validate(process.env)
 
+// Throw an error is validation is unsuccessful.
 if (error) {
   throw new Error(`Config validation error: ${error.message}`)
 }
 
-// Build config object.
-export const config = {
+/**
+ * Build config object.
+ */
+export const config: Config = {
   env: envVars.NODE_ENV,
   host: envVars.HOST,
   port: envVars.PORT,
@@ -70,7 +103,7 @@ export const config = {
     user: envVars.DB_USER,
     pass: envVars.DB_PASS,
     name: envVars.DB_NAME,
-    port: envVars.DB_PORT
+    port: envVars.DB_PORT,
   },
   aws: {
     region: envVars.AWS_REGION,
@@ -78,6 +111,6 @@ export const config = {
     secretKey: envVars.AWS_SECRET_ACCESS_KEY,
     bucket: envVars.AWS_BUCKET,
     facesCollection: envVars.AWS_FACES_COLLECTION,
-    transcoderPipeline: envVars.AWS_TRANSCODER_PIPELINE
-  }
+    transcoderPipeline: envVars.AWS_TRANSCODER_PIPELINE,
+  },
 }
