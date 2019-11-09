@@ -19,4 +19,9 @@ export enum MetadataKeys {
    */
   middleware = 'middleware',
 
+  /**
+   * To validate request params.
+   */
+  validator = 'validator',
+
 }
