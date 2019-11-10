@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import { controller, get, post, use, validate } from './decorators'
 import { validationSchema } from '../config/validationSchema'
 import { logger } from '../middlewares'
+import { ApiError } from '../helpers/ApiError'
 
 /**
  * Users controller.
@@ -22,7 +23,7 @@ class UsersController {
   @get('/users')
   @use(logger)
   public getUsers(req: Request, res: Response) {
-
+    throw new ApiError('This is thrown error.')
     res.send('Users route.')
 
   }

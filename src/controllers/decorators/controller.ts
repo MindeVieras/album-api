@@ -16,11 +16,13 @@ import { Methods } from './Methods'
 function validate(validShema: Joi.ObjectSchema): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
     // Validate schema.
-    const { error } = validShema.validate(req.body)
+    if (validShema) {
+      const { error } = validShema.validate(req.body)
 
-    if (error) {
-      res.status(422).send(error)
-      return
+      if (error) {
+        res.status(422).send(error)
+        return
+      }
     }
 
     next()
@@ -52,9 +54,9 @@ export function controller(routePrefix: string) {
         const path = Reflect.getMetadata(MetadataKeys.path, target.prototype, key)
         const method: Methods = Reflect.getMetadata(MetadataKeys.method, target.prototype, key)
         const middlewares = Reflect.getMetadata(MetadataKeys.middleware, target.prototype, key) || []
-        const requiredRequestProps = Reflect.getMetadata(MetadataKeys.validator, target.prototype, key) || []
-        // console.log(requiredRequestProps)
-        const validator = validate(requiredRequestProps)
+        const requestValidatorProps = Reflect.getMetadata(MetadataKeys.validator, target.prototype, key)
+
+        const validator = validate(requestValidatorProps)
 
         // Set route handler/controller for the route.
         const routeHandler = target.prototype[key]

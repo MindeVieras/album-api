@@ -6,6 +6,7 @@ import morgan from 'morgan'
 
 import { config } from './config'
 import { AppRouter } from './AppRouter'
+import { errorConverter, errorNotFound, errorHandler } from './middlewares'
 
 // Import all controllers.
 import './controllers/RootController'
@@ -42,6 +43,15 @@ export default class Server {
     }
 
     this.app.use(AppRouter.getInstance())
+
+    // // If error is not an instanceOf APIError, convert it.
+    this.app.use(errorConverter)
+
+    // // Catch 404 and forward to error handler.
+    this.app.use(errorNotFound)
+
+    // // Error handler, send stacktrace only during development.
+    this.app.use(errorHandler)
 
   }
 

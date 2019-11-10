@@ -1,19 +1,19 @@
 
-import express from 'express'
+import { Router } from 'express'
 
 /**
  * AppRouter singleton class.
  */
 export class AppRouter {
 
-  private static instance: express.Router
+  private static instance: Router
 
   /**
    * AppRouter instance getter.
    */
-  public static getInstance(): express.Router {
+  public static getInstance(): Router {
     if (!AppRouter.instance) {
-      AppRouter.instance = express.Router()
+      AppRouter.instance = Router()
     }
 
     return AppRouter.instance
