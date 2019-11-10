@@ -5,11 +5,12 @@ import { controller, get, post, use, validate } from './decorators'
 import { validationSchema } from '../config/validationSchema'
 import { logger } from '../middlewares'
 import { ApiError } from '../helpers/ApiError'
+import { User } from '../models/User'
 
 /**
  * Users controller.
  */
-@controller('/api')
+@controller('')
 class UsersController {
 
   /**
@@ -23,8 +24,11 @@ class UsersController {
   @get('/users')
   @use(logger)
   public getUsers(req: Request, res: Response) {
-    throw new ApiError('This is thrown error.')
-    res.send('Users route.')
+    User.find().then((u) => {
+      res.send(u)
+    })
+    // throw new ApiError('This is thrown error.')
+    // res.send('Users route.')
 
   }
 

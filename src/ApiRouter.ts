@@ -2,9 +2,9 @@
 import { Router } from 'express'
 
 /**
- * AppRouter singleton class.
+ * ApiRouter singleton class.
  */
-export class AppRouter {
+export class ApiRouter {
 
   private static instance: Router
 
@@ -12,11 +12,11 @@ export class AppRouter {
    * AppRouter instance getter.
    */
   public static getInstance(): Router {
-    if (!AppRouter.instance) {
-      AppRouter.instance = Router()
+    if (!ApiRouter.instance) {
+      ApiRouter.instance = Router()
     }
 
-    return AppRouter.instance
+    return ApiRouter.instance
   }
 
 }

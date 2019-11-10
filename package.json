@@ -31,6 +31,7 @@
     "express": "^4.17.1",
     "http-status-codes": "^1.4.0",
     "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.7.9",
     "morgan": "^1.9.1",
     "reflect-metadata": "^0.1.13"
   },
@@ -38,6 +39,7 @@
     "@types/cors": "^2.8.6",
     "@types/hapi__joi": "^16.0.3",
     "@types/jsonwebtoken": "^8.3.5",
+    "@types/mongoose": "^5.5.30",
     "@types/morgan": "^1.7.37",
     "@types/node": "^12.12.6",
     "nodemon": "^1.19.4",

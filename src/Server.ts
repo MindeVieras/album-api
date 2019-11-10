@@ -1,15 +1,15 @@
 
-import express, { Application } from 'express'
+import path from 'path'
+import express, { Application, Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import morgan from 'morgan'
 
 import { config } from './config'
-import { AppRouter } from './AppRouter'
+import { ApiRouter } from './ApiRouter'
 import { errorConverter, errorNotFound, errorHandler } from './middlewares'
 
 // Import all controllers.
-import './controllers/RootController'
 import './controllers/UsersController'
 
 /**
@@ -42,15 +42,20 @@ export default class Server {
       this.app.use(morgan('dev'))
     }
 
-    this.app.use(AppRouter.getInstance())
+    // Home route
+    this.app.get('/', (req: Request, res: Response) => {
+      res.sendFile(path.join(__dirname, './index.html'))
+    })
+    // All API routes goes under /api path.
+    this.app.use('/api', ApiRouter.getInstance())
 
-    // // If error is not an instanceOf APIError, convert it.
+    // If error is not an instanceOf APIError, convert it.
     this.app.use(errorConverter)
 
-    // // Catch 404 and forward to error handler.
+    // Catch 404 and forward to error handler.
     this.app.use(errorNotFound)
 
-    // // Error handler, send stacktrace only during development.
+    // Error handler, send stacktrace only during development.
     this.app.use(errorHandler)
 
   }

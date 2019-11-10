@@ -3,7 +3,7 @@ import 'reflect-metadata'
 import { Request, Response, RequestHandler, NextFunction } from 'express'
 import Joi from '@hapi/joi'
 
-import { AppRouter } from '../../AppRouter'
+import { ApiRouter } from '../../ApiRouter'
 import { MetadataKeys } from './MetadataKeys'
 import { Methods } from './Methods'
 
@@ -44,7 +44,7 @@ export function controller(routePrefix: string) {
   return (target: Function) => {
 
     // Set router singleton.
-    const router = AppRouter.getInstance()
+    const router = ApiRouter.getInstance()
 
     // Loop through each method within decorated class.
     for (const key in target.prototype) {
