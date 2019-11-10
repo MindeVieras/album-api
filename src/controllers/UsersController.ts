@@ -1,25 +1,9 @@
 
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 
 import { controller, get, post, use, validate } from './decorators'
 import { validationSchema } from '../config/validationSchema'
-
-/**
- * Logger function.
- *
- * @param {Request} req
- *   Express request.
- * @param {Response} res
- *   Express response.
- * @param {NextFunction} res
- *   Express next().
- */
-function logger(req: Request, res: Response, next: NextFunction): void {
-  console.log('Logger middleware works!')
-
-  next()
-
-}
+import { logger } from '../middlewares'
 
 /**
  * Users controller.
