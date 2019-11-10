@@ -23,8 +23,10 @@ class RootController {
    */
   @get('/')
   public getRoot(req: Request, res: Response): void {
+
     // For now just send a static html file.
     res.sendFile(path.join(__dirname, '../index.html'))
+
   }
 
   /**
@@ -37,6 +39,8 @@ class RootController {
    */
   @get('/about')
   public getAbout(req: Request, res: Response): void {
+
     res.send('About page!')
+
   }
 }

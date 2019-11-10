@@ -1,7 +1,8 @@
 
 import { Request, Response, NextFunction } from 'express'
 
-import { controller, get, post, use } from './decorators'
+import { controller, get, post, use, validate } from './decorators'
+import { validationSchema } from '../config/validationSchema'
 
 /**
  * Logger function.
@@ -15,7 +16,9 @@ import { controller, get, post, use } from './decorators'
  */
 function logger(req: Request, res: Response, next: NextFunction): void {
   console.log('Logger middleware works!')
+
   next()
+
 }
 
 /**
@@ -34,8 +37,10 @@ class UsersController {
    */
   @get('/users')
   @use(logger)
-  public getUsers(req: Request, res: Response): void {
+  public getUsers(req: Request, res: Response) {
+
     res.send('Users route.')
+
   }
 
   /**
@@ -48,7 +53,10 @@ class UsersController {
    */
   @post('/users')
   @use(logger)
-  public createUser(req: Request, res: Response): void {
+  @validate(validationSchema.body.userCreate)
+  public createUser(req: Request, res: Response) {
+
     res.send('User created')
+
   }
 }

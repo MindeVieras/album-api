@@ -1,6 +1,7 @@
 
 import 'reflect-metadata'
 import { Request, Response, RequestHandler, NextFunction } from 'express'
+import Joi from '@hapi/joi'
 
 import { AppRouter } from '../../AppRouter'
 import { MetadataKeys } from './MetadataKeys'
@@ -9,22 +10,17 @@ import { Methods } from './Methods'
 /**
  * Request validation function.
  *
- * @param keys
+ * @param validShema
+ *   Joi validated schema to pass.
  */
-function validators(keys: string): RequestHandler {
+function validate(validShema: Joi.ObjectSchema): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.body) {
-      res.status(422).send('Invalid request!')
-      return
-    }
+    // Validate schema.
+    const { error } = validShema.validate(req.body)
 
-    for (const key of keys) {
-      if (keys.hasOwnProperty(key)) {
-        if (!req.body[key]) {
-          res.status(422).send('Invalid request!')
-          return
-        }
-      }
+    if (error) {
+      res.status(422).send(error)
+      return
     }
 
     next()
@@ -57,8 +53,8 @@ export function controller(routePrefix: string) {
         const method: Methods = Reflect.getMetadata(MetadataKeys.method, target.prototype, key)
         const middlewares = Reflect.getMetadata(MetadataKeys.middleware, target.prototype, key) || []
         const requiredRequestProps = Reflect.getMetadata(MetadataKeys.validator, target.prototype, key) || []
-
-        const validator = validators(requiredRequestProps)
+        // console.log(requiredRequestProps)
+        const validator = validate(requiredRequestProps)
 
         // Set route handler/controller for the route.
         const routeHandler = target.prototype[key]
