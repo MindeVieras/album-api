@@ -1,68 +1,77 @@
 
 import { Request, Response, NextFunction } from 'express'
-// import HttpStatus from 'http-status-codes'
-// import expressValidation from 'express-validation'
+import httpStatus from 'http-status-codes'
 
-// import { ApiError } from '../helpers'
-// import { config } from '../config'
+import { ApiError } from '../helpers'
+import { config } from '../config'
 
 /**
- * Error handler. Send stacktrace only during development
- * @public
+ * API error middleware response interface.
  */
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
-  // const response = {
-  //   code: err.status,
-  //   message: err.message || HttpStatus[err.status],
-  //   errors: err.errors,
-  //   stack: err.stack
-  // }
-
-  // if (config.env !== 'development') {
-  //   delete response.stack
-  // }
-
-  // res.status(err.status)
-  // res.json(response)
-  res.send(err.message)
+interface ErrorResponseProps {
+  code: number,
+  message: string,
+  errors?: any[],
+  stack?: string,
 }
 
 /**
- * If error is not an instanceOf APIError, convert it.
+ * Error handler.
+ *
+ * Send stacktrace only during development.
+ *
  * @public
  */
-export const errorConverter = (err: Error, req: Request, res: Response, next: NextFunction) => {
-  // let convertedError = err
+export const errorHandler = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
 
-  // // if (err instanceof expressValidation.ValidationError) {
-  // //   convertedError = new APIError({
-  // //     message: 'Validation error',
-  // //     errors: err.errors,
-  // //     status: err.status,
-  // //     stack: err.stack
-  // //   })
-  // // }
-  // else if (!(err instanceof APIError)) {
+  // Set ApiError response object.
+  const response: ErrorResponseProps = {
+    code: err.status,
+    message: err.message,
+    errors: err.errors,
+  }
+
+  // Only keep stack property on dev environment.
+  if (config.env === 'development') {
+    response.stack = err.stack
+  }
+
+  res.status(response.code).json(response)
+
+}
+
+/**
+ * If error is not an instanceOf ApiError, convert it.
+ *
+ * @public
+ */
+export const errorConverter = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
+  const convertedError = err
+
+  // if (err instanceof expressValidation.ValidationError) {
   //   convertedError = new APIError({
-  //     message: err.message,
+  //     message: 'Validation error',
+  //     errors: err.errors,
   //     status: err.status,
   //     stack: err.stack
   //   })
   // }
 
-  // return errorHandler(convertedError, req, res)
-  return errorHandler(err, req, res, next)
+  return errorHandler(convertedError, req, res, next)
+
 }
 
 /**
- * Catch 404 and forward to error handler
+ * Catch 404 and forward to error handler.
+ *
  * @public
  */
 export const errorNotFound = (req: Request, res: Response, next: NextFunction) => {
-  // const err = new ApiError({
-  //   message: 'Not found',
-  //   status: HttpStatus.NOT_FOUND
-  // })
-  const err = new Error('This is 404 error.')
+  const err = new ApiError(
+    httpStatus.getStatusText(httpStatus.NOT_FOUND),
+    httpStatus.NOT_FOUND,
+  )
+
   return errorHandler(err, req, res, next)
+
 }

@@ -7,42 +7,34 @@ import httpStatus from 'http-status-codes'
  * @extends Error
  */
 export class ApiError extends Error {
-  // constructor({ message, errors, status, isPublic, stack }) {
-  constructor(message: string) {
-    super(message)
-    // this.name = this.constructor.name
+
+  public status: number
+  public errors?: string[]
+
+  /**
+   * Creates an API error.
+   * @param {string} message - Error message.
+   * @param {number} status - HTTP status code of error.
+   * @param {string[]} errors - Multiple errors.
+   */
+  constructor(
+    // Default message for the internal server error.
+    message: string = httpStatus.getStatusText(httpStatus.INTERNAL_SERVER_ERROR),
+    // Default status to be 500.
+    status: number = httpStatus.INTERNAL_SERVER_ERROR,
+    // Pass errors if any.
+    errors?: string[],
+  ) {
+    super()
+
+    // ApiError properties
+    this.name = 'ApiError'
+    this.status = status
     this.message = message
-    // this.errors = errors
-    // this.status = status
-    // this.isPublic = isPublic
-    // this.isOperational = true
-    // this.stack = stack
-    // Error.captureStackTrace(this, this.constructor.name)
+    if (errors) {
+      this.errors = errors
+    }
+    // Set stacktrace to trace the source of an error.
+    this.stack = (new Error()).stack
   }
 }
-
-// /**
-//  * Class representing an API error.
-//  * @extends ExtendableError
-//  */
-// export class ApiError extends ExtendableError {
-//   /**
-//    * Creates an API error.
-//    * @param {string} message - Error message.
-//    * @param {array} errors - Multiple error messages.
-//    * @param {string} stack - Stack trace for the error message.
-//    * @param {number} status - HTTP status code of error.
-//    * @param {boolean} isPublic - Whether the message should be visible to user or not.
-//    */
-//   constructor({
-//     message,
-//     errors,
-//     stack,
-//     status = HttpStatus.INTERNAL_SERVER_ERROR,
-//     isPublic = false
-//   }) {
-//     super({
-//       message, errors, status, isPublic, stack
-//     })
-//   }
-// }

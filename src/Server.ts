@@ -46,17 +46,21 @@ export default class Server {
     this.app.get('/', (req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, './index.html'))
     })
-    // All API routes goes under /api path.
-    this.app.use('/api', ApiRouter.getInstance())
 
-    // If error is not an instanceOf APIError, convert it.
-    this.app.use(errorConverter)
+    // All ApiRoutes and ApiError handling middleware,
+    // goes under /api path.
+    this.app.use('/api',
 
-    // Catch 404 and forward to error handler.
-    this.app.use(errorNotFound)
+      // Initiate ApiRouter instance singleton.
+      ApiRouter.getInstance(),
 
-    // Error handler, send stacktrace only during development.
-    this.app.use(errorHandler)
+      // If error is not an instanceOf APIError, convert it.
+      errorConverter,
+      // Catch 404 and forward to error handler.
+      errorNotFound,
+      // Error handler, send stacktrace only during development.
+      errorHandler,
+    )
 
   }
 
