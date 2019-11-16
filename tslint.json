@@ -6,7 +6,7 @@
       "jsRules": { },
   "rules": {
     "completed-docs": [
-      false,
+      true,
       {
         "classes": true,
         "enums": true,

@@ -1,7 +1,7 @@
 
 import bodyParser from 'body-parser'
 import cors from 'cors'
-import express, { Application } from 'express'
+import express, { Application, Request, Response } from 'express'
 import morgan from 'morgan'
 import path from 'path'
 
@@ -29,22 +29,17 @@ export default class Server {
     this.app.use(cors())
 
     // Body parser.
-    this.app.use(bodyParser.urlencoded({
-      extended: true,
-      limit: '50mb',
-    }))
-    this.app.use(bodyParser.json({
-      limit: '50mb',
-    }))
+    this.app.use(bodyParser.urlencoded({ extended: true }))
+      .use(bodyParser.json())
 
     // Middleware only for dev environment.
     if (config.env === 'development') {
-      // Logger
+      // Dev logger
       this.app.use(morgan('dev'))
     }
 
     // Home route
-    this.app.get('/', (req, res) => {
+    this.app.get('/', (req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, './index.html'))
     })
     // API routes.
@@ -56,6 +51,7 @@ export default class Server {
    */
   public listen(): void {
     this.app.listen(config.port, () => {
+      // Log about success server start only for dev environment.
       if (config.env === 'development') {
         console.log(`Server running at http://${config.host}:${config.port}`)
       }

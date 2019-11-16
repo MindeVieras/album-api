@@ -13,6 +13,7 @@ interface Config {
   host: string,
   port: number,
   jwtSecret: string,
+  mongodb: string,
   db: {
     host: string,
     user: string,
@@ -43,12 +44,11 @@ const envVarsSchema = Joi.object({
   PORT: Joi.number()
     .default(3000),
 
-  // Security variables.
-  JWT_SECRET: Joi.string()
-    .required()
-    .description('JWT Secret required to sign'),
-
   // Database variables.
+  MONGODB_URI: Joi.string()
+    .required()
+    .description('Mongo DB uri'),
+
   DB_HOST: Joi.string()
     .default('localhost'),
   DB_USER: Joi.string()
@@ -62,6 +62,11 @@ const envVarsSchema = Joi.object({
     .description('Database name'),
   DB_PORT: Joi.number()
     .default(3306),
+
+  // Security variables.
+  JWT_SECRET: Joi.string()
+    .required()
+    .description('JWT Secret required to sign'),
 
   // AWS variables.
   AWS_REGION: Joi.string()
@@ -98,6 +103,7 @@ export const config: Config = {
   host: envVars.HOST,
   port: envVars.PORT,
   jwtSecret: envVars.JWT_SECRET,
+  mongodb: envVars.MONGODB_URI,
   db: {
     host: envVars.DB_HOST,
     user: envVars.DB_USER,

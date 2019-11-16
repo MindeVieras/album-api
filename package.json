@@ -7,11 +7,9 @@
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "build": "rimraf dist && tsc",
-    "clean": "rimraf dist colony node_modules",
-    "lint": "tslint -c tslint.json 'src/**/*.ts'"
-  },
-  "engines": {
-    "node": "10.13.0"
+    "clean": "rimraf dist node_modules",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "test": "NODE_ENV=test mocha -r ts-node/register src/tests/**/*.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -36,6 +34,7 @@
     "http-status-codes": "^1.4.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.24.0",
+    "mongoose": "^5.7.11",
     "morgan": "^1.9.1",
     "mysql": "^2.17.1",
     "superagent": "^5.1.0",
@@ -45,16 +44,21 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
+    "@types/chai": "^4.2.5",
     "@types/cors": "^2.8.6",
     "@types/crypto-js": "^3.1.43",
     "@types/hapi__joi": "^16.0.3",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.145",
+    "@types/mocha": "^5.2.7",
+    "@types/mongoose": "^5.5.32",
     "@types/morgan": "^1.7.37",
     "@types/mysql": "^2.15.8",
     "@types/node": "^12.12.6",
     "@types/superagent": "^4.1.4",
     "@types/validator": "^10.11.3",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
     "rimraf": "^3.0.0",
     "ts-node": "^8.4.1",
