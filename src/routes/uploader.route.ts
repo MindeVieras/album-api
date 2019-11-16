@@ -3,8 +3,8 @@ import express from 'express'
 
 import {
   getSignature,
-  onSuccess
-} from '../models/uploader.model'
+  onSuccess,
+} from '../controllers/uploader.model'
 
 const router = express.Router()
 

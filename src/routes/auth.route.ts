@@ -1,7 +1,7 @@
 
 import express from 'express'
 
-import * as authModel from '../models/auth.model'
+import * as authModel from '../controllers/auth.model'
 
 const router = express.Router()
 

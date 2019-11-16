@@ -4,14 +4,22 @@ import express from 'express'
 import { isAdmin } from '../helpers/authenticate'
 import {
   getList, getUser,
-  createUser, deleteUser
-} from '../models/users.model'
+  createUser, deleteUser,
+} from '../controllers/users.model'
 
+/**
+ * Create Users router.
+ *
+ * @path /api/users
+ */
 const router = express.Router()
 
-router.get('/', isAdmin, getList)
-router.get('/:username', isAdmin, getUser)
-router.post('/', isAdmin, createUser)
-router.delete('/:id', isAdmin, deleteUser)
+router.route('/')
+  .get(isAdmin, getList)
+  .post(isAdmin, createUser)
+
+router.route('/:id')
+  .get(isAdmin, getUser)
+  .delete(isAdmin, deleteUser)
 
 export default router

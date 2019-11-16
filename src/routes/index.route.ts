@@ -11,6 +11,11 @@ import trashRoutes from './trash.route'
 import frontRoutes from './front.route'
 import utilsRoutes from './utils.route'
 
+/**
+ * Create API router.
+ *
+ * @path /api
+ */
 const router = express.Router()
 
 router.use('/auth', authRoutes)

@@ -12,8 +12,8 @@ import {
   setLocation,
   updateLocation,
   removeLocation,
-  moveToTrash
-} from '../models/albums.model'
+  moveToTrash,
+} from '../controllers/albums.model'
 
 const router = express.Router()
 

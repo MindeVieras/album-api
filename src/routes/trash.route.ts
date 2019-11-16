@@ -5,8 +5,8 @@ import { isAdmin } from '../helpers/authenticate'
 import {
   getList,
   restore,
-  _delete
-} from '../models/trash.model'
+  _delete,
+} from '../controllers/trash.model'
 
 const router = express.Router()
 

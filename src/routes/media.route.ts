@@ -7,10 +7,10 @@ import {
   putToTrash, moveMedia,
   getImageMeta, saveMetadata,
   saveRekognitionLabels, saveRekognitionText,
-  generateVideos
-} from '../models/media.model'
+  generateVideos,
+} from '../controllers/media.model'
 // @ts-ignore
-import { generateImageThumbs } from '../models/media.model'
+import { generateImageThumbs } from '../controllers/media.model'
 
 const router = express.Router()
 

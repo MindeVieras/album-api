@@ -5,8 +5,8 @@ import { isAuthed } from '../helpers/authenticate'
 import {
   detectImageFaces,
   getCollectionFaces,
-  deleteCollectionFace
-} from '../models/faces.model'
+  deleteCollectionFace,
+} from '../controllers/faces.model'
 
 const router = express.Router()
 
