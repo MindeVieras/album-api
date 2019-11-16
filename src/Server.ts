@@ -7,6 +7,7 @@ import path from 'path'
 
 import { config } from './config'
 import routes from './routes/index.route'
+import { errorConverter, errorNotFound, errorHandler } from './middlewares'
 
 /**
  * Server class.
@@ -42,8 +43,17 @@ export default class Server {
     this.app.get('/', (req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, './index.html'))
     })
-    // API routes.
-    this.app.use('/api', routes)
+
+    // All ApiRoutes and ApiError handling middleware,
+    // goes under /api path.
+    this.app.use('/api', routes,
+      // If error is not an instanceOf APIError, convert it.
+      errorConverter,
+      // Catch 404 and forward to error handler.
+      errorNotFound,
+      // Error handler, send stacktrace only during development.
+      errorHandler,
+    )
   }
 
   /**
