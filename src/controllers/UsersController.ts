@@ -15,7 +15,6 @@ export class UsersController {
     try {
 
       const user = new User(req.body)
-
       const savedUser = await user.save()
       res.send(savedUser)
 

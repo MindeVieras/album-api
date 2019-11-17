@@ -1,11 +1,10 @@
-import { Schema, Document, model } from 'mongoose'
 
-import { config } from '../config'
+import { Schema, Document, model } from 'mongoose'
 
 /**
  * User status.
  */
-enum UserStatus {
+export enum UserStatus {
 
   /**
    * Only admins can block and unblock users.
@@ -42,66 +41,50 @@ enum UserRoles {
 /**
  * User model properties.
  */
-export interface UserProps extends Document {
+interface IUserSchema extends Document {
   username: string,
-  hash: string,
-  role: UserRoles,
-  status: UserStatus,
+  hash?: string,
   email?: string,
   displayName?: string,
   locale?: string,
+  role?: UserRoles,
+  status?: UserStatus,
   createdBy?: string,
   lastLogin?: Date,
-  updatedAt?: Date,
-  createdAt?: Date,
 }
 
 /**
  * Users schema.
  */
-const userSchema = new Schema<UserProps>({
+const userSchema = new Schema<IUserSchema>({
   username: {
     type: String,
-    required: true,
+    required: [true, 'Username is required'],
     unique: true,
   },
-  hash: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: String,
-    required: true,
-  },
+  hash: String,
   email: {
     type: String,
     unique: true,
   },
   displayName: String,
-  locale: {
+  locale: String,
+  role: {
     type: String,
-    default: config.locale,
+    default: UserRoles.viewer,
+  },
+  status: {
+    type: String,
+    default: UserStatus.active,
   },
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: 'Users',
   },
   lastLogin: Date,
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-})
+}, { collection: 'Users', timestamps: true })
 
 /**
- * Export user shema as model.
+ * Export user schema as model.
  */
-export const User = model<UserProps>('Users', userSchema)
+export const User = model<IUserSchema>('Users', userSchema)

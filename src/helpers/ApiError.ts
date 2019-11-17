@@ -9,6 +9,7 @@ import httpStatus from 'http-status-codes'
 export class ApiError extends Error {
 
   public status: number
+  public code?: string | number
   public errors?: string[]
 
   /**
@@ -24,6 +25,8 @@ export class ApiError extends Error {
     status: number = httpStatus.INTERNAL_SERVER_ERROR,
     // Pass errors if any.
     errors?: string[],
+    // Error code.
+    code?: string | number,
   ) {
     super()
 
@@ -33,6 +36,9 @@ export class ApiError extends Error {
     this.message = message
     if (errors) {
       this.errors = errors
+    }
+    if (code) {
+      this.code = code
     }
     // Set stacktrace to trace the source of an error.
     this.stack = (new Error()).stack
