@@ -12,6 +12,7 @@ interface Config {
   env: string,
   host: string,
   port: number,
+  locale: string,
   jwtSecret: string,
   mongodb: string,
   db: {
@@ -43,6 +44,8 @@ const envVarsSchema = Joi.object({
     .default('localhost'),
   PORT: Joi.number()
     .default(3000),
+  DEFAULT_LOCALE: Joi.string()
+    .default('en'),
 
   // Database variables.
   MONGODB_URI: Joi.string()
@@ -102,6 +105,7 @@ export const config: Config = {
   env: envVars.NODE_ENV,
   host: envVars.HOST,
   port: envVars.PORT,
+  locale: envVars.DEFAULT_LOCALE,
   jwtSecret: envVars.JWT_SECRET,
   mongodb: envVars.MONGODB_URI,
   db: {

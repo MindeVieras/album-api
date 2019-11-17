@@ -6,6 +6,7 @@ import {
   getList, getUser,
   createUser, deleteUser,
 } from '../controllers/users.model'
+import { UsersController } from '../controllers'
 
 /**
  * Create Users router.
@@ -14,9 +15,14 @@ import {
  */
 const router = express.Router()
 
+/**
+ * Initiate Users controller.
+ */
+const Users = new UsersController()
+
 router.route('/')
-  .get(isAdmin, getList)
-  .post(isAdmin, createUser)
+  .get(Users.getList)
+  .post(Users.create)
 
 router.route('/:id')
   .get(isAdmin, getUser)

@@ -36,7 +36,7 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
     response.stack = err.stack
   }
 
-  res.status(response.code).json(response)
+  res.status(err.status).json(response)
 
 }
 
@@ -46,16 +46,16 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
  * @public
  */
 export const errorConverter = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
-  const convertedError = err
+  let convertedError = err
 
-  // if (err instanceof expressValidation.ValidationError) {
-  //   convertedError = new APIError({
-  //     message: 'Validation error',
-  //     errors: err.errors,
-  //     status: err.status,
-  //     stack: err.stack
-  //   })
-  // }
+  // Handle Mongoose validation errors.
+  if (err.name === 'ValidationError') {
+    convertedError = new ApiError(
+      'Validation error',
+      httpStatus.UNPROCESSABLE_ENTITY,
+      err.errors,
+    )
+  }
 
   return errorHandler(convertedError, req, res, next)
 
