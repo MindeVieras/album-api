@@ -20,7 +20,7 @@ export enum UserStatus {
 /**
  * User roles.
  */
-enum UserRoles {
+export enum UserRoles {
 
   /**
    * Viewer can only browse Album.
@@ -39,11 +39,11 @@ enum UserRoles {
 }
 
 /**
- * User model properties.
+ * User document type.
  */
-interface IUserSchema extends Document {
+export type UserDocument = Document & {
   username: string,
-  hash?: string,
+  hash: string,
   email?: string,
   displayName?: string,
   locale?: string,
@@ -54,37 +54,56 @@ interface IUserSchema extends Document {
 }
 
 /**
- * Users schema.
+ * User schema.
  */
-const userSchema = new Schema<IUserSchema>({
+const userSchema = new Schema({
   username: {
     type: String,
-    required: [true, 'Username is required'],
-    unique: true,
+    required: 'Username is required',
+    unique: [true, 'Username must be unique'],
+    minlength: 4,
+    maxlength: 30,
   },
-  hash: String,
-  email: {
+  hash: {
     type: String,
-    unique: true,
+    required: 'Password is required',
   },
-  displayName: String,
+  email: String,
+  displayName: {
+    type: String,
+    maxlength: 55,
+  },
   locale: String,
   role: {
     type: String,
+    enum: Object.values(UserRoles),
     default: UserRoles.viewer,
   },
   status: {
     type: String,
+    enum: Object.values(UserStatus),
     default: UserStatus.active,
   },
   createdBy: {
     type: Schema.Types.ObjectId,
-    ref: 'Users',
+    ref: 'User',
   },
   lastLogin: Date,
 }, { collection: 'Users', timestamps: true })
 
 /**
+ * Helper method for getting user's gravatar.
+ */
+// userSchema.methods.gravatar = function(size: number = 200) {
+//   console.log(this)
+//   if (!this.email) {
+//     return `https://gravatar.com/avatar/?s=${size}&d=retro`
+//   }
+//   const md5 = crypto.createHash("md5").update(this.email).digest('hex')
+//   return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`
+// }
+
+/**
  * Export user schema as model.
  */
-export const User = model<IUserSchema>('Users', userSchema)
+export const User = model<UserDocument>('User', userSchema)

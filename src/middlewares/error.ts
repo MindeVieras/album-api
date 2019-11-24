@@ -20,8 +20,6 @@ interface ErrorResponseProps {
  * Error handler.
  *
  * Send stacktrace only during development.
- *
- * @public
  */
 export const errorHandler = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
 
@@ -47,16 +45,22 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
 
 /**
  * If error is not an instanceOf ApiError, convert it.
- *
- * @public
  */
 export const errorConverter = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   let convertedError = err
 
-  // Handle Mongoose validation errors.
-  if (err.name === 'ValidationError') {
+  // Handle param validation errors.
+  if (err.error && err.error.isJoi) {
     convertedError = new ApiError(
-      'Validation error',
+      'Input validation error',
+      httpStatus.UNPROCESSABLE_ENTITY,
+      err.error.details,
+    )
+  }
+  // Handle Mongoose schema validation errors.
+  else if (err.name === 'ValidationError') {
+    convertedError = new ApiError(
+      'Schema validation error',
       httpStatus.UNPROCESSABLE_ENTITY,
       err.errors,
     )
@@ -66,7 +70,7 @@ export const errorConverter = (err: ApiError, req: Request, res: Response, next:
     // Mongo error code for dublicate entry.
     if (err.code === 11000) {
       convertedError = new ApiError(
-        'Document already exists.',
+        'Document already exists',
         httpStatus.CONFLICT,
         err.errors,
       )
@@ -80,8 +84,6 @@ export const errorConverter = (err: ApiError, req: Request, res: Response, next:
 
 /**
  * Catch 404 and forward to error handler.
- *
- * @public
  */
 export const errorNotFound = (req: Request, res: Response, next: NextFunction) => {
   const err = new ApiError(

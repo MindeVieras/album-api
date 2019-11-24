@@ -13,13 +13,11 @@
         "enum-members": true,
         "functions": true,
         "interfaces": true,
-        "methods": true,
         "namespaces": true,
         "types": true,
         "variables": true
       }
     ],
-    "interface-name": false,
     "no-console": false,
     "object-literal-sort-keys": false,
     "one-line": false,

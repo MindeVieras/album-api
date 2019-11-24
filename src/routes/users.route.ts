@@ -6,7 +6,10 @@ import {
   getList, getUser,
   createUser, deleteUser,
 } from '../controllers/users.model'
-import { UsersController } from '../controllers'
+
+import { UserController } from '../controllers'
+import { paramValidation } from '../config'
+import { validator } from '../middlewares'
 
 /**
  * Create Users router.
@@ -16,13 +19,13 @@ import { UsersController } from '../controllers'
 const router = express.Router()
 
 /**
- * Initiate Users controller.
+ * Initiate User controller.
  */
-const Users = new UsersController()
+const User = new UserController()
 
 router.route('/')
-  .get(Users.getList)
-  .post(Users.create)
+  .get(User.getList)
+  .post(validator.body(paramValidation.userPostBody), User.create)
 
 router.route('/:id')
   .get(isAdmin, getUser)

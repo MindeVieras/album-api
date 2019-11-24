@@ -46,7 +46,9 @@ export default class Server {
 
     // All ApiRoutes and ApiError handling middleware,
     // goes under /api path.
-    this.app.use('/api', routes,
+    this.app.use('/api',
+      // Add routes middleware.
+      routes,
       // If error is not an instanceOf APIError, convert it.
       errorConverter,
       // Catch 404 and forward to error handler.
