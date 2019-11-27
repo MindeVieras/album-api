@@ -1,4 +1,3 @@
-
 import mysql from 'mysql'
 
 import { config } from './config'
@@ -10,7 +9,7 @@ const dbConfig = {
   password: config.db.pass,
   database: config.db.name,
   port: config.db.port,
-  acquireTimeout: 1000000
+  acquireTimeout: 1000000,
 }
 
 export class Database {
@@ -34,12 +33,10 @@ export class Database {
 
   close() {
     return new Promise((resolve, reject) => {
-      this.connection.end(err => {
-        if (err)
-          return reject(err)
+      this.connection.end((err) => {
+        if (err) return reject(err)
         resolve()
       })
     })
   }
-
 }

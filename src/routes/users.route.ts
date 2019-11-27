@@ -1,11 +1,10 @@
-
 import express from 'express'
 
-import { isAdmin } from '../helpers/authenticate'
-import {
-  getList, getUser,
-  createUser, deleteUser,
-} from '../controllers/users.model'
+// import { isAdmin } from '../helpers/authenticate'
+// import {
+//   getList, getUser,
+//   createUser, deleteUser,
+// } from '../controllers/users.model'
 
 import { UserController } from '../controllers'
 import { paramValidation } from '../config'
@@ -23,12 +22,13 @@ const router = express.Router()
  */
 const User = new UserController()
 
-router.route('/')
+router
+  .route('/')
   .get(User.getList)
   .post(validator.body(paramValidation.userPostBody), User.create)
 
-router.route('/:id')
-  .get(isAdmin, getUser)
-  .delete(isAdmin, deleteUser)
+// router.route('/:id')
+//   .get(isAdmin, getUser)
+//   .delete(isAdmin, deleteUser)
 
 export default router

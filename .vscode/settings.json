@@ -3,7 +3,7 @@
   "editor.autoIndent": true,
   "editor.insertSpaces": true,
   "editor.formatOnPaste": true,
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
   "editor.renderWhitespace": "boundary",
   "editor.wordWrapColumn": 120,
   "editor.wordWrap": "off",
@@ -11,6 +11,9 @@
   "editor.rulers": [
     120
   ],
+  "[typescript]": {
+    "editor.formatOnSave": true
+  },
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.exclude": {

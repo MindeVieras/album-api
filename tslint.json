@@ -1,9 +1,7 @@
 {
   "defaultSeverity": "error",
-    "extends": [
-      "tslint:recommended"
-    ],
-      "jsRules": { },
+  "extends": ["tslint:recommended"],
+  "jsRules": {},
   "rules": {
     "completed-docs": [
       true,
@@ -23,6 +21,7 @@
     "one-line": false,
     "ordered-imports": false,
     "semicolon": [true, "never"],
+    "trailing-comma": false,
     "quotemark": [true, "single"]
   },
   "rulesDirectory": []

@@ -1,4 +1,3 @@
-
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import express, { Application, Request, Response } from 'express'
@@ -15,14 +14,12 @@ import { errorConverter, errorNotFound, errorHandler } from './middlewares'
  * @class
  */
 export default class Server {
-
   /**
    * Setup express app.
    */
   public app: Application = express()
 
   constructor() {
-
     // Disable useless header.
     this.app.disable('x-powered-by')
 
@@ -30,8 +27,7 @@ export default class Server {
     this.app.use(cors())
 
     // Body parser.
-    this.app.use(bodyParser.urlencoded({ extended: true }))
-      .use(bodyParser.json())
+    this.app.use(bodyParser.urlencoded({ extended: true })).use(bodyParser.json())
 
     // Middleware only for dev environment.
     if (config.env === 'development') {
@@ -46,7 +42,8 @@ export default class Server {
 
     // All ApiRoutes and ApiError handling middleware,
     // goes under /api path.
-    this.app.use('/api',
+    this.app.use(
+      '/api',
       // Add routes middleware.
       routes,
       // If error is not an instanceOf APIError, convert it.

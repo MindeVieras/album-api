@@ -1,4 +1,3 @@
-
 import httpStatus from 'http-status-codes'
 import { ValidationError, ValidationErrorItem } from '@hapi/joi'
 
@@ -8,7 +7,6 @@ import { ValidationError, ValidationErrorItem } from '@hapi/joi'
  * @extends Error
  */
 export class ApiError extends Error {
-
   public status: number
   public code?: string | number
   public errors?: ValidationErrorItem[]
@@ -45,6 +43,6 @@ export class ApiError extends Error {
       this.code = code
     }
     // Set stacktrace to trace the source of an error.
-    this.stack = (new Error()).stack
+    this.stack = new Error().stack
   }
 }
