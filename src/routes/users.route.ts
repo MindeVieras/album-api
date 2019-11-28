@@ -24,7 +24,7 @@ const User = new UserController()
 
 router
   .route('/')
-  .get(isAdmin, User.getList)
+  .get(isAdmin, validator.query(paramValidation.usersListQuery), User.getList)
   .post(isAdmin, validator.body(paramValidation.userPostBody), User.create)
 
 // router.route('/:id')

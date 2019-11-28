@@ -84,7 +84,8 @@ export class UserController {
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const users = await User.find({}, { hash: 0 })
+      const { limit, page } = req.query as { limit: number; page: number }
+      const users = await User.paginate({}, { page, limit })
       return new ApiResponse(res, users)
     } catch (err) {
       next(err)

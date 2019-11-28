@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { Schema, Document, model } from 'mongoose'
+import mongoosePaginate from 'mongoose-paginate'
 
 /**
  * User status.
@@ -111,6 +112,11 @@ userSchema.pre('save', async function save(next) {
     return next(err)
   }
 })
+
+/**
+ * Add mongoose-paginate plugin.
+ */
+userSchema.plugin(mongoosePaginate)
 
 /**
  * Export user schema as model.
