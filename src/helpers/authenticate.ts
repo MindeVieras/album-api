@@ -1,60 +1,134 @@
+import { Request, Response, NextFunction } from 'express'
+import httpStatus from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 
-import { usersConstants } from '../constants'
 import { config } from '../config'
+import { UserRoles } from '../models'
+import { ApiError } from './ApiError'
 
-// check if user admin
-export function isAdmin(req, res, next) {
-  doAuth(req, res, next, usersConstants.USER_ACCESS_ADMIN)
+/**
+ * Decoded token object structure.
+ */
+interface IDecodedToken {
+  _id: string
+  username: string
+  role: string
 }
-// check if user authenticated
-export function isAuthed(req, res, next) {
-  doAuth(req, res, next, usersConstants.USER_ACCESS_AUTHED)
+
+/**
+ * Check if user is admin.
+ *
+ * @param {Request} req
+ *   Express request.
+ * @param {Response} res
+ *   Express response.
+ * @param {NextFunction} next
+ *   Express next function.
+ */
+export function isAdmin(req: Request, res: Response, next: NextFunction): void {
+  doAuth(req, res, next, UserRoles.admin)
+}
+
+/**
+ * Check if user is authenticated.
+ *
+ * @param {Request} req
+ *   Express request.
+ * @param {Response} res
+ *   Express response.
+ * @param {NextFunction} next
+ *   Express next function.
+ */
+export function isAuthed(req: Request, res: Response, next: NextFunction): void {
+  doAuth(req, res, next, UserRoles.authed)
 }
 
 /**
  * Check if user is viewer.
  *
- * @param req
- * @param res
- * @param next
+ * @param {Request} req
+ *   Express request.
+ * @param {Response} res
+ *   Express response.
+ * @param {NextFunction} next
+ *   Express next function.
  */
-export function isViewer(req, res, next) {
-  doAuth(req, res, next, usersConstants.USER_ACCESS_VIEWER)
+export function isViewer(req: Request, res: Response, next: NextFunction): void {
+  doAuth(req, res, next, UserRoles.viewer)
 }
 
-function doAuth(req, res, next, al) {
-  const bearerHeader = req.headers['authorization']
+/**
+ * Authentication function.
+ *
+ * @param {Request} req
+ *   Express request.
+ * @param {Response} res
+ *   Express response.
+ * @param {NextFunction} next
+ *   Express next function.
+ * @param userRole
+ *   User role, one of the UserRoles.
+ *
+ */
+async function doAuth(req: Request, res: Response, next: NextFunction, userRole) {
+  try {
+    // Get 'authorization' header from request.
+    const { authorization } = req.headers
 
-  if (typeof bearerHeader !== 'undefined') {
-    const bearer = bearerHeader.split(' ')
-    const bearerToken = bearer[1]
+    if (authorization) {
+      const bearer = authorization.split(' ')
+      const bearerToken = bearer[1]
 
-    jwt.verify(bearerToken, config.jwtSecret, (err, decoded) => {
-      if (err) {
-        res.json({ ack: 'err', msg: err.message })
-      } else {
-        const { id, access_level } = decoded
-        // Admin
-        if (access_level === usersConstants.USER_ACCESS_ADMIN) {
-          req.app.set('user', { uid: id, access_level })
-          next()
-        }
-        // Authed
-        else if (access_level === usersConstants.USER_ACCESS_AUTHED && al === usersConstants.USER_ACCESS_AUTHED) {
-          req.app.set('user', { uid: id, access_level })
-          next()
-        }
-        // Viewer
-        else if (access_level === usersConstants.USER_ACCESS_VIEWER && al === usersConstants.USER_ACCESS_VIEWER) {
-          req.app.set('user', { uid: id, access_level })
-          next()
+      // const verifiedToken = await tokenVerify(bearerToken)
+      // console.log(verifiedToken)
+      // next()
+
+      jwt.verify(bearerToken, config.jwtSecret, (err, decoded) => {
+        if (err) {
+          next(new ApiError(err.message, httpStatus.UNAUTHORIZED))
         } else {
-          res.json({ ack: 'err', msg: 'Access denied' })
+          const { _id, username, role } = decoded as IDecodedToken
+          console.log(role)
+          // Admin
+          if (role === UserRoles.admin) {
+            // req.app.set('user', { uid: id, access_level })
+            next()
+          }
+          // Authed
+          else if (role === UserRoles.authed && userRole === UserRoles.authed) {
+            // req.app.set('user', { uid: id, access_level })
+            next()
+          }
+          // Viewer
+          else if (role === UserRoles.viewer && userRole === UserRoles.viewer) {
+            // req.app.set('user', { uid: id, access_level })
+            next()
+          } else {
+            next(new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN))
+          }
         }
+      })
+    } else {
+      // Pass ApiError to next if authorization header could not be found.
+      next(new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.UNAUTHORIZED))
+    }
+  } catch (err) {
+    // Catch all authentication errors.
+    throw new ApiError(err.message, httpStatus.UNAUTHORIZED)
+  }
+}
+
+/**
+ * Token verification function
+ */
+function tokenVerify(bearerToken: string) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(bearerToken, 'config.jwtSecret', (err, decoded) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(decoded)
       }
     })
-  } else {
-    res.status(401).json({ ack: 'err', msg: 'Not authorized' })
-  }
+  })
 }

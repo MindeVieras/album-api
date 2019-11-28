@@ -1,151 +1,56 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcryptjs'
 import httpStatus from 'http-status-codes'
+import jwt from 'jsonwebtoken'
 
-import { User } from '../models'
-import { ApiResponse } from '../helpers'
+import { User, UserRoles } from '../models'
+import { ApiResponse, ApiError } from '../helpers'
+import { config } from '../config'
+
+/**
+ * Interface for data to encode to token.
+ */
+interface ITokenData {
+  username: string
+  role: UserRoles
+}
 
 /**
  * User controller class.
  */
 export class UserController {
   /**
-   * Authenticate user.
+   * Authenticates user.
    */
   public async authorize(req: Request, res: Response, next: NextFunction) {
     try {
       const { username, password } = req.body
 
-      // // Check if user exists.
-      // const user = await User.findOne({ username })
-      // console.log(user)
-      // const user = new User()
-      // res.send(user.initials())
-      // if (existingUser) {
-      //   res.send(existingUser)
-      // }
-      // .then(user => {
-      //   const error = {
-      //     status: HttpStatus.UNAUTHORIZED,
-      //     message: 'Incorrect login details'
-      //   }
-      //   if (!user) throw new APIError(error)
-      //   const { _id, username, email, phone, hash } = user
-      //   if (!bcrypt.compareSync(req.body.password, hash)) throw new APIError(error)
+      const user = await User.findOne({ username })
 
-      //   // User object for token.
-      //   const userObject = {
-      //     id: _id,
-      //     username,
-      //     email,
-      //     phone
-      //   }
-      //   const token = jwt.sign(userObject, config.jwtSecret)
-      //   const data = { ...userObject, token }
-      //   return new APISuccess(res, data)
-      // })
-      // .catch(e => next(e))
+      // Check if user exists.
+      if (!user) {
+        throw new ApiError('Incorrect details', httpStatus.UNAUTHORIZED)
+      }
 
-      // const { password } = req.body
+      // Compare password.
+      const passwordMatch = await bcrypt.compare(password, user.hash)
 
-      // // Remove password from request as soon as possible.
-      // delete req.body.password
+      if (!passwordMatch) {
+        throw new ApiError('Incorrect details', httpStatus.UNAUTHORIZED)
+      }
 
-      // // Create hash from password.
-      // const salt = await bcrypt.genSalt(10)
-      // const hashed = await bcrypt.hash(password, salt)
+      // Update last login date.
+      await user.update({ lastLogin: new Date() })
 
-      // // Create user data object.
-      // const userDataToSave = { ...req.body, hash: hashed }
+      // Sign for JWT token.
+      const tokenData: ITokenData = {
+        username,
+        role: user.role,
+      }
+      const token = jwt.sign(tokenData, config.jwtSecret)
 
-      // // Save user to database.
-      // const user = new User(userDataToSave)
-      // const savedUser = await user.save()
-
-      // import bcrypt from 'bcrypt'
-      // import validator from 'validator'
-      // import jwt from 'jsonwebtoken'
-      // import moment from 'moment'
-
-      // import { config } from '../config'
-
-      // import { Database } from '../db'
-      // let conn = new Database()
-
-      // // Authenticates user
-      // export function authenticate(req, res) {
-
-      //   const { username, password } = req.body
-      //   let errors
-
-      //   // validate username input
-      //   if (!username || validator.isEmpty(username)) {
-      //     errors = {
-      //       ...errors,
-      //       username: 'Username is required'
-      //     }
-      //   }
-
-      //   // validate password input
-      //   if (!password || validator.isEmpty(password)) {
-      //     errors = {
-      //       ...errors,
-      //       password: 'Password is required'
-      //     }
-      //   }
-
-      //   // return errors if any
-      //   if (errors) {
-      //     res.json({ ack: 'err', errors })
-      //   }
-
-      //   else {
-      //     let user
-      //     conn.query(`SELECT * FROM users WHERE username = ? LIMIT 1`, username)
-      //       .then(rows => {
-      //         // @ts-ignore
-      //         if (rows.length) {
-      //           let pass = rows[0].password
-      //           let passMatch = bcrypt.compareSync(password, pass)
-
-      //           if (passMatch) {
-
-      //             // remove password from user object
-      //             const { password, ...noPasswordUser } = rows[0]
-      //             user = noPasswordUser
-
-      //             // Update user login datetime
-      //             let uid = user.id
-      //             let login_date = moment().format('YYYY-MM-DD HH:mm:ss')
-      //             return conn.query('UPDATE users SET last_login = ? WHERE id = ?', [login_date, uid])
-      //           }
-      //           else {
-      //             throw 'Incorrect details'
-      //           }
-      //         }
-      //         else {
-      //           throw 'Incorrect details'
-      //         }
-      //       })
-      //       .then(rows => {
-      //         // If last login date updated
-      //         // @ts-ignore
-      //         if (rows.affectedRows === 1) {
-      //           // Return User object
-      //           const token = jwt.sign(user, config.jwtSecret)
-      //           let data = { ...user, token }
-      //           res.json({ ack: 'ok', msg: 'Authentication ok', data })
-      //         }
-      //         else {
-      //           throw 'Authentication failed. Please try again later.'
-      //         }
-      //       })
-      //       .catch(err => {
-      //         let msg = err.sqlMessage ? 'Authentication failed. Please try again later.' : err
-      //         res.json({ ack: 'err', errors: { _error: msg } })
-      //       })
-      //   }
-      // }
+      return new ApiResponse(res, { ...tokenData, token }, httpStatus.OK)
     } catch (err) {
       next(err)
     }
@@ -179,7 +84,7 @@ export class UserController {
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const users = await User.find()
+      const users = await User.find({}, { hash: 0 })
       return new ApiResponse(res, users)
     } catch (err) {
       next(err)

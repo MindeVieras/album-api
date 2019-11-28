@@ -42,6 +42,7 @@ export enum UserRoles {
 export type UserDocument = Document & {
   username: string
   hash: string
+  initials: string
   email?: string
   displayName?: string
   locale?: string
