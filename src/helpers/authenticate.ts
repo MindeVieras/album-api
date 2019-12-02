@@ -3,7 +3,7 @@ import httpStatus from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 
 import { config } from '../config'
-import { UserRoles } from '../models'
+import { UserRoles } from '../enums'
 import { ApiError } from './ApiError'
 
 /**
@@ -79,10 +79,6 @@ async function doAuth(req: Request, res: Response, next: NextFunction, userRole)
       const bearer = authorization.split(' ')
       const bearerToken = bearer[1]
 
-      // const verifiedToken = await tokenVerify(bearerToken)
-      // console.log(verifiedToken)
-      // next()
-
       jwt.verify(bearerToken, config.jwtSecret, (err, decoded) => {
         if (err) {
           next(new ApiError(err.message, httpStatus.UNAUTHORIZED))
@@ -116,19 +112,4 @@ async function doAuth(req: Request, res: Response, next: NextFunction, userRole)
     // Catch all authentication errors.
     throw new ApiError(err.message, httpStatus.UNAUTHORIZED)
   }
-}
-
-/**
- * Token verification function
- */
-function tokenVerify(bearerToken: string) {
-  return new Promise((resolve, reject) => {
-    jwt.verify(bearerToken, 'config.jwtSecret', (err, decoded) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(decoded)
-      }
-    })
-  })
 }

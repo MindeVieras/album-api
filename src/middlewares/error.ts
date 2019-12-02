@@ -9,6 +9,7 @@ import { MongoError } from 'mongodb'
  * API error middleware response interface.
  */
 interface IErrorResponse {
+  status: 'CLIENT_ERROR' | 'SERVER_ERROR'
   message: string
   errors?: any[]
   code?: number | string
@@ -26,6 +27,7 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
 
   // Set ApiError response object.
   const response: IErrorResponse = {
+    status: status < httpStatus.INTERNAL_SERVER_ERROR ? 'CLIENT_ERROR' : 'SERVER_ERROR',
     code: err.code,
     message: err.message,
     errors: err.errors,

@@ -3,7 +3,8 @@ import bcrypt from 'bcryptjs'
 import httpStatus from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 
-import { User, UserRoles } from '../models'
+import { User } from '../models'
+import { UserRoles } from '../enums'
 import { ApiResponse, ApiError } from '../helpers'
 import { config } from '../config'
 
@@ -67,6 +68,7 @@ export class UserController {
       delete req.body.password
 
       // Create user data object, set password as hash.
+      // Actual hash is generated at the model level.
       const userDataToSave = { ...req.body, hash: password }
 
       // Save user to database.
@@ -80,13 +82,52 @@ export class UserController {
   }
 
   /**
+   * Get single user.
+   */
+  public async getOne(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req.params as { _id: string }
+      const user = await User.findOne({ _id }, { hash: 0 })
+      return new ApiResponse(res, user)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /**
    * Get list of users.
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const { limit, page } = req.query as { limit: number; page: number }
-      const users = await User.paginate({}, { page, limit })
+      const { limit, page, sort } = req.query as { limit: number; page: number; sort: string }
+      const users = await User.paginate({}, { page, limit, sort, select: { hash: 0 } })
       return new ApiResponse(res, users)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /**
+   * Update user.
+   */
+  public async updateOne(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req.params as { _id: string }
+      const updatedUser = await User.updateOne({ _id }, req.body)
+      return new ApiResponse(res, updatedUser)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /**
+   * Delete user.
+   */
+  public async deleteOne(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req.params as { _id: string }
+      await User.deleteOne({ _id })
+      return new ApiResponse(res)
     } catch (err) {
       next(err)
     }

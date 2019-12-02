@@ -1,15 +1,22 @@
 import Joi from '@hapi/joi'
 
-import { UserRoles, UserStatus } from '../models'
+import { UserRoles, UserStatus } from '../enums'
 
 /**
  * Request param validation object.
  */
 export const paramValidation = {
   // POST /api/authenticte
-  authPostBody: Joi.object({
+  authPostBody: Joi.object<{ username: string; password: string }>({
     username: Joi.string().required(),
     password: Joi.string().required(),
+  }),
+
+  // * /api/*/:_id
+  idParam: Joi.object({
+    _id: Joi.string()
+      .hex()
+      .required(),
   }),
 
   // GET /api/users
@@ -20,6 +27,7 @@ export const paramValidation = {
     page: Joi.number()
       .min(1)
       .default(1),
+    sort: Joi.string().default('-createdAt'),
   }),
 
   // POST /api/users
@@ -40,15 +48,11 @@ export const paramValidation = {
     status: Joi.string().equal(...Object.values(UserStatus)),
   }),
 
-  // UPDATE /api/users/:id
-  updateUser: {
-    body: {
-      username: Joi.string().required(),
-    },
-    params: {
-      userId: Joi.string()
-        .hex()
-        .required(),
-    },
-  },
+  // PATCH /api/users/:_id
+  userPatchBody: Joi.object({
+    username: Joi.string()
+      .alphanum()
+      .min(4)
+      .max(30),
+  }),
 }

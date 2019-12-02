@@ -1,10 +1,6 @@
 import express from 'express'
 
 import { isAdmin } from '../helpers/authenticate'
-// import {
-//   getList, getUser,
-//   createUser, deleteUser,
-// } from '../controllers/users.model'
 
 import { UserController } from '../controllers'
 import { paramValidation } from '../config'
@@ -27,8 +23,15 @@ router
   .get(isAdmin, validator.query(paramValidation.usersListQuery), User.getList)
   .post(isAdmin, validator.body(paramValidation.userPostBody), User.create)
 
-// router.route('/:id')
-//   .get(isAdmin, getUser)
-//   .delete(isAdmin, deleteUser)
+router
+  .route('/:_id')
+  .get(isAdmin, validator.params(paramValidation.idParam), User.getOne)
+  .patch(
+    isAdmin,
+    validator.params(paramValidation.idParam),
+    validator.body(paramValidation.userPatchBody),
+    User.updateOne,
+  )
+  .delete(isAdmin, validator.params(paramValidation.idParam), User.deleteOne)
 
 export default router
