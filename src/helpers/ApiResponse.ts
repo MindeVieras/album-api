@@ -24,6 +24,6 @@ export class ApiResponse<T> {
     }
 
     // Send response back to client.
-    res.status(status).send(response)
+    res.status(status).json(response)
   }
 }

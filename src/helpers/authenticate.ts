@@ -84,7 +84,6 @@ async function doAuth(req: Request, res: Response, next: NextFunction, userRole)
           next(new ApiError(err.message, httpStatus.UNAUTHORIZED))
         } else {
           const { _id, username, role } = decoded as IDecodedToken
-          console.log(role)
           // Admin
           if (role === UserRoles.admin) {
             // req.app.set('user', { uid: id, access_level })

@@ -75,7 +75,7 @@ export class UserController {
       const user = new User(userDataToSave)
       const savedUser = await user.save()
 
-      return new ApiResponse(res, savedUser, httpStatus.CREATED)
+      return new ApiResponse(res, savedUser.toObject(), httpStatus.CREATED)
     } catch (err) {
       next(err)
     }
@@ -88,7 +88,7 @@ export class UserController {
     try {
       const { _id } = req.params as { _id: string }
       const user = await User.findOne({ _id }, { hash: 0 })
-      return new ApiResponse(res, user)
+      return new ApiResponse(res, user.toObject())
     } catch (err) {
       next(err)
     }
@@ -101,7 +101,9 @@ export class UserController {
     try {
       const { limit, page, sort } = req.query as { limit: number; page: number; sort: string }
       const users = await User.paginate({}, { page, limit, sort, select: { hash: 0 } })
-      return new ApiResponse(res, users)
+      // Mutate pagination response to include user virtuals.
+      const virtualUsers = users.docs.map((d) => d.toObject())
+      return new ApiResponse(res, { ...users, docs: virtualUsers })
     } catch (err) {
       next(err)
     }
