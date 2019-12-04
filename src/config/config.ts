@@ -1,4 +1,3 @@
-
 import dotenv from 'dotenv'
 import Joi from '@hapi/joi'
 
@@ -8,27 +7,27 @@ dotenv.config()
 /**
  * Configuration interface.
  */
-interface Config {
-  env: string,
-  host: string,
-  port: number,
-  locale: string,
-  jwtSecret: string,
-  mongodb: string,
+interface IConfig {
+  env: string
+  host: string
+  port: number
+  locale: string
+  jwtSecret: string
+  mongodb: string
   db: {
-    host: string,
-    user: string,
-    pass: string,
-    name: string,
-    port: number,
-  },
+    host: string
+    user: string
+    pass: string
+    name: string
+    port: number
+  }
   aws: {
-    region: string,
-    accessKey: string,
-    secretKey: string,
-    bucket: string,
-    facesCollection: string,
-    transcoderPipeline: string,
+    region: string
+    accessKey: string
+    secretKey: string
+    bucket: string
+    facesCollection: string
+    transcoderPipeline: string
   }
 }
 
@@ -40,20 +39,16 @@ const envVarsSchema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production', 'test')
     .default('development'),
-  HOST: Joi.string()
-    .default('localhost'),
-  PORT: Joi.number()
-    .default(3000),
-  DEFAULT_LOCALE: Joi.string()
-    .default('en'),
+  HOST: Joi.string().default('localhost'),
+  PORT: Joi.number().default(3000),
+  DEFAULT_LOCALE: Joi.string().default('en'),
 
   // Database variables.
   MONGODB_URI: Joi.string()
     .required()
     .description('Mongo DB uri'),
 
-  DB_HOST: Joi.string()
-    .default('localhost'),
+  DB_HOST: Joi.string().default('localhost'),
   DB_USER: Joi.string()
     .required()
     .description('Database username'),
@@ -63,8 +58,7 @@ const envVarsSchema = Joi.object({
   DB_NAME: Joi.string()
     .required()
     .description('Database name'),
-  DB_PORT: Joi.number()
-    .default(3306),
+  DB_PORT: Joi.number().default(3306),
 
   // Security variables.
   JWT_SECRET: Joi.string()
@@ -72,18 +66,12 @@ const envVarsSchema = Joi.object({
     .description('JWT Secret required to sign'),
 
   // AWS variables.
-  AWS_REGION: Joi.string()
-    .required(),
-  AWS_ACCESS_KEY_ID: Joi.string()
-    .required(),
-  AWS_SECRET_ACCESS_KEY: Joi.string()
-    .required(),
-  AWS_BUCKET: Joi.string()
-    .required(),
-  AWS_FACES_COLLECTION: Joi.string()
-    .required(),
-  AWS_TRANSCODER_PIPELINE: Joi.string()
-    .required(),
+  AWS_REGION: Joi.string().required(),
+  AWS_ACCESS_KEY_ID: Joi.string().required(),
+  AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+  AWS_BUCKET: Joi.string().required(),
+  AWS_FACES_COLLECTION: Joi.string().required(),
+  AWS_TRANSCODER_PIPELINE: Joi.string().required(),
 })
   .unknown()
   .required()
@@ -101,7 +89,7 @@ if (error) {
 /**
  * Build config object.
  */
-export const config: Config = {
+export const config: IConfig = {
   env: envVars.NODE_ENV,
   host: envVars.HOST,
   port: envVars.PORT,
