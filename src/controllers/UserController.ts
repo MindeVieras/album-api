@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 
 import { User } from '../models'
 import { UserRoles } from '../enums'
-import { ApiResponse, ApiError } from '../helpers'
+import { ApiResponse, ApiError, IAuthRequest } from '../helpers'
 import { config } from '../config'
 
 /**
@@ -60,9 +60,11 @@ export class UserController {
   /**
    * Create new user.
    */
-  public async create(req: Request, res: Response, next: NextFunction) {
+  public async create(req: IAuthRequest, res: Response, next: NextFunction) {
     try {
       const { password } = req.body
+
+      console.log(req.userRole)
 
       // Remove password from request as soon as possible.
       delete req.body.password

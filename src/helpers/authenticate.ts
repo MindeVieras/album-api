@@ -7,61 +7,69 @@ import { UserRoles } from '../enums'
 import { ApiError } from './ApiError'
 
 /**
+ * Authenticated request interface.
+ */
+export interface IAuthRequest extends Request {
+  userId: string
+  userRole: UserRoles
+}
+
+/**
  * Decoded token object structure.
  */
 interface IDecodedToken {
   _id: string
   username: string
-  role: string
+  role: UserRoles
 }
 
 /**
  * Check if user is admin.
  *
- * @param {Request} req
- *   Express request.
+ * @param {IAuthRequest} req
+ *   Authenticated request.
  * @param {Response} res
  *   Express response.
  * @param {NextFunction} next
  *   Express next function.
  */
-export function isAdmin(req: Request, res: Response, next: NextFunction): void {
+export function isAdmin(req: IAuthRequest, res: Response, next: NextFunction): void {
   doAuth(req, res, next, UserRoles.admin)
 }
 
 /**
  * Check if user is authenticated.
  *
- * @param {Request} req
- *   Express request.
+ * @param {IAuthRequest} req
+ *   Authenticated request.
  * @param {Response} res
  *   Express response.
  * @param {NextFunction} next
  *   Express next function.
  */
-export function isAuthed(req: Request, res: Response, next: NextFunction): void {
+export function isAuthed(req: IAuthRequest, res: Response, next: NextFunction): void {
   doAuth(req, res, next, UserRoles.authed)
 }
 
 /**
  * Check if user is viewer.
  *
- * @param {Request} req
- *   Express request.
+ * @param {IAuthRequest} req
+ *   Authenticated request.
  * @param {Response} res
  *   Express response.
  * @param {NextFunction} next
  *   Express next function.
  */
-export function isViewer(req: Request, res: Response, next: NextFunction): void {
+export function isViewer(req: IAuthRequest, res: Response, next: NextFunction): void {
   doAuth(req, res, next, UserRoles.viewer)
 }
 
 /**
  * Authentication function.
  *
- * @param {Request} req
- *   Express request.
+ * @param {IAuthRequest} req
+ *   Authenticated request.
  * @param {Response} res
  *   Express response.
  * @param {NextFunction} next
@@ -70,7 +78,7 @@ export function isViewer(req: Request, res: Response, next: NextFunction): void 
  *   User role, one of the UserRoles.
  *
  */
-async function doAuth(req: Request, res: Response, next: NextFunction, userRole) {
+async function doAuth(req: IAuthRequest, res: Response, next: NextFunction, userRole: UserRoles) {
   try {
     // Get 'authorization' header from request.
     const { authorization } = req.headers
@@ -86,17 +94,20 @@ async function doAuth(req: Request, res: Response, next: NextFunction, userRole)
           const { _id, username, role } = decoded as IDecodedToken
           // Admin
           if (role === UserRoles.admin) {
-            // req.app.set('user', { uid: id, access_level })
+            req.userId = _id
+            req.userRole = role
             next()
           }
           // Authed
           else if (role === UserRoles.authed && userRole === UserRoles.authed) {
-            // req.app.set('user', { uid: id, access_level })
+            req.userId = _id
+            req.userRole = role
             next()
           }
           // Viewer
           else if (role === UserRoles.viewer && userRole === UserRoles.viewer) {
-            // req.app.set('user', { uid: id, access_level })
+            req.userId = _id
+            req.userRole = role
             next()
           } else {
             next(new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN))

@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { isAdmin } from '../helpers/authenticate'
+import { isAdmin } from '../helpers'
 
 import { UserController } from '../controllers'
 import { paramValidation } from '../config'
