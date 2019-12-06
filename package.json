@@ -9,7 +9,7 @@
     "build": "rimraf dist && tsc",
     "clean": "rimraf dist node_modules",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "test": "NODE_ENV=test mocha -r ts-node/register src/tests/**/*.spec.ts"
+    "test": "NODE_ENV=test nyc mocha"
   },
   "repository": {
     "type": "git",
@@ -66,8 +66,10 @@
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
+    "nyc": "^14.1.1",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
+    "source-map-support": "^0.5.16",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.1",
     "typescript": "^3.7.2"

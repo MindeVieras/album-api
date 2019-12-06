@@ -2,15 +2,13 @@
   "editor.tabSize": 2,
   "editor.autoIndent": true,
   "editor.insertSpaces": true,
-  "editor.formatOnPaste": true,
+  "editor.formatOnPaste": false,
   "editor.formatOnSave": true,
   "editor.renderWhitespace": "boundary",
   "editor.wordWrapColumn": 120,
   "editor.wordWrap": "off",
   "editor.detectIndentation": true,
-  "editor.rulers": [
-    120
-  ],
+  "editor.rulers": [120],
   "[typescript]": {
     "editor.formatOnSave": true
   },

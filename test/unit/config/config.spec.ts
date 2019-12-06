@@ -1,7 +1,7 @@
 import 'mocha'
 import { expect } from 'chai'
 
-import { config } from '../../config'
+import { config } from '../../../src/config'
 
 describe('Configuration test.', () => {
   it('config object should return valid data', () => {
