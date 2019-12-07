@@ -17,6 +17,5 @@ export async function databaseSetup() {
   } catch (err) {
     console.log(chalk.red('MongoDB error:'), err.message)
     process.exit()
-    return
   }
 }

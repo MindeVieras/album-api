@@ -4,6 +4,7 @@ import { agent as request } from 'supertest'
 import faker from 'faker'
 
 import { config } from '../../src/config'
+import Server from '../../src/Server'
 // import { app } from '../../src'
 
 describe('Testing /api/users/* routes.', () => {
@@ -11,12 +12,13 @@ describe('Testing /api/users/* routes.', () => {
    * Create fake users.
    */
   const fakeUser = {
-    username: faker.internet.userName,
-    password: faker.internet.password,
+    username: faker.internet.userName(),
+    password: faker.internet.password(),
   }
 
-  it('POST /api/users should return success (Create User)', async function() {
-    const res = await request(require('../../src'))
+  console.log(fakeUser)
+  it('POST /api/users should return success (Create User)', async function(done) {
+    const res = await request(Server.baseUrl)
       .post('/api/users')
       .send(fakeUser)
       .set(
@@ -25,6 +27,7 @@ describe('Testing /api/users/* routes.', () => {
       )
 
     console.log(res.body)
+    done()
     // expect(res.status).to.equal(200)
     // expect(res.body).not.to.be.empty
     // expect(res.body.data).not.to.be.empty

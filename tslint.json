@@ -16,6 +16,7 @@
         "variables": true
       }
     ],
+    "member-ordering": false,
     "no-console": false,
     "object-literal-sort-keys": false,
     "one-line": false,

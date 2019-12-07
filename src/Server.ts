@@ -19,6 +19,11 @@ export default class Server {
    */
   public app: Application = express()
 
+  /**
+   * Server base url.
+   */
+  public static baseUrl = `http://${config.host}:${config.port}`
+
   constructor() {
     // Disable useless header.
     this.app.disable('x-powered-by')
@@ -62,7 +67,7 @@ export default class Server {
     this.app.listen(config.port, () => {
       // Log about success server start only for dev environment.
       if (config.env === 'development') {
-        console.log(`Server running at http://${config.host}:${config.port}`)
+        console.log(`Server running at ${Server.baseUrl}`)
       }
     })
   }
