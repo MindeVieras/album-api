@@ -1,4 +1,4 @@
 export default interface ILoginModel {
-    username: string;
-    password: string;
+  username: string
+  password: string
 }
