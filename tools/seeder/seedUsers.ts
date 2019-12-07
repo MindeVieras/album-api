@@ -1,9 +1,10 @@
+import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
 import { User, UserDocument } from '../../src/models/UserModel'
 import { UserRoles, UserStatus } from '../../src/enums'
-import { getRandomFieldIndex } from './seedUtils'
+import { getRandomFieldIndex, SeedDefaults } from './SeedUtils'
 
 /**
  * Seed users.
@@ -12,8 +13,11 @@ import { getRandomFieldIndex } from './seedUtils'
  *   How many fake users to seed?
  * @param {string} password
  *   Password for all seeded users.
+ *
+ * @returns {Promise<UserDocument[]>}
+ *   Promise with an array of user instances.
  */
-export default async function seedUsers(count: number = 1000, password: string = 'Password123!') {
+export default async function SeedUsers(count: number = SeedDefaults.count, password: string = SeedDefaults.password) {
   /**
    * Build list of fake users.
    * Randomize not required fields.
@@ -51,7 +55,7 @@ export default async function seedUsers(count: number = 1000, password: string =
   /**
    * Save fake users.
    */
-  const bar = new ProgressBar(':percent:bar', { total: count })
+  const bar = new ProgressBar(chalk.green('Seeding users: ') + chalk.cyan(':percent :bar'), { total: count })
 
   for (let i = 0; i < users.length; i++) {
     await new User(users[i]).save()

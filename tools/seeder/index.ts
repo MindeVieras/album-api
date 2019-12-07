@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-import seed from './seed'
+import Seed from './Seed'
 import { databaseSetup } from '../../src/config'
 
 /**
@@ -11,7 +11,7 @@ async function runSeeder() {
   await databaseSetup()
 
   // Run seed.
-  await seed()
+  await Seed()
 
   // Disconnect from database after seed.
   await mongoose.disconnect()

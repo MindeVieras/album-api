@@ -1,8 +1,26 @@
 /**
+ * Default seeder options.
+ */
+export enum SeedDefaults {
+  /**
+   * Seeder total counts
+   */
+  'count' = 50,
+
+  /**
+   * Default user password.
+   */
+  'password' = 'Password123!',
+}
+
+/**
  * Generates random number based on total items.
  *
- * @param total
+ * @param {number} total
  *   Total items.
+ *
+ * @returns {number}
+ *   Returns random index number
  */
 export function getRandomFieldIndex(total: number): number {
   // Give it a descent random number to populate half or more of total.

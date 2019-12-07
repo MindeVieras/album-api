@@ -1,4 +1,4 @@
-import seedUsers from './SeedUsers'
+import SeedUsers from './SeedUsers'
 
 /**
  * Database seed function.
@@ -6,5 +6,5 @@ import seedUsers from './SeedUsers'
  */
 export default async function seed() {
   // Run default seeds.
-  await seedUsers()
+  await SeedUsers()
 }
