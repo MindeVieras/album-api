@@ -4,7 +4,7 @@ import { databaseSetup } from './config'
 /**
  * Application initialization.
  */
-async function initialize() {
+export async function app() {
   // Make sure to connect to MongoDB bofore server runs.
   await databaseSetup()
 
@@ -12,4 +12,4 @@ async function initialize() {
   new Server().listen()
 }
 
-initialize()
+app()

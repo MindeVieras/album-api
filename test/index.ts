@@ -1,22 +1,24 @@
 import 'mocha'
 import chalk from 'chalk'
 
+console.clear()
+
 /**
  * Tests entry file.
  * All tests will run in order.
  */
 describe(chalk.green('Running full test suite...\n'), () => {
   /**
-   * Runs before all tests in this block.
+   * Require all unit tests.
    */
-  before(() => {
-    // process.env.NODE_ENV = 'test'
+  describe(chalk.green('\nStart unit tests\n'), () => {
+    require('./unit')
   })
 
   /**
-   * Require all unit tests.
+   * Require all integration tests.
    */
-  describe(chalk.green('Start unit tests\n'), () => {
-    require('./unit')
+  describe(chalk.green('\nStart integration tests\n'), () => {
+    require('./integration')
   })
 })

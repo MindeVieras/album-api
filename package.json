@@ -9,7 +9,7 @@
     "build": "rimraf dist && tsc",
     "clean": "rimraf dist node_modules",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "test": "NODE_ENV=test nyc mocha"
+    "test": "NODE_ENV=test mocha"
   },
   "repository": {
     "type": "git",
@@ -52,6 +52,7 @@
     "@types/chai": "^4.2.5",
     "@types/cors": "^2.8.6",
     "@types/crypto-js": "^3.1.43",
+    "@types/faker": "^4.1.8",
     "@types/hapi__joi": "^16.0.3",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.145",
@@ -62,14 +63,17 @@
     "@types/mysql": "^2.15.8",
     "@types/node": "^12.12.6",
     "@types/superagent": "^4.1.4",
+    "@types/supertest": "^2.0.8",
     "@types/validator": "^10.11.3",
     "chai": "^4.2.0",
+    "faker": "^4.1.0",
     "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
     "nyc": "^14.1.1",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
     "source-map-support": "^0.5.16",
+    "supertest": "^4.0.2",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.1",
     "typescript": "^3.7.2"

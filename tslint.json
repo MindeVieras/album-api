@@ -24,5 +24,8 @@
     "trailing-comma": false,
     "quotemark": [true, "single"]
   },
-  "rulesDirectory": []
+  "rulesDirectory": [],
+  "linterOptions": {
+    "exclude": ["test/**/*"]
+  }
 }

@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import { config } from '../../../src/config'
 
 describe('Configuration test.', () => {
-  it('config object should return valid data', () => {
+  it('config object should return valid config', () => {
     expect(config).to.be.an('object')
     expect(config.env).to.equal('test')
     expect(config.host).to.be.a('string')
