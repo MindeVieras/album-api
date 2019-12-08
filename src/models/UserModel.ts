@@ -2,9 +2,11 @@ import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
 import mongoosePaginate from 'mongoose-paginate'
 import httpStatus from 'http-status-codes'
+import jwt from 'jsonwebtoken'
 
 import { UserRoles, UserStatus } from '../enums'
 import { makeInitials, ApiError } from '../helpers'
+import { config } from '../config'
 
 /**
  * User document type.
@@ -69,7 +71,7 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
     toObject: {
       virtuals: true,
-      transform: (doc, ret) => {
+      transform: (_, ret) => {
         delete ret._id
         delete ret.hash
         delete ret.__v
@@ -106,21 +108,37 @@ userSchema.pre('save', async function(next) {
   }
 })
 
-// userSchema.methods.createAccessToken = function(this: UserDocument) {
-//   const token = jwt.sign(this.toJSON(), config.jwtSecret)
-//   return token
-// }
+/**
+ * Create an access token.
+ * Uses JWT to to encode User object.
+ *
+ * @returns {string}
+ *   Access token.
+ */
+userSchema.methods.createAccessToken = function(this: UserDocument) {
+  const token = jwt.sign(this.toObject(), config.jwtSecret)
+  return token
+}
 
-// userSchema.methods.comparePassword = function(password: string): Promise<boolean> {
-//   return new Promise((resolve, reject) => {
-//     bcrypt.compare(password, this.hash, (err, isMatch) => {
-//       if (err) {
-//         return reject(err)
-//       }
-//       return resolve(isMatch)
-//     })
-//   })
-// }
+/**
+ * User password comaparison method.
+ *
+ * @param {string} password
+ *   Password to compare against saved hash.
+ *
+ * @returns {Promise<boolean>}
+ *   Whether pasword match or not.
+ */
+userSchema.methods.comparePassword = function(password: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(password, this.hash, (err, isMatch) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve(isMatch)
+    })
+  })
+}
 
 /**
  * User virtual field 'initials'.
