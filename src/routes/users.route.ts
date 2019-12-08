@@ -20,11 +20,13 @@ const User = new UserController()
 
 router
   .route('/')
-  .get(isAdmin, validator.query(paramValidation.usersListQuery), User.getList)
+  // @ts-ignore
+  .get(isAdmin, validator.query(paramValidation.listQuery), User.getList)
   .post(isAdmin, validator.body(paramValidation.userPostBody), User.create)
 
 router
-  .route('/:_id')
+  .route('/:id')
+  // @ts-ignore
   .get(isAdmin, validator.params(paramValidation.idParam), User.getOne)
   .patch(
     isAdmin,

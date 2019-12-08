@@ -4,12 +4,12 @@
  * @param {string} username
  *   Username.
  * @param {string} displayName
- *   Display name.
+ *   Display name, defaults to an emty string.
  *
  * @returns {string}
  *   User initials.
  */
-export function makeInitials(username: string, displayName: string): string {
+export function makeInitials(username: string, displayName: string = ''): string {
   if (!displayName || displayName.length < 2) {
     return username.slice(0, 2).toUpperCase()
   }

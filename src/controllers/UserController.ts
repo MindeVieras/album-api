@@ -3,10 +3,11 @@ import bcrypt from 'bcryptjs'
 import httpStatus from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 
-import { User } from '../models'
+import { User, UserDocument } from '../models'
 import { UserRoles } from '../enums'
-import { ApiResponse, ApiError, IAuthRequest } from '../helpers'
+import { ApiResponse, ApiError } from '../helpers'
 import { config } from '../config'
+import { IRequestListQuery, IRequestAuthed } from '../typings'
 
 /**
  * Interface for data to encode to token.
@@ -20,6 +21,45 @@ interface ITokenData {
  * User controller class.
  */
 export class UserController {
+  /**
+   * Get list of users.
+   */
+  public async getList(req: IRequestAuthed, res: Response, next: NextFunction) {
+    try {
+      const { limit, page, sort } = req.query as IRequestListQuery
+      const userPager = await User.paginate({}, { page, limit, sort })
+      // Mutate pagination response to include user virtuals.
+      const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
+      return new ApiResponse(res, { ...userPager, docs })
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /**
+   * Create new user.
+   */
+  public async create(req: IRequestAuthed, res: Response, next: NextFunction) {
+    try {
+      const { password } = req.body
+
+      // Remove password from request as soon as possible.
+      delete req.body.password
+
+      // Create user data object, set password as hash.
+      // Actual hash is generated at the model level.
+      const userDataToSave = { ...req.body, hash: password }
+
+      // Save user to database.
+      const user = new User(userDataToSave)
+      const savedUser = await user.save()
+
+      return new ApiResponse(res, savedUser.toObject(), httpStatus.CREATED)
+    } catch (err) {
+      next(err)
+    }
+  }
+
   /**
    * Authenticates user.
    */
@@ -58,54 +98,13 @@ export class UserController {
   }
 
   /**
-   * Create new user.
-   */
-  public async create(req: IAuthRequest, res: Response, next: NextFunction) {
-    try {
-      const { password } = req.body
-
-      console.log(req.userRole)
-
-      // Remove password from request as soon as possible.
-      delete req.body.password
-
-      // Create user data object, set password as hash.
-      // Actual hash is generated at the model level.
-      const userDataToSave = { ...req.body, hash: password }
-
-      // Save user to database.
-      const user = new User(userDataToSave)
-      const savedUser = await user.save()
-
-      return new ApiResponse(res, savedUser.toObject(), httpStatus.CREATED)
-    } catch (err) {
-      next(err)
-    }
-  }
-
-  /**
    * Get single user.
    */
   public async getOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { _id } = req.params as { _id: string }
       const user = await User.findOne({ _id }, { hash: 0 })
-      return new ApiResponse(res, user.toObject())
-    } catch (err) {
-      next(err)
-    }
-  }
-
-  /**
-   * Get list of users.
-   */
-  public async getList(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { limit, page, sort } = req.query as { limit: number; page: number; sort: string }
-      const users = await User.paginate({}, { page, limit, sort, select: { hash: 0 } })
-      // Mutate pagination response to include user virtuals.
-      const virtualUsers = users.docs.map((d) => d.toObject())
-      return new ApiResponse(res, { ...users, docs: virtualUsers })
+      return new ApiResponse(res, user)
     } catch (err) {
       next(err)
     }

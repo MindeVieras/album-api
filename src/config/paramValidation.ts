@@ -1,6 +1,7 @@
 import Joi from '@hapi/joi'
 
 import { UserRoles, UserStatus } from '../enums'
+import { IRequestListQuery, IRequestIdParam } from '../typings'
 
 /**
  * Request param validation object.
@@ -12,15 +13,15 @@ export const paramValidation = {
     password: Joi.string().required(),
   }),
 
-  // * /api/*/:_id
-  idParam: Joi.object({
-    _id: Joi.string()
+  // * /api/*/:id
+  idParam: Joi.object<IRequestIdParam>({
+    id: Joi.string()
       .hex()
       .required(),
   }),
 
-  // GET /api/users
-  usersListQuery: Joi.object({
+  // GET /api/*
+  listQuery: Joi.object<IRequestListQuery>({
     limit: Joi.number()
       .min(1)
       .default(10),

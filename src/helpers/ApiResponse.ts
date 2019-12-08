@@ -16,7 +16,7 @@ export class ApiResponse<T> {
    *   Optional, http status for the response, default 200.
    *   If no data, status will fallback to 204 - No Content.
    */
-  constructor(res: Response, data: T = null, status: number = data ? httpStatus.OK : httpStatus.NO_CONTENT) {
+  constructor(res: Response, data: T | null = null, status: number = data ? httpStatus.OK : httpStatus.NO_CONTENT) {
     // Build response object.
     const response = {
       status: 'SUCCESS',

@@ -5,14 +5,7 @@ import jwt from 'jsonwebtoken'
 import { config } from '../config'
 import { UserRoles } from '../enums'
 import { ApiError } from './ApiError'
-
-/**
- * Authenticated request interface.
- */
-export interface IAuthRequest extends Request {
-  userId: string
-  userRole: UserRoles
-}
+import { IRequestAuthed } from '../typings'
 
 /**
  * Decoded token object structure.
@@ -26,49 +19,49 @@ interface IDecodedToken {
 /**
  * Check if user is admin.
  *
- * @param {IAuthRequest} req
+ * @param {IRequestAuthed} req
  *   Authenticated request.
  * @param {Response} res
  *   Express response.
  * @param {NextFunction} next
  *   Express next function.
  */
-export function isAdmin(req: IAuthRequest, res: Response, next: NextFunction): void {
+export function isAdmin(req: IRequestAuthed, res: Response, next: NextFunction): void {
   doAuth(req, res, next, UserRoles.admin)
 }
 
 /**
  * Check if user is authenticated.
  *
- * @param {IAuthRequest} req
+ * @param {IRequestAuthed} req
  *   Authenticated request.
  * @param {Response} res
  *   Express response.
  * @param {NextFunction} next
  *   Express next function.
  */
-export function isAuthed(req: IAuthRequest, res: Response, next: NextFunction): void {
+export function isAuthed(req: IRequestAuthed, res: Response, next: NextFunction): void {
   doAuth(req, res, next, UserRoles.authed)
 }
 
 /**
  * Check if user is viewer.
  *
- * @param {IAuthRequest} req
+ * @param {IRequestAuthed} req
  *   Authenticated request.
  * @param {Response} res
  *   Express response.
  * @param {NextFunction} next
  *   Express next function.
  */
-export function isViewer(req: IAuthRequest, res: Response, next: NextFunction): void {
+export function isViewer(req: IRequestAuthed, res: Response, next: NextFunction): void {
   doAuth(req, res, next, UserRoles.viewer)
 }
 
 /**
  * Authentication function.
  *
- * @param {IAuthRequest} req
+ * @param {IRequestAuthed} req
  *   Authenticated request.
  * @param {Response} res
  *   Express response.
@@ -78,7 +71,7 @@ export function isViewer(req: IAuthRequest, res: Response, next: NextFunction): 
  *   User role, one of the UserRoles.
  *
  */
-async function doAuth(req: IAuthRequest, res: Response, next: NextFunction, userRole: UserRoles) {
+async function doAuth(req: IRequestAuthed, res: Response, next: NextFunction, userRole: UserRoles) {
   try {
     // Get 'authorization' header from request.
     const { authorization } = req.headers

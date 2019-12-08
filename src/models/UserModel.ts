@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { Schema, Document, model } from 'mongoose'
+import mongoose from 'mongoose'
 import mongoosePaginate from 'mongoose-paginate'
 import httpStatus from 'http-status-codes'
 
@@ -9,23 +9,27 @@ import { makeInitials, ApiError } from '../helpers'
 /**
  * User document type.
  */
-export type UserDocument = Document & {
+export type UserDocument = mongoose.Document & {
   username: string
   hash: string
   initials: string
   email?: string
   displayName?: string
   locale?: string
-  role?: UserRoles
-  status?: UserStatus
+  role: UserRoles
+  status: UserStatus
   createdBy?: string
   lastLogin?: Date
+  updatedAt: Date
+  createdAt: Date
+  createAccessToken(): string
+  comparePassword(password: string): Promise<boolean>
 }
 
 /**
  * User schema.
  */
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -55,16 +59,27 @@ const userSchema = new Schema(
       default: UserStatus.active,
     },
     createdBy: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
     lastLogin: Date,
   },
-  { collection: 'Users', timestamps: true, id: false },
+  {
+    collection: 'Users',
+    timestamps: true,
+    toObject: {
+      virtuals: true,
+      transform: (doc, ret) => {
+        delete ret._id
+        delete ret.hash
+        delete ret.__v
+      },
+    },
+  },
 )
 
 /**
- * Password hash middleware.
+ * Run middlewares before user is saved.
  */
 userSchema.pre('save', async function(next) {
   const user = this as UserDocument
@@ -81,18 +96,36 @@ userSchema.pre('save', async function(next) {
       throw new ApiError('User already exists', httpStatus.CONFLICT)
     }
 
-    // Create hash from password.
+    // Generate a salt.
     const salt = await bcrypt.genSalt(10)
+    // Hash the password using our new salt.
     user.hash = await bcrypt.hash(user.hash, salt)
+    next()
   } catch (err) {
     return next(err)
   }
 })
 
+// userSchema.methods.createAccessToken = function(this: UserDocument) {
+//   const token = jwt.sign(this.toJSON(), config.jwtSecret)
+//   return token
+// }
+
+// userSchema.methods.comparePassword = function(password: string): Promise<boolean> {
+//   return new Promise((resolve, reject) => {
+//     bcrypt.compare(password, this.hash, (err, isMatch) => {
+//       if (err) {
+//         return reject(err)
+//       }
+//       return resolve(isMatch)
+//     })
+//   })
+// }
+
 /**
  * User virtual field 'initials'.
  */
-userSchema.virtual('initials').get(function() {
+userSchema.virtual('initials').get(function(this: UserDocument) {
   return makeInitials(this.username, this.displayName)
 })
 
@@ -101,12 +134,7 @@ userSchema.virtual('initials').get(function() {
  */
 userSchema.plugin(mongoosePaginate)
 
-userSchema.set('toObject', {
-  getters: true,
-  versionKey: false,
-})
-
 /**
  * Export user schema as model.
  */
-export const User = model<UserDocument>('User', userSchema)
+export const User = mongoose.model<UserDocument>('User', userSchema)
