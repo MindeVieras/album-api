@@ -1,3 +1,6 @@
+/**
+ * Service response object.
+ */
 export class ServiceResponse<T> {
   data: T
   statusCode: number
@@ -9,7 +12,7 @@ export class ServiceResponse<T> {
     this.error = error
   }
 
-  static createErrorResponse(statusCode: number = 400, error: any) {
+  public static createErrorResponse(statusCode: number = 400, error: any) {
     const serviceResponse = new ServiceResponse(null, statusCode, error)
     return serviceResponse
   }

@@ -29,6 +29,9 @@ async function initialize() {
     controllers: [__dirname + '/controllers/*{.js,.ts}'],
   })
 
+  // Disable useless header.
+  app.disable('x-powered-by')
+
   // Start passport middleware.
   await passportStartup(app)
 

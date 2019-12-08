@@ -1,16 +1,18 @@
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
+import mongoosePaginate from 'mongoose-paginate'
 import bcrypt from 'bcrypt'
 
 import { UserRoles, UserStatus } from '../enums'
 import { config } from '../config'
+import { makeInitials } from '../helpers'
 /**
  * User document type.
  */
 export type UserDocument = mongoose.Document & {
   username: string
   hash: string
-  // initials: string
+  initials: string
   email?: string
   displayName?: string
   locale?: string
@@ -65,12 +67,12 @@ export const userSchema = new mongoose.Schema(
   {
     collection: 'Users',
     timestamps: true,
-    // id: false,
-    toJSON: {
+    toObject: {
       virtuals: true,
       transform: (doc, ret) => {
-        // delete ret._id
-        delete ret.password
+        delete ret._id
+        delete ret.hash
+        delete ret.__v
       },
     },
   },
@@ -112,7 +114,7 @@ userSchema.methods.createAccessToken = function(this: UserDocument) {
 
 userSchema.methods.comparePassword = function(password: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
-    bcrypt.compare(password, this.password, (err, isMatch) => {
+    bcrypt.compare(password, this.hash, (err, isMatch) => {
       if (err) {
         return reject(err)
       }
@@ -120,6 +122,18 @@ userSchema.methods.comparePassword = function(password: string): Promise<boolean
     })
   })
 }
+
+/**
+ * User virtual field 'initials'.
+ */
+userSchema.virtual('initials').get(function() {
+  return makeInitials(this.username, this.displayName)
+})
+
+/**
+ * Add mongoose-paginate plugin.
+ */
+userSchema.plugin(mongoosePaginate)
 
 /**
  * Export user model.
