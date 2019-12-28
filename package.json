@@ -42,11 +42,9 @@
     "mongoose": "^5.7.11",
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.9.1",
-    "mysql": "^2.17.1",
     "superagent": "^5.1.0",
     "validator": "^12.0.0",
-    "winston": "^3.2.1",
-    "winston-mysql": "^0.9.0"
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",

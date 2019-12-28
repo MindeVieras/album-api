@@ -14,13 +14,6 @@ interface IConfig {
   locale: string
   jwtSecret: string
   mongodb: string
-  db: {
-    host: string
-    user: string
-    pass: string
-    name: string
-    port: number
-  }
   aws: {
     region: string
     accessKey: string
@@ -47,18 +40,6 @@ const envVarsSchema = Joi.object({
   MONGODB_URI: Joi.string()
     .required()
     .description('Mongo DB uri'),
-
-  DB_HOST: Joi.string().default('localhost'),
-  DB_USER: Joi.string()
-    .required()
-    .description('Database username'),
-  DB_PASS: Joi.string()
-    .allow('')
-    .description('Database password'),
-  DB_NAME: Joi.string()
-    .required()
-    .description('Database name'),
-  DB_PORT: Joi.number().default(3306),
 
   // Security variables.
   JWT_SECRET: Joi.string()
@@ -96,13 +77,6 @@ export const config: IConfig = {
   locale: envVars.DEFAULT_LOCALE,
   jwtSecret: envVars.JWT_SECRET,
   mongodb: envVars.MONGODB_URI,
-  db: {
-    host: envVars.DB_HOST,
-    user: envVars.DB_USER,
-    pass: envVars.DB_PASS,
-    name: envVars.DB_NAME,
-    port: envVars.DB_PORT,
-  },
   aws: {
     region: envVars.AWS_REGION,
     accessKey: envVars.AWS_ACCESS_KEY_ID,
