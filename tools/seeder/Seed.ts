@@ -1,3 +1,4 @@
+import SeedAdmin from './SeedAdmin'
 import SeedUsers from './SeedUsers'
 
 /**
@@ -6,6 +7,7 @@ import SeedUsers from './SeedUsers'
  */
 export async function Seed() {
   // Run default seeds.
+  await SeedAdmin()
   await SeedUsers()
 }
 
@@ -22,6 +24,11 @@ export enum SeedDefaults {
    * Default user password.
    */
   'password' = 'Password123!',
+
+  /**
+   * Default admin user name.
+   */
+  'adminName' = 'admin',
 }
 
 /**

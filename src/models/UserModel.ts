@@ -93,9 +93,9 @@ userSchema.pre('save', async function(next) {
   try {
     // Check for dublicate username and email,
     // throw an error if user already exists.
-    const userExists = await User.findOne({ $or: [{ username: user.username }, { email: user.email }] })
+    const userExists = await User.findOne({ username: user.username })
     if (userExists) {
-      throw new ApiError('User already exists', httpStatus.CONFLICT)
+      throw new ApiError(`User '${user.username}' already exists`, httpStatus.CONFLICT)
     }
 
     // Generate a salt.

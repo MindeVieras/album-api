@@ -17,7 +17,10 @@ import { getRandomFieldIndex, SeedDefaults } from './Seed'
  * @returns {Promise<UserDocument[]>}
  *   Promise with an array of user instances.
  */
-export default async function SeedUsers(count: number = SeedDefaults.count, password: string = SeedDefaults.password) {
+export default async function SeedUsers(
+  count: number = SeedDefaults.count,
+  password: string = SeedDefaults.password,
+) {
   /**
    * Build list of fake users.
    * Randomize not required fields.
@@ -55,12 +58,24 @@ export default async function SeedUsers(count: number = SeedDefaults.count, pass
   /**
    * Save fake users.
    */
-  const bar = new ProgressBar(chalk.green('Seeding users: ') + chalk.cyan(':percent :bar'), { total: count })
+  console.log(chalk.green('Generating fake users: '))
+  const bar = new ProgressBar(chalk.cyan(':percent :bar'), {
+    total: count,
+  })
 
   for (const u of users) {
-    await new User(u).save()
-    bar.tick()
+    try {
+      await new User(u).save()
+      bar.tick()
+    } catch (error) {
+      console.log(chalk.red(`\n${error.message}`))
+      return users
+    }
   }
+
+  console.log(
+    chalk.green(`${users.length} fake users generated with password: ${chalk.cyan(password)}\n`),
+  )
 
   return users
 }

@@ -8,6 +8,7 @@
     "dev": "nodemon src/index.ts",
     "build": "rimraf dist && tsc",
     "seed": "ts-node tools/seeder",
+    "seed-admin": "ts-node tools/seeder/seed-admin.ts",
     "clean": "rimraf dist node_modules",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "test-integration": "NODE_ENV=test mocha test/integration",
