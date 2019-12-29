@@ -40,15 +40,27 @@ export default async function SeedUsers(
 
   // Randomize fake email fields.
   for (let step = 0; step < getRandomFieldIndex(count); step++) {
-    users[Math.floor(Math.random() * count)].email = faker.internet.email()
+    const randomEmailCount = Math.floor(Math.random() * count)
+    users[randomEmailCount].profile = {
+      ...users[randomEmailCount].profile,
+      email: faker.internet.email(),
+    }
   }
   // Randomize fake displayName fields.
   for (let step = 0; step < getRandomFieldIndex(count); step++) {
-    users[Math.floor(Math.random() * count)].displayName = faker.name.findName()
+    const randomDisplayNameCount = Math.floor(Math.random() * count)
+    users[randomDisplayNameCount].profile = {
+      ...users[randomDisplayNameCount].profile,
+      displayName: faker.name.findName(),
+    }
   }
   // Randomize fake locale fields.
   for (let step = 0; step < getRandomFieldIndex(count); step++) {
-    users[Math.floor(Math.random() * count)].locale = faker.random.locale()
+    const randomLocaleCount = Math.floor(Math.random() * count)
+    users[randomLocaleCount].profile = {
+      ...users[randomLocaleCount].profile,
+      locale: faker.random.locale(),
+    }
   }
   // Randomize fake lastLogin fields.
   for (let step = 0; step < getRandomFieldIndex(count); step++) {
@@ -73,6 +85,7 @@ export default async function SeedUsers(
     }
   }
 
+  // Summarize seed output.
   console.log(
     chalk.green(`${users.length} fake users generated with password: ${chalk.cyan(password)}\n`),
   )

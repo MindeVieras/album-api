@@ -15,9 +15,6 @@ export type UserDocument = mongoose.Document & {
   username: string
   hash: string
   initials: string
-  email?: string
-  displayName?: string
-  locale?: string
   role: UserRoles
   status: UserStatus
   createdBy?: string
@@ -26,6 +23,11 @@ export type UserDocument = mongoose.Document & {
   createdAt: Date
   createAccessToken(): string
   comparePassword(password: string): Promise<boolean>
+  profile?: {
+    email?: string
+    displayName?: string
+    locale?: string
+  }
 }
 
 /**
@@ -44,12 +46,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: 'Password is required',
     },
-    email: String,
-    displayName: {
-      type: String,
-      maxlength: 55,
-    },
-    locale: String,
     role: {
       type: String,
       enum: Object.values(UserRoles),
@@ -65,6 +61,14 @@ const userSchema = new mongoose.Schema(
       ref: 'User',
     },
     lastLogin: Date,
+    profile: {
+      email: String,
+      displayName: {
+        type: String,
+        maxlength: 55,
+      },
+      locale: String,
+    },
   },
   {
     collection: 'Users',
@@ -144,7 +148,8 @@ userSchema.methods.comparePassword = function(password: string): Promise<boolean
  * User virtual field 'initials'.
  */
 userSchema.virtual('initials').get(function(this: UserDocument) {
-  return makeInitials(this.username, this.displayName)
+  const displayName = this.profile && this.profile.displayName ? this.profile.displayName : ''
+  return makeInitials(this.username, displayName)
 })
 
 /**

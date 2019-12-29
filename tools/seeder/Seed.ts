@@ -1,4 +1,4 @@
-import SeedAdmin from './SeedAdmin'
+import SeedDevUsers from './SeedDevUsers'
 import SeedUsers from './SeedUsers'
 
 /**
@@ -7,7 +7,7 @@ import SeedUsers from './SeedUsers'
  */
 export async function Seed() {
   // Run default seeds.
-  await SeedAdmin()
+  await SeedDevUsers()
   await SeedUsers()
 }
 
