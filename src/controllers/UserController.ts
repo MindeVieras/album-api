@@ -1,21 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
-import bcrypt from 'bcryptjs'
 import httpStatus from 'http-status-codes'
-import jwt from 'jsonwebtoken'
+import passport from 'passport'
+import { IVerifyOptions } from 'passport-local'
 
 import { User, UserDocument } from '../models'
-import { UserRoles } from '../enums'
 import { ApiResponse, ApiError } from '../helpers'
-import { config } from '../config'
 import { IRequestListQuery, IRequestAuthed } from '../typings'
-
-/**
- * Interface for data to encode to token.
- */
-interface ITokenData {
-  username: string
-  role: UserRoles
-}
 
 /**
  * User controller class.
@@ -30,6 +20,7 @@ export class UserController {
       const userPager = await User.paginate({}, { page, limit, sort })
       // Mutate pagination response to include user virtuals.
       const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
+      // console.log(req)
       return new ApiResponse(res, { ...userPager, docs })
     } catch (err) {
       next(err)
@@ -64,37 +55,28 @@ export class UserController {
    * Authenticates user.
    */
   public async authorize(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { username, password } = req.body
-
-      const user = await User.findOne({ username })
-
-      // Check if user exists.
+    passport.authenticate('local', (err: Error, user: UserDocument, info: IVerifyOptions) => {
+      if (err) {
+        return next(err)
+      }
       if (!user) {
-        throw new ApiError('Incorrect details', httpStatus.UNAUTHORIZED)
+        return next(new ApiError(info.message, httpStatus.UNAUTHORIZED))
       }
+      req.logIn(user, (err) => {
+        if (err) {
+          return next(err)
+        }
+        return new ApiResponse(res, user.toObject(), httpStatus.OK)
+      })
+    })(req, res, next)
+  }
 
-      // Compare password.
-      const passwordMatch = await bcrypt.compare(password, user.hash)
-
-      if (!passwordMatch) {
-        throw new ApiError('Incorrect details', httpStatus.UNAUTHORIZED)
-      }
-
-      // Update last login date.
-      await user.update({ lastLogin: new Date() })
-
-      // Sign for JWT token.
-      const tokenData: ITokenData = {
-        username,
-        role: user.role,
-      }
-      const token = jwt.sign(tokenData, config.jwtSecret)
-
-      return new ApiResponse(res, { ...tokenData, token }, httpStatus.OK)
-    } catch (err) {
-      next(err)
-    }
+  /**
+   * Logout user.
+   */
+  public logout(req: Request, res: Response) {
+    req.logout()
+    return new ApiResponse(res)
   }
 
   /**

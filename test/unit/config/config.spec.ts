@@ -10,7 +10,6 @@ describe('Configuration test.', () => {
     expect(config.host).to.be.a('string')
     expect(config.port).to.be.a('number')
     expect(config.locale).to.be.a('string')
-    expect(config.jwtSecret).to.be.a('string')
     expect(config.mongodb).to.be.a('string')
     expect(config.aws).to.be.an('object')
     expect(config.aws.region).to.be.a('string')

@@ -1,12 +1,19 @@
 import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import compression from 'compression'
 import cors from 'cors'
 import express, { Application, Request, Response } from 'express'
 import morgan from 'morgan'
 import path from 'path'
+import session from 'express-session'
+import passport from 'passport'
+import mongo from 'connect-mongo'
 
 import { config } from './config'
 import routes from './routes/index.route'
 import { errorConverter, errorNotFound, errorHandler } from './middlewares'
+
+const MongoSessionStore = mongo(session)
 
 /**
  * Server class.
@@ -28,8 +35,14 @@ export default class Server {
     // Disable useless header.
     this.app.disable('x-powered-by')
 
+    // Compresses requests.
+    this.app.use(compression())
+
     // CORS.
     this.app.use(cors())
+
+    // Cookie parser.
+    this.app.use(cookieParser())
 
     // Body parser.
     this.app.use(bodyParser.urlencoded({ extended: true })).use(bodyParser.json())
@@ -39,6 +52,21 @@ export default class Server {
       // Dev logger
       this.app.use(morgan('dev'))
     }
+
+    // Express session and passport middlewares.
+    this.app.use(
+      session({
+        resave: true,
+        saveUninitialized: true,
+        secret: config.sessionSecret,
+        store: new MongoSessionStore({
+          url: config.mongodb,
+          autoReconnect: true,
+        }),
+      }),
+    )
+    this.app.use(passport.initialize())
+    this.app.use(passport.session())
 
     // Home route
     this.app.get('/', (req: Request, res: Response) => {

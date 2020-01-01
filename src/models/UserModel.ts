@@ -2,11 +2,9 @@ import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
 import mongoosePaginate from 'mongoose-paginate'
 import httpStatus from 'http-status-codes'
-import jwt from 'jsonwebtoken'
 
 import { UserRoles, UserStatus } from '../enums'
 import { makeInitials, ApiError } from '../helpers'
-import { config } from '../config'
 
 /**
  * User document type.
@@ -21,7 +19,6 @@ export type UserDocument = mongoose.Document & {
   lastLogin?: Date
   updatedAt: Date
   createdAt: Date
-  createAccessToken(): string
   comparePassword(password: string): Promise<boolean>
   profile?: {
     email?: string
@@ -111,18 +108,6 @@ userSchema.pre('save', async function(next) {
     return next(err)
   }
 })
-
-/**
- * Create an access token.
- * Uses JWT to to encode User object.
- *
- * @returns {string}
- *   Access token.
- */
-userSchema.methods.createAccessToken = function(this: UserDocument) {
-  const token = jwt.sign(this.toObject(), config.jwtSecret)
-  return token
-}
 
 /**
  * User password comaparison method.

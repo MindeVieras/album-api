@@ -6,8 +6,11 @@ import { UserRoles } from '../enums'
  * Authenticated request interface.
  */
 export interface IRequestAuthed extends Request {
-  userId: string
-  userRole: UserRoles
+  user: {
+    id: string
+    username: string
+    role: UserRoles
+  }
 }
 
 /**
