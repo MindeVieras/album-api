@@ -1,7 +1,7 @@
 import 'mocha'
 import chalk from 'chalk'
 
-// import { databaseSetup } from '../../src/config'
+import { databaseSetup } from '../../src/config'
 import Server from '../../src/Server'
 
 /**
@@ -13,7 +13,7 @@ describe(chalk.green('Running full test suite...\n'), () => {
    * Runs before all tests in this block.
    */
   before(async () => {
-    // await databaseSetup()
+    await databaseSetup()
 
     // Run express server.
     new Server().listen()

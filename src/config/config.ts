@@ -76,7 +76,7 @@ export const config: IConfig = {
   port: envVars.PORT,
   locale: envVars.DEFAULT_LOCALE,
   sessionSecret: envVars.SESSION_SECRET,
-  mongodb: envVars.MONGODB_URI,
+  mongodb: envVars.NODE_ENV === 'test' ? `${envVars.MONGODB_URI}_test` : envVars.MONGODB_URI,
   aws: {
     region: envVars.AWS_REGION,
     accessKey: envVars.AWS_ACCESS_KEY_ID,
