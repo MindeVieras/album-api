@@ -6,6 +6,7 @@ import { IVerifyOptions } from 'passport-local'
 import { User, UserDocument } from '../models'
 import { ApiResponse, ApiError } from '../helpers'
 import { IRequestListQuery, IRequestAuthed } from '../typings'
+import { UserRoles } from '../enums'
 
 /**
  * User controller class.
@@ -32,10 +33,19 @@ export class UserController {
    */
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const { password } = req.body
+      const { password, role } = req.body as { password: string; role?: UserRoles }
 
       // Remove password from request as soon as possible.
       delete req.body.password
+
+      const currentUser = req.user as UserDocument
+
+      // If role is provided,
+      // make sure that only admin users
+      // can create other admins.
+      if (role && role === UserRoles.admin && currentUser.role !== UserRoles.admin) {
+        throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+      }
 
       // Create user data object, set password as hash.
       // Actual hash is generated at the model level.
