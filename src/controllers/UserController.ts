@@ -123,8 +123,8 @@ export class UserController {
    */
   public async deleteOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const { _id } = req.params as { _id: string }
-      await User.deleteOne({ _id })
+      const { id } = req.params as { id: string }
+      await User.findByIdAndDelete(id)
       return new ApiResponse(res)
     } catch (err) {
       next(err)

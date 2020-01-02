@@ -30,6 +30,6 @@ router
     validator.body(paramValidation.userPatchBody),
     User.updateOne,
   )
-  .delete(validator.params(paramValidation.idParam), User.deleteOne)
+  .delete(isAuthed(UserRoles.authed), validator.params(paramValidation.idParam), User.deleteOne)
 
 export default router
