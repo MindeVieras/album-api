@@ -19,6 +19,7 @@ export type UserDocument = mongoose.Document & {
   lastLogin?: Date
   updatedAt: Date
   createdAt: Date
+  setLastLogin(date?: Date): void
   comparePassword(password: string): Promise<boolean>
   profile?: {
     email?: string
@@ -127,6 +128,26 @@ userSchema.methods.comparePassword = function(password: string): Promise<boolean
       return resolve(isMatch)
     })
   })
+}
+
+/**
+ * Sets last login date for the user.
+ *
+ * Makes native mongo query to prevent mongoose
+ * for updating 'updatedAt' field.
+ *
+ * @param {Date} date
+ *   Optional last login date to be set.
+ */
+userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
+  User.collection.updateOne(
+    { _id: this._id },
+    {
+      $set: {
+        lastLogin: date,
+      },
+    },
+  )
 }
 
 /**

@@ -54,7 +54,7 @@ export class UserController {
   /**
    * Authenticates user.
    */
-  public async authorize(req: Request, res: Response, next: NextFunction) {
+  public authorize(req: Request, res: Response, next: NextFunction) {
     passport.authenticate('local', (err: Error, user: UserDocument, info: IVerifyOptions) => {
       if (err) {
         return next(err)
@@ -66,8 +66,9 @@ export class UserController {
         if (err) {
           return next(err)
         }
-        // Update last login date.
-        await user.update({ lastLogin: new Date() })
+        // Set last login date.
+        user.setLastLogin()
+
         return new ApiResponse(res, user.toObject(), httpStatus.OK)
       })
     })(req, res, next)
