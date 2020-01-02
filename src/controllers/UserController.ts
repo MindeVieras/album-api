@@ -14,7 +14,7 @@ export class UserController {
   /**
    * Get list of users.
    */
-  public async getList(req: IRequestAuthed, res: Response, next: NextFunction) {
+  public async getList(req: Request, res: Response, next: NextFunction) {
     try {
       const { limit, page, sort } = req.query as IRequestListQuery
       const userPager = await User.paginate({}, { page, limit, sort })
@@ -30,7 +30,7 @@ export class UserController {
   /**
    * Create new user.
    */
-  public async create(req: IRequestAuthed, res: Response, next: NextFunction) {
+  public async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { password } = req.body
 
@@ -62,10 +62,12 @@ export class UserController {
       if (!user) {
         return next(new ApiError(info.message, httpStatus.UNAUTHORIZED))
       }
-      req.logIn(user, (err) => {
+      req.logIn(user, async (err) => {
         if (err) {
           return next(err)
         }
+        // Update last login date.
+        await user.update({ lastLogin: new Date() })
         return new ApiResponse(res, user.toObject(), httpStatus.OK)
       })
     })(req, res, next)

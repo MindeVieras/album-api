@@ -42,11 +42,13 @@ export const paramValidation = {
       .min(5)
       .max(30)
       .required(),
-    email: Joi.string().email(),
-    displayName: Joi.string().max(55),
-    locale: Joi.string(),
     role: Joi.string().equal(...Object.values(UserRoles)),
     status: Joi.string().equal(...Object.values(UserStatus)),
+    profile: Joi.object({
+      email: Joi.string().email(),
+      displayName: Joi.string().max(55),
+      locale: Joi.string(),
+    }),
   }),
 
   // PATCH /api/users/:_id

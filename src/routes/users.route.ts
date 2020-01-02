@@ -19,9 +19,8 @@ const User = new UserController()
 
 router
   .route('/')
-  // @ts-ignore
   .get(isAuthed(UserRoles.authed), validator.query(paramValidation.listQuery), User.getList)
-  .post(validator.body(paramValidation.userPostBody), User.create)
+  .post(isAuthed(UserRoles.authed), validator.body(paramValidation.userPostBody), User.create)
 
 router
   .route('/:id')
