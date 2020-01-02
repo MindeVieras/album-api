@@ -15,7 +15,7 @@ export type UserDocument = mongoose.Document & {
   initials: string
   role: UserRoles
   status: UserStatus
-  createdBy?: string
+  createdBy?: mongoose.Schema.Types.ObjectId
   lastLogin?: Date
   updatedAt: Date
   createdAt: Date

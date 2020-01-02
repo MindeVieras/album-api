@@ -49,7 +49,7 @@ export class UserController {
 
       // Create user data object, set password as hash.
       // Actual hash is generated at the model level.
-      const userDataToSave = { ...req.body, hash: password }
+      const userDataToSave = { ...req.body, hash: password, createdBy: currentUser.id }
 
       // Save user to database.
       const user = new User(userDataToSave)
