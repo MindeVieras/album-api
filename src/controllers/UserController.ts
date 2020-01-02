@@ -23,9 +23,12 @@ export class UserController {
 
       // Only admin users can list all users.
       // Others can only list they own users.
-      console.log(currentUser)
+      let query = {}
+      if (currentUser.role !== UserRoles.admin) {
+        query = { createdBy: currentUser.id }
+      }
 
-      const userPager = await User.paginate({}, { page, limit, sort })
+      const userPager = await User.paginate(query, { page, limit, sort })
       // Mutate pagination response to include user virtual props.
       const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
       // console.log(req)
