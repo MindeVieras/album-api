@@ -17,7 +17,7 @@ passport.serializeUser<UserDocument, string>((user, done) => {
 })
 
 /**
- * Deserialize user from the sassion.
+ * Deserialize user from the session.
  */
 passport.deserializeUser<UserDocument | null, string>((id, done) => {
   User.findById(id, (err, user) => {

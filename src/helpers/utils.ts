@@ -4,7 +4,7 @@
  * @param {string} username
  *   Username.
  * @param {string} displayName
- *   Display name, defaults to an emty string.
+ *   Display name, defaults to an empty string.
  *
  * @returns {string}
  *   User initials.

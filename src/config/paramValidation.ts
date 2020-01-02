@@ -7,7 +7,7 @@ import { IRequestListQuery, IRequestIdParam } from '../typings'
  * Request param validation object.
  */
 export const paramValidation = {
-  // POST /api/authenticte
+  // POST /api/authenticate
   authPostBody: Joi.object<{ username: string; password: string }>({
     username: Joi.string().required(),
     password: Joi.string().required(),

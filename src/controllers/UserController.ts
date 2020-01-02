@@ -5,7 +5,7 @@ import { IVerifyOptions } from 'passport-local'
 
 import { User, UserDocument } from '../models'
 import { ApiResponse, ApiError } from '../helpers'
-import { IRequestListQuery, IRequestAuthed } from '../typings'
+import { IRequestListQuery } from '../typings'
 import { UserRoles } from '../enums'
 
 /**
@@ -18,8 +18,15 @@ export class UserController {
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
       const { limit, page, sort } = req.query as IRequestListQuery
+
+      const currentUser = req.user as UserDocument
+
+      // Only admin users can list all users.
+      // Others can only list they own users.
+      console.log(currentUser)
+
       const userPager = await User.paginate({}, { page, limit, sort })
-      // Mutate pagination response to include user virtuals.
+      // Mutate pagination response to include user virtual props.
       const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
       // console.log(req)
       return new ApiResponse(res, { ...userPager, docs })
@@ -119,11 +126,11 @@ export class UserController {
   }
 
   /**
-   * Delete user.
+   * Delete user by id.
    */
   public async deleteOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params as { id: string }
+      const { id } = req.params
       await User.findByIdAndDelete(id)
       return new ApiResponse(res)
     } catch (err) {

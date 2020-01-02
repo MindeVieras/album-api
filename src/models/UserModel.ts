@@ -83,7 +83,7 @@ const userSchema = new mongoose.Schema(
 )
 
 /**
- * Run middlewares before user is saved.
+ * Run middleware before user is saved.
  */
 userSchema.pre('save', async function(next) {
   const user = this as UserDocument
@@ -93,7 +93,7 @@ userSchema.pre('save', async function(next) {
   }
 
   try {
-    // Check for dublicate username and email,
+    // Check for duplicate username and email,
     // throw an error if user already exists.
     const userExists = await User.findOne({ username: user.username })
     if (userExists) {
@@ -111,13 +111,13 @@ userSchema.pre('save', async function(next) {
 })
 
 /**
- * User password comaparison method.
+ * User password comparison method.
  *
  * @param {string} password
  *   Password to compare against saved hash.
  *
  * @returns {Promise<boolean>}
- *   Whether pasword match or not.
+ *   Whether password match or not.
  */
 userSchema.methods.comparePassword = function(password: string): Promise<boolean> {
   return new Promise((resolve, reject) => {

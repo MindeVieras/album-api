@@ -11,7 +11,7 @@ import mongo from 'connect-mongo'
 
 import { config } from './config'
 import routes from './routes/index.route'
-import { errorConverter, errorNotFound, errorHandler } from './middlewares'
+import { errorConverter, errorNotFound, errorHandler } from './middleware'
 
 const MongoSessionStore = mongo(session)
 
@@ -53,7 +53,7 @@ export default class Server {
       this.app.use(morgan('dev'))
     }
 
-    // Express session and passport middlewares.
+    // Express session and passport middleware.
     this.app.use(
       session({
         resave: true,

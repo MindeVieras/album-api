@@ -50,15 +50,23 @@ export const errorConverter = (err: ApiError, req: Request, res: Response, next:
 
   // Handle param validation errors.
   if (err.error && err.error.isJoi) {
-    convertedError = new ApiError('Input validation error', httpStatus.UNPROCESSABLE_ENTITY, err.error.details)
+    convertedError = new ApiError(
+      'Input validation error',
+      httpStatus.UNPROCESSABLE_ENTITY,
+      err.error.details,
+    )
   }
   // Handle Mongoose schema validation errors.
   else if (err.name === 'ValidationError') {
-    convertedError = new ApiError('Schema validation error', httpStatus.UNPROCESSABLE_ENTITY, err.errors)
+    convertedError = new ApiError(
+      'Schema validation error',
+      httpStatus.UNPROCESSABLE_ENTITY,
+      err.errors,
+    )
   }
   // Handle MongoError.
   else if (err instanceof MongoError) {
-    // Mongo error code for dublicate entry.
+    // Mongo error code for duplicate entry.
     if (err.code === 11000) {
       convertedError = new ApiError('Document already exists', httpStatus.CONFLICT, err.errors)
     }

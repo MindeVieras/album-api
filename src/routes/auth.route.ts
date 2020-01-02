@@ -2,7 +2,7 @@ import express from 'express'
 
 import { UserController } from '../controllers'
 import { paramValidation } from '../config'
-import { validator } from '../middlewares'
+import { validator } from '../middleware'
 
 /**
  * User authentication router.
