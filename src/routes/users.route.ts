@@ -24,8 +24,9 @@ router
 
 router
   .route('/:id')
-  .get(validator.params(paramValidation.idParam), User.getOne)
+  .get(isAuthed(UserRoles.viewer), validator.params(paramValidation.idParam), User.getOne)
   .patch(
+    isAuthed(UserRoles.viewer),
     validator.params(paramValidation.idParam),
     validator.body(paramValidation.userPatchBody),
     User.updateOne,

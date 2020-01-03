@@ -107,9 +107,30 @@ export class UserController {
    */
   public async getOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const { _id } = req.params as { _id: string }
-      const user = await User.findOne({ _id }, { hash: 0 })
-      return new ApiResponse(res, user)
+      const { id } = req.params
+
+      const currentUser = req.user as UserDocument
+
+      // Admin can access anu user,
+      // authed users can only access they own users
+      // and viewers can only access own user.
+      let query = {}
+      if (currentUser.role === UserRoles.viewer) {
+        query = { _id: currentUser.id }
+      } else if (currentUser.role === UserRoles.authed) {
+        query = { _id: id, createdBy: currentUser.id }
+      } else {
+        query = { _id: id }
+      }
+
+      const user = await User.findOne(query)
+
+      // Return empty next() if user not found, which means error 404.
+      if (!user) {
+        return next()
+      }
+
+      return new ApiResponse(res, user.toObject())
     } catch (err) {
       next(err)
     }
@@ -120,9 +141,31 @@ export class UserController {
    */
   public async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const { _id } = req.params as { _id: string }
-      const updatedUser = await User.updateOne({ _id }, req.body)
-      return new ApiResponse(res, updatedUser)
+      const { id } = req.params
+
+      const currentUser = req.user as UserDocument
+
+      const user = await User.findById(id)
+
+      // Return empty next() if user not found, which means error 404.
+      if (!user) {
+        return next()
+      }
+
+      // Handle username field,
+      // it can only by updated bu admin user.
+      if (req.body.username && currentUser.role === UserRoles.admin) {
+        user.username = req.body.username
+      }
+
+      // Handle profile fields.
+      if (req.body.profile) {
+        user.profile = { ...user.toObject().profile, ...req.body.profile }
+      }
+
+      await user.save()
+
+      return new ApiResponse(res, user.toObject())
     } catch (err) {
       next(err)
     }
@@ -135,9 +178,10 @@ export class UserController {
     try {
       const { id } = req.params
 
+      const currentUser = req.user as UserDocument
+
       // Only admin can delete any user,
       // others can only delete they own users.
-      const currentUser = req.user as UserDocument
       if (currentUser.role === UserRoles.admin) {
         await User.findByIdAndDelete(id)
       } else {

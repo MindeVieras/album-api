@@ -4,6 +4,15 @@ import { UserRoles, UserStatus } from '../enums'
 import { IRequestListQuery, IRequestIdParam } from '../typings'
 
 /**
+ * Reusable user profile fields validation schema.
+ */
+const userProfileValidationSchema = Joi.object({
+  email: Joi.string().email(),
+  displayName: Joi.string().max(55),
+  locale: Joi.string(),
+})
+
+/**
  * Request param validation object.
  */
 export const paramValidation = {
@@ -44,11 +53,7 @@ export const paramValidation = {
       .required(),
     role: Joi.string().equal(...Object.values(UserRoles)),
     status: Joi.string().equal(...Object.values(UserStatus)),
-    profile: Joi.object({
-      email: Joi.string().email(),
-      displayName: Joi.string().max(55),
-      locale: Joi.string(),
-    }),
+    profile: userProfileValidationSchema,
   }),
 
   // PATCH /api/users/:_id
@@ -57,5 +62,6 @@ export const paramValidation = {
       .alphanum()
       .min(4)
       .max(30),
+    profile: userProfileValidationSchema,
   }),
 }
