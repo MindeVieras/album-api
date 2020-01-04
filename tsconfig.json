@@ -54,5 +54,6 @@
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
     "resolveJsonModule": true /*              To load json files. */
   },
+  // "includes": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules", "lambda"]
 }
