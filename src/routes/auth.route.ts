@@ -17,6 +17,6 @@ const router = express.Router()
 const User = new UserController()
 
 router.route('/').post(validator.body(paramValidation.authPostBody), User.authorize)
-router.route('/logout').get(User.logout)
+// router.route('/logout').get(User.logout)
 
 export default router

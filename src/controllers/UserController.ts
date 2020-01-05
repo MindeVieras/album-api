@@ -2,7 +2,9 @@ import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 import passport from 'passport'
 import { IVerifyOptions } from 'passport-local'
+import jwt from 'jsonwebtoken'
 
+import { config } from '../config'
 import { User, UserDocument } from '../models'
 import { ApiResponse, ApiError } from '../helpers'
 import { IRequestListQuery } from '../typings'
@@ -82,24 +84,19 @@ export class UserController {
       if (!user) {
         return next(new ApiError(info.message, httpStatus.UNAUTHORIZED))
       }
-      req.logIn(user, async (err) => {
+      req.login(user, { session: false }, async (err) => {
         if (err) {
           return next(err)
         }
         // Set last login date.
         user.setLastLogin()
 
-        return new ApiResponse(res, user.toObject(), httpStatus.OK)
+        // Sign for JWT token.
+        const token = jwt.sign(user.toObject(), config.jwtSecret)
+
+        return new ApiResponse(res, { ...user.toObject(), token }, httpStatus.OK)
       })
     })(req, res, next)
-  }
-
-  /**
-   * Logout user.
-   */
-  public logout(req: Request, res: Response) {
-    req.logout()
-    return new ApiResponse(res)
   }
 
   /**

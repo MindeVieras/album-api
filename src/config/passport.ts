@@ -1,35 +1,23 @@
 import { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
 import httpStatus from 'http-status-codes'
-import passportLocal from 'passport-local'
+import passportLocal, { IVerifyOptions } from 'passport-local'
+import passportJwt from 'passport-jwt'
 
 import { User, UserDocument } from '../models/UserModel'
 import { ApiError } from '../helpers'
 import { UserRoles } from '../enums'
+import { config } from './config'
 
 const LocalStrategy = passportLocal.Strategy
-
-/**
- * Serialize user to the session.
- */
-passport.serializeUser<UserDocument, string>((user, done) => {
-  done(undefined, user.id)
-})
-
-/**
- * Deserialize user from the session.
- */
-passport.deserializeUser<UserDocument | null, string>((id, done) => {
-  User.findById(id, (err, user) => {
-    done(err, user)
-  })
-})
+const JwtStrategy = passportJwt.Strategy
 
 /**
  * Sign in using Username and Password.
  */
 passport.use(
-  new LocalStrategy({ usernameField: 'username' }, (username, password, done) => {
+  'local',
+  new LocalStrategy({ usernameField: 'username', session: false }, (username, password, done) => {
     User.findOne({ username }, (err, user: UserDocument) => {
       if (err) {
         return done(err)
@@ -52,28 +40,56 @@ passport.use(
   }),
 )
 
+// We use this to extract the JWT sent by the user.
+const ExtractJWT = passportJwt.ExtractJwt
+
+// This verifies that the token sent by the user is valid.
+passport.use(
+  'jwt',
+  new JwtStrategy(
+    {
+      // Secret we used to sign our JWT.
+      secretOrKey: config.jwtSecret,
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    },
+    async (token: string, done) => {
+      try {
+        //Pass the user details to the next middleware
+        return done(null, token)
+      } catch (error) {
+        done(error)
+      }
+    },
+  ),
+)
+
 /**
  * Check if user is authenticated.
  */
 export function isAuthed(userRole: UserRoles) {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (req.isAuthenticated()) {
-      const { role } = req.user as UserDocument
-      if (
-        // Admin.
-        role === UserRoles.admin ||
-        // Authed.
-        (role === UserRoles.authed && userRole === UserRoles.authed) ||
-        // Viewer.
-        (role === UserRoles.viewer && userRole === UserRoles.viewer)
-      ) {
-        return next()
-      } else {
-        return next(
-          new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN),
-        )
-      }
-    }
-    return next(new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN))
+    passport.authenticate(
+      'jwt',
+      { session: false },
+      (err, user: UserDocument, info: IVerifyOptions) => {
+        const { role } = user as UserDocument
+        if (
+          // Admin.
+          role === UserRoles.admin ||
+          // Authed.
+          (role === UserRoles.authed && userRole === UserRoles.authed) ||
+          // Viewer.
+          (role === UserRoles.viewer && userRole === UserRoles.viewer)
+        ) {
+          // Set authenticated user object to the request.
+          req.user = user
+          return next()
+        } else {
+          return next(
+            new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN),
+          )
+        }
+      },
+    )(req, res, next)
   }
 }

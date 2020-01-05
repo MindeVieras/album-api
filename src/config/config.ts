@@ -12,7 +12,7 @@ interface IConfig {
   host: string
   port: number
   locale: string
-  sessionSecret: string
+  jwtSecret: string
   mongodb: string
   aws: {
     region: string
@@ -42,9 +42,9 @@ const envVarsSchema = Joi.object({
     .description('Mongo DB uri'),
 
   // Security variables.
-  SESSION_SECRET: Joi.string()
+  JWT_SECRET: Joi.string()
     .required()
-    .description('Session Secret is required to sign'),
+    .description('JWT Secret is required to sign'),
 
   // AWS variables.
   AWS_REGION: Joi.string().required(),
@@ -75,7 +75,7 @@ export const config: IConfig = {
   host: envVars.HOST,
   port: envVars.PORT,
   locale: envVars.DEFAULT_LOCALE,
-  sessionSecret: envVars.SESSION_SECRET,
+  jwtSecret: envVars.JWT_SECRET,
   mongodb: envVars.MONGODB_URI,
   aws: {
     region: envVars.AWS_REGION,

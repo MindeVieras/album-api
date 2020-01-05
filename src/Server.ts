@@ -1,19 +1,15 @@
 import bodyParser from 'body-parser'
-import cookieParser from 'cookie-parser'
 import compression from 'compression'
 import cors from 'cors'
+import helmet from 'helmet'
 import express, { Application, Request, Response } from 'express'
 import morgan from 'morgan'
 import path from 'path'
-import session from 'express-session'
 import passport from 'passport'
-import mongo from 'connect-mongo'
 
 import { config } from './config'
 import routes from './routes/index.route'
 import { errorConverter, errorNotFound, errorHandler } from './middleware'
-
-const MongoSessionStore = mongo(session)
 
 /**
  * Server class.
@@ -32,8 +28,8 @@ export default class Server {
   public static baseUrl = `http://${config.host}:${config.port}`
 
   constructor() {
-    // Disable useless header.
-    this.app.disable('x-powered-by')
+    // Add some extra security to the API.
+    this.app.use(helmet())
 
     // Compresses requests.
     this.app.use(compression())
@@ -41,34 +37,19 @@ export default class Server {
     // CORS.
     this.app.use(cors())
 
-    // Cookie parser.
-    this.app.use(cookieParser())
-
     // Body parser.
     this.app.use(bodyParser.urlencoded({ extended: true })).use(bodyParser.json())
 
     // Middleware only for dev environment.
     if (config.env === 'development') {
-      // Dev logger
+      // Dev logger.
       this.app.use(morgan('dev'))
     }
 
-    // Express session and passport middleware.
-    this.app.use(
-      session({
-        resave: true,
-        saveUninitialized: true,
-        secret: config.sessionSecret,
-        store: new MongoSessionStore({
-          url: config.mongodb,
-          autoReconnect: true,
-        }),
-      }),
-    )
+    // Initialize passport middleware.
     this.app.use(passport.initialize())
-    this.app.use(passport.session())
 
-    // Home route
+    // Home route.
     this.app.get('/', (req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, './index.html'))
     })
