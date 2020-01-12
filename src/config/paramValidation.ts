@@ -18,8 +18,16 @@ const userProfileValidationSchema = Joi.object({
 export const paramValidation = {
   // POST /api/authenticate
   authPostBody: Joi.object<{ username: string; password: string }>({
-    username: Joi.string().required(),
-    password: Joi.string().required(),
+    username: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'Username is required',
+      }),
+    password: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'Password is required',
+      }),
   }),
 
   // * /api/*/:id
@@ -46,7 +54,13 @@ export const paramValidation = {
       .alphanum()
       .min(4)
       .max(30)
-      .required(),
+      .required()
+      .messages({
+        // 'string.base': `"username" should be a type of 'text'`,
+        // 'string.alphanum': `"username" must be alphanum field`,
+        // 'string.min': `"username" should have a minimum length of {#limit}`,
+        'any.required': 'Username is required',
+      }),
     password: Joi.string()
       .min(5)
       .max(30)

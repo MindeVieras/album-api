@@ -23,7 +23,7 @@ passport.use(
         return done(err)
       }
       if (!user) {
-        return done(undefined, false, { message: 'Invalid username or password.' })
+        return done(undefined, false, { message: 'Invalid username or password' })
       }
       user
         .comparePassword(password)
@@ -31,7 +31,7 @@ passport.use(
           if (isMatch) {
             return done(undefined, user)
           }
-          return done(undefined, false, { message: 'Invalid username or password.' })
+          return done(undefined, false, { message: 'Invalid username or password' })
         })
         .catch((err) => {
           return done(err)

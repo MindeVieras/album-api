@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 
-import { ApiError } from '../helpers'
+import { ApiError, IValidationErrors } from '../helpers'
 import { config } from '../config'
-import { MongoError } from 'mongodb'
 
 /**
  * API error middleware response interface.
@@ -11,7 +10,7 @@ import { MongoError } from 'mongodb'
 interface IErrorResponse {
   status: 'CLIENT_ERROR' | 'SERVER_ERROR'
   message: string
-  errors?: any[]
+  errors?: IValidationErrors
   code?: number | string
   stack?: string
 }
@@ -48,28 +47,13 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
 export const errorConverter = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   let convertedError = err
 
-  // Handle param validation errors.
+  // Handle input validation errors.
   if (err.error && err.error.isJoi) {
-    convertedError = new ApiError(
-      'Input validation error',
-      httpStatus.UNPROCESSABLE_ENTITY,
-      err.error.details,
-    )
-  }
-  // Handle Mongoose schema validation errors.
-  else if (err.name === 'ValidationError') {
-    convertedError = new ApiError(
-      'Schema validation error',
-      httpStatus.UNPROCESSABLE_ENTITY,
-      err.errors,
-    )
-  }
-  // Handle MongoError.
-  else if (err instanceof MongoError) {
-    // Mongo error code for duplicate entry.
-    if (err.code === 11000) {
-      convertedError = new ApiError('Document already exists', httpStatus.CONFLICT, err.errors)
+    const errors = {} as IValidationErrors
+    for (const error of err.error.details) {
+      errors[error.path[0]] = error.message
     }
+    convertedError = new ApiError('Input validation error', httpStatus.UNPROCESSABLE_ENTITY, errors)
   }
 
   return errorHandler(convertedError, req, res, next)

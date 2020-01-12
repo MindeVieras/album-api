@@ -1,5 +1,15 @@
 import httpStatus from 'http-status-codes'
-import { ValidationError, ValidationErrorItem } from '@hapi/joi'
+import { ValidationError } from '@hapi/joi'
+
+/**
+ * Validation errors.
+ *
+ * Key is the name of the field
+ * and value is validation message string.
+ */
+export interface IValidationErrors {
+  [name: string]: string
+}
 
 /**
  * Class representing an API error.
@@ -9,7 +19,7 @@ import { ValidationError, ValidationErrorItem } from '@hapi/joi'
 export class ApiError extends Error {
   public status: number
   public code?: string | number
-  public errors?: ValidationErrorItem[]
+  public errors?: IValidationErrors
   public error?: ValidationError
 
   /**
@@ -26,7 +36,7 @@ export class ApiError extends Error {
     // Default status to be 500.
     status: number = httpStatus.INTERNAL_SERVER_ERROR,
     // Pass errors if any.
-    errors?: ValidationErrorItem[],
+    errors?: IValidationErrors,
     // Error code.
     code?: string | number,
   ) {
