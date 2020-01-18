@@ -24,6 +24,8 @@ export interface IRequestIdParam {
  */
 export interface IRequestListQuery {
   limit?: number
-  page?: number
+  offset?: number
   sort?: string
+  search?: string
+  filters?: string
 }

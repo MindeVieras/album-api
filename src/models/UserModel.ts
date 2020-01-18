@@ -1,10 +1,11 @@
 import bcrypt from 'bcryptjs'
-import mongoose from 'mongoose'
+import mongoose, { PaginateResult } from 'mongoose'
 import mongoosePaginate from 'mongoose-paginate'
 import httpStatus from 'http-status-codes'
 
 import { UserRoles, UserStatus } from '../enums'
 import { makeInitials, ApiError } from '../helpers'
+import { IRequestListQuery } from '../typings'
 
 /**
  * User document type.
@@ -21,6 +22,7 @@ export type UserDocument = mongoose.Document & {
   createdAt: Date
   setLastLogin(date?: Date): void
   comparePassword(password: string): Promise<boolean>
+  getList(reqUser: UserDocument, params?: IRequestListQuery): Promise<PaginateResult<UserDocument>>
   profile?: {
     email?: string
     displayName?: string
@@ -81,6 +83,11 @@ const userSchema = new mongoose.Schema(
     },
   },
 )
+
+/**
+ * Set text indexes for search.
+ */
+userSchema.index({ username: 'text', role: 'text' })
 
 /**
  * Run middleware before user is saved.
@@ -148,6 +155,47 @@ userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
       },
     },
   )
+}
+
+/**
+ * Gets list of users.
+ *
+ * @param {UserDocument} reqUser
+ *   Authenticated user request.
+ * @param {IRequestListQuery} params
+ *   List parameters.
+ *
+ * @returns {}
+ */
+userSchema.methods.getList = async function(reqUser: UserDocument, params: IRequestListQuery = {}) {
+  if (!reqUser) {
+    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+  }
+
+  const { limit, offset, sort, search, filters } = params as IRequestListQuery
+  let query = {}
+
+  if (filters) {
+    const filtersQuery = {} as { [name: string]: string }
+    filters.split(';').map((f) => {
+      const filter = f.split(':')
+      filtersQuery[filter[0]] = filter[1]
+    })
+    query = filtersQuery
+  }
+  // Only admin users can list all users.
+  // Others can only list they own users.
+  if (reqUser.role !== UserRoles.admin) {
+    query = { createdBy: reqUser.id }
+  }
+  if (search) {
+    query = { $text: { $search: search }, ...query }
+  }
+  const userPager = await User.paginate(query, { offset, limit, sort })
+  // Mutate pagination response to include user virtual props.
+  const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
+
+  return { ...userPager, docs } as PaginateResult<UserDocument>
 }
 
 /**

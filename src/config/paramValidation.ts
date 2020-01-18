@@ -40,12 +40,14 @@ export const paramValidation = {
   // GET /api/*
   listQuery: Joi.object<IRequestListQuery>({
     limit: Joi.number()
-      .min(1)
+      .min(-1)
       .default(10),
-    page: Joi.number()
-      .min(1)
-      .default(1),
-    sort: Joi.string().default('-createdAt'),
+    offset: Joi.number()
+      .min(0)
+      .default(0),
+    sort: Joi.string(),
+    search: Joi.string(),
+    filters: Joi.string(),
   }),
 
   // POST /api/users

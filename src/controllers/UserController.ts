@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken'
 import { config } from '../config'
 import { User, UserDocument } from '../models'
 import { ApiResponse, ApiError } from '../helpers'
-import { IRequestListQuery } from '../typings'
 import { UserRoles } from '../enums'
 
 /**
@@ -19,22 +18,9 @@ export class UserController {
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const { limit, page, sort } = req.query as IRequestListQuery
-
       const currentUser = req.user as UserDocument
-
-      // Only admin users can list all users.
-      // Others can only list they own users.
-      let query = {}
-      if (currentUser.role !== UserRoles.admin) {
-        query = { createdBy: currentUser.id }
-      }
-
-      const userPager = await User.paginate(query, { page, limit, sort })
-      // Mutate pagination response to include user virtual props.
-      const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
-      // console.log(req)
-      return new ApiResponse(res, { ...userPager, docs })
+      const users = await new User().getList(currentUser, req.query)
+      return new ApiResponse(res, users)
     } catch (err) {
       next(err)
     }
