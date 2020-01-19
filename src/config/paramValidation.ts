@@ -37,6 +37,9 @@ export const paramValidation = {
       .required(),
   }),
 
+  // DELETE /api/*
+  deleteBody: Joi.array().items(Joi.string().hex()),
+
   // GET /api/*
   listQuery: Joi.object<IRequestListQuery>({
     limit: Joi.number()

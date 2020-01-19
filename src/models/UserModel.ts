@@ -23,6 +23,7 @@ export type UserDocument = mongoose.Document & {
   setLastLogin(date?: Date): void
   comparePassword(password: string): Promise<boolean>
   getList(reqUser: UserDocument, params?: IRequestListQuery): Promise<PaginateResult<UserDocument>>
+  delete(reqUser: UserDocument, ids: string[]): Promise<void>
   profile?: {
     email?: string
     displayName?: string
@@ -196,6 +197,30 @@ userSchema.methods.getList = async function(reqUser: UserDocument, params: IRequ
   const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
 
   return { ...userPager, docs } as PaginateResult<UserDocument>
+}
+
+/**
+ * Deletes users by id.
+ *
+ * @param {UserDocument} reqUser
+ *   Authenticated user request.
+ * @param {string[]} ids
+ *   Array of user ids.
+ *
+ * @returns {Promise<void>}
+ */
+userSchema.methods.delete = async function(reqUser: UserDocument, ids: string[]) {
+  if (!reqUser) {
+    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+  }
+
+  // Only admin can delete any user,
+  // others can only delete they own users.
+  if (reqUser.role === UserRoles.admin) {
+    await User.deleteMany({ _id: { $in: ids } })
+  } else {
+    await User.deleteMany({ _id: { $in: ids }, createdBy: reqUser.id })
+  }
 }
 
 /**

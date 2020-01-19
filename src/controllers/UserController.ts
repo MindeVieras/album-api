@@ -155,22 +155,12 @@ export class UserController {
   }
 
   /**
-   * Delete user by id.
+   * Delete users by ids.
    */
-  public async deleteOne(req: Request, res: Response, next: NextFunction) {
+  public async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params
-
       const currentUser = req.user as UserDocument
-
-      // Only admin can delete any user,
-      // others can only delete they own users.
-      if (currentUser.role === UserRoles.admin) {
-        await User.findByIdAndDelete(id)
-      } else {
-        await User.findOneAndDelete({ _id: id, createdBy: currentUser.id })
-      }
-
+      new User().delete(currentUser, req.body)
       return new ApiResponse(res)
     } catch (err) {
       next(err)

@@ -21,6 +21,7 @@ router
   .route('/')
   .get(isAuthed(UserRoles.authed), validator.query(paramValidation.listQuery), User.getList)
   .post(isAuthed(UserRoles.authed), validator.body(paramValidation.userPostBody), User.create)
+  .delete(isAuthed(UserRoles.authed), validator.body(paramValidation.deleteBody), User.delete)
 
 router
   .route('/:id')
@@ -31,6 +32,5 @@ router
     validator.body(paramValidation.userPatchBody),
     User.updateOne,
   )
-  .delete(isAuthed(UserRoles.authed), validator.params(paramValidation.idParam), User.deleteOne)
 
 export default router
