@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 
-import { ApiError, IValidationErrors } from '../helpers'
+import { ApiError, IValidationErrors, ApiErrorNotFound } from '../helpers'
 import { config } from '../config'
 
 /**
@@ -63,7 +63,7 @@ export const errorConverter = (err: ApiError, req: Request, res: Response, next:
  * Catch 404 and forward to error handler.
  */
 export const errorNotFound = (req: Request, res: Response, next: NextFunction) => {
-  const err = new ApiError(httpStatus.getStatusText(httpStatus.NOT_FOUND), httpStatus.NOT_FOUND)
+  const err = new ApiErrorNotFound()
 
   return errorHandler(err, req, res, next)
 }

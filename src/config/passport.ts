@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
-import httpStatus from 'http-status-codes'
 import passportLocal, { IVerifyOptions } from 'passport-local'
 import passportJwt from 'passport-jwt'
 
 import { User, UserDocument } from '../models/UserModel'
-import { ApiError } from '../helpers'
+import { ApiErrorForbidden } from '../helpers'
 import { UserRoles } from '../enums'
 import { config } from './config'
 
@@ -85,9 +84,7 @@ export function isAuthed(userRole: UserRoles) {
           req.user = user
           return next()
         } else {
-          return next(
-            new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN),
-          )
+          return next(new ApiErrorForbidden())
         }
       },
     )(req, res, next)

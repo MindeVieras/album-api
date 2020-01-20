@@ -4,7 +4,7 @@ import mongoosePaginate from 'mongoose-paginate'
 import httpStatus from 'http-status-codes'
 
 import { UserRoles, UserStatus } from '../enums'
-import { makeInitials, ApiError } from '../helpers'
+import { makeInitials, ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 import { IRequestListQuery } from '../typings'
 
 /**
@@ -192,7 +192,7 @@ userSchema.methods.getList = async function(
   params: IRequestListQuery = {},
 ): Promise<PaginateResult<UserDocument>> {
   if (!reqUser) {
-    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+    throw new ApiErrorForbidden()
   }
 
   const { limit, offset, sort, search, filters } = params as IRequestListQuery
@@ -237,7 +237,7 @@ userSchema.methods.create = async function(
   body: IUserPostBody,
 ): Promise<UserDocument> {
   if (!reqUser) {
-    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+    throw new ApiErrorForbidden()
   }
   const { password, role } = body
 
@@ -248,7 +248,7 @@ userSchema.methods.create = async function(
   // make sure that only admin users
   // can create other admins.
   if (role && role === UserRoles.admin && reqUser.role !== UserRoles.admin) {
-    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+    throw new ApiErrorForbidden()
   }
 
   // Create user data object, set password as hash.
@@ -278,7 +278,7 @@ userSchema.methods.getOne = async function(
   id: string,
 ): Promise<UserDocument> {
   if (!reqUser) {
-    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+    throw new ApiErrorForbidden()
   }
 
   // Admin can access any user,
@@ -296,7 +296,7 @@ userSchema.methods.getOne = async function(
   const user = await User.findOne(query)
   // Throw 404 error if no user.
   if (!user) {
-    throw new ApiError(httpStatus.getStatusText(httpStatus.NOT_FOUND), httpStatus.NOT_FOUND)
+    throw new ApiErrorNotFound()
   }
   return user.toObject()
 }
@@ -320,14 +320,14 @@ userSchema.methods.updateOne = async function(
   body: IUserPostBody,
 ): Promise<UserDocument> {
   if (!reqUser) {
-    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+    throw new ApiErrorForbidden()
   }
 
   const user = await User.findById(id)
 
   // Throw 404 error if no user.
   if (!user) {
-    throw new ApiError(httpStatus.getStatusText(httpStatus.NOT_FOUND), httpStatus.NOT_FOUND)
+    throw new ApiErrorNotFound()
   }
 
   // Handle username field,
@@ -359,7 +359,7 @@ userSchema.methods.updateOne = async function(
  */
 userSchema.methods.delete = async function(reqUser: UserDocument, ids: string[]) {
   if (!reqUser) {
-    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+    throw new ApiErrorForbidden()
   }
 
   // Only admin can delete any user,
