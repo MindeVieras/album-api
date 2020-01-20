@@ -76,8 +76,8 @@ export function isAuthed(userRole: UserRoles) {
         if (
           // Admin.
           role === UserRoles.admin ||
-          // Authed.
-          (role === UserRoles.authed && userRole === UserRoles.authed) ||
+          // Editor.
+          (role === UserRoles.editor && userRole === UserRoles.editor) ||
           // Viewer.
           (role === UserRoles.viewer && userRole === UserRoles.viewer)
         ) {

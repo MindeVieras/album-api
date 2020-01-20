@@ -19,9 +19,9 @@ const User = new UserController()
 
 router
   .route('/')
-  .get(isAuthed(UserRoles.authed), validator.query(paramValidation.listQuery), User.getList)
-  .post(isAuthed(UserRoles.authed), validator.body(paramValidation.userPostBody), User.create)
-  .delete(isAuthed(UserRoles.authed), validator.body(paramValidation.deleteBody), User.delete)
+  .get(isAuthed(UserRoles.editor), validator.query(paramValidation.listQuery), User.getList)
+  .post(isAuthed(UserRoles.editor), validator.body(paramValidation.userPostBody), User.create)
+  .delete(isAuthed(UserRoles.editor), validator.body(paramValidation.deleteBody), User.delete)
 
 router
   .route('/:id')

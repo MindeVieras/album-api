@@ -282,12 +282,12 @@ userSchema.methods.getOne = async function(
   }
 
   // Admin can access any user,
-  // authed users can only access they own users
+  // editor users can only access they own users
   // and viewers can only access own user.
   let query = {}
   if (reqUser.role === UserRoles.viewer) {
     query = { _id: reqUser.id }
-  } else if (reqUser.role === UserRoles.authed) {
+  } else if (reqUser.role === UserRoles.editor) {
     query = { _id: id, createdBy: reqUser.id }
   } else {
     query = { _id: id }

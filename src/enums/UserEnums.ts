@@ -23,9 +23,9 @@ export enum UserRoles {
   viewer = 'viewer',
 
   /**
-   * Authenticated user created by editor or admin.
+   * Editor user created by admin.
    */
-  authed = 'authed',
+  editor = 'editor',
 
   /**
    * Super user that has full access to the system.
