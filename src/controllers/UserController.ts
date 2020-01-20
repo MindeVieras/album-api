@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken'
 import { config } from '../config'
 import { User, UserDocument } from '../models'
 import { ApiResponse, ApiError } from '../helpers'
-import { UserRoles } from '../enums'
 
 /**
  * User controller class.
@@ -31,29 +30,9 @@ export class UserController {
    */
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const { password, role } = req.body as { password: string; role?: UserRoles }
-
-      // Remove password from request as soon as possible.
-      delete req.body.password
-
       const currentUser = req.user as UserDocument
-
-      // If role is provided,
-      // make sure that only admin users
-      // can create other admins.
-      if (role && role === UserRoles.admin && currentUser.role !== UserRoles.admin) {
-        throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
-      }
-
-      // Create user data object, set password as hash.
-      // Actual hash is generated at the model level.
-      const userDataToSave = { ...req.body, hash: password, createdBy: currentUser.id }
-
-      // Save user to database.
-      const user = new User(userDataToSave)
-      const savedUser = await user.save()
-
-      return new ApiResponse(res, savedUser.toObject(), httpStatus.CREATED)
+      const savedUser = await new User().create(currentUser, req.body)
+      return new ApiResponse(res, savedUser, httpStatus.CREATED)
     } catch (err) {
       next(err)
     }
@@ -91,29 +70,9 @@ export class UserController {
   public async getOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-
       const currentUser = req.user as UserDocument
-
-      // Admin can access anu user,
-      // authed users can only access they own users
-      // and viewers can only access own user.
-      let query = {}
-      if (currentUser.role === UserRoles.viewer) {
-        query = { _id: currentUser.id }
-      } else if (currentUser.role === UserRoles.authed) {
-        query = { _id: id, createdBy: currentUser.id }
-      } else {
-        query = { _id: id }
-      }
-
-      const user = await User.findOne(query)
-
-      // Return empty next() if user not found, which means error 404.
-      if (!user) {
-        return next()
-      }
-
-      return new ApiResponse(res, user.toObject())
+      const user = await new User().getOne(currentUser, id)
+      return new ApiResponse(res, user)
     } catch (err) {
       next(err)
     }
@@ -125,30 +84,9 @@ export class UserController {
   public async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-
       const currentUser = req.user as UserDocument
-
-      const user = await User.findById(id)
-
-      // Return empty next() if user not found, which means error 404.
-      if (!user) {
-        return next()
-      }
-
-      // Handle username field,
-      // it can only by updated bu admin user.
-      if (req.body.username && currentUser.role === UserRoles.admin) {
-        user.username = req.body.username
-      }
-
-      // Handle profile fields.
-      if (req.body.profile) {
-        user.profile = { ...user.toObject().profile, ...req.body.profile }
-      }
-
-      await user.save()
-
-      return new ApiResponse(res, user.toObject())
+      const user = await new User().updateOne(currentUser, id, req.body)
+      return new ApiResponse(res, user)
     } catch (err) {
       next(err)
     }

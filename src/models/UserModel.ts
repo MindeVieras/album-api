@@ -23,7 +23,25 @@ export type UserDocument = mongoose.Document & {
   setLastLogin(date?: Date): void
   comparePassword(password: string): Promise<boolean>
   getList(reqUser: UserDocument, params?: IRequestListQuery): Promise<PaginateResult<UserDocument>>
+  create(reqUser: UserDocument, body: IUserPostBody): Promise<UserDocument>
+  getOne(reqUser: UserDocument, id: string): Promise<UserDocument>
+  updateOne(reqUser: UserDocument, id: string, body: IUserPostBody): Promise<UserDocument>
   delete(reqUser: UserDocument, ids: string[]): Promise<void>
+  profile?: {
+    email?: string
+    displayName?: string
+    locale?: string
+  }
+}
+
+/**
+ * User post body from create or update endpoints.
+ */
+export interface IUserPostBody {
+  username?: string
+  password?: string
+  role?: UserRoles
+  status?: UserStatus
   profile?: {
     email?: string
     displayName?: string
@@ -166,9 +184,13 @@ userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
  * @param {IRequestListQuery} params
  *   List parameters.
  *
- * @returns {}
+ * @returns {PaginateResult<UserDocument>}
+ *   Mongoose pagination results including user documents.
  */
-userSchema.methods.getList = async function(reqUser: UserDocument, params: IRequestListQuery = {}) {
+userSchema.methods.getList = async function(
+  reqUser: UserDocument,
+  params: IRequestListQuery = {},
+): Promise<PaginateResult<UserDocument>> {
   if (!reqUser) {
     throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
   }
@@ -200,6 +222,131 @@ userSchema.methods.getList = async function(reqUser: UserDocument, params: IRequ
 }
 
 /**
+ * Creates user.
+ *
+ * @param {UserDocument} reqUser
+ *   Authenticated user request.
+ * @param {IUserPostBody} body
+ *   User body to save.
+ *
+ * @returns {Promise<UserDocument>}
+ *   User document.
+ */
+userSchema.methods.create = async function(
+  reqUser: UserDocument,
+  body: IUserPostBody,
+): Promise<UserDocument> {
+  if (!reqUser) {
+    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+  }
+  const { password, role } = body
+
+  // Remove password from request as soon as possible.
+  delete body.password
+
+  // If role is provided,
+  // make sure that only admin users
+  // can create other admins.
+  if (role && role === UserRoles.admin && reqUser.role !== UserRoles.admin) {
+    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+  }
+
+  // Create user data object, set password as hash.
+  // Actual hash is generated at the model level.
+  const userDataToSave = { ...body, hash: password, createdBy: reqUser.id }
+
+  // Save user to database.
+  const user = new User(userDataToSave)
+  const savedUser = await user.save()
+
+  return savedUser.toObject()
+}
+
+/**
+ * Gets user by id.
+ *
+ * @param {UserDocument} reqUser
+ *   Authenticated user request.
+ * @param {string} id
+ *   User document object id.
+ *
+ * @returns {Promise<UserDocument>}
+ *   User document.
+ */
+userSchema.methods.getOne = async function(
+  reqUser: UserDocument,
+  id: string,
+): Promise<UserDocument> {
+  if (!reqUser) {
+    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+  }
+
+  // Admin can access any user,
+  // authed users can only access they own users
+  // and viewers can only access own user.
+  let query = {}
+  if (reqUser.role === UserRoles.viewer) {
+    query = { _id: reqUser.id }
+  } else if (reqUser.role === UserRoles.authed) {
+    query = { _id: id, createdBy: reqUser.id }
+  } else {
+    query = { _id: id }
+  }
+
+  const user = await User.findOne(query)
+  // Throw 404 error if no user.
+  if (!user) {
+    throw new ApiError(httpStatus.getStatusText(httpStatus.NOT_FOUND), httpStatus.NOT_FOUND)
+  }
+  return user.toObject()
+}
+
+/**
+ * Updates user by id.
+ *
+ * @param {UserDocument} reqUser
+ *   Authenticated user request.
+ * @param {string} id
+ *   User document object id.
+ * @param {IUserPostBody} body
+ *   User body to save.
+ *
+ * @returns {Promise<UserDocument>}
+ *   Updated user document.
+ */
+userSchema.methods.updateOne = async function(
+  reqUser: UserDocument,
+  id: string,
+  body: IUserPostBody,
+): Promise<UserDocument> {
+  if (!reqUser) {
+    throw new ApiError(httpStatus.getStatusText(httpStatus.FORBIDDEN), httpStatus.FORBIDDEN)
+  }
+
+  const user = await User.findById(id)
+
+  // Throw 404 error if no user.
+  if (!user) {
+    throw new ApiError(httpStatus.getStatusText(httpStatus.NOT_FOUND), httpStatus.NOT_FOUND)
+  }
+
+  // Handle username field,
+  // it can only by updated by an admin user.
+  if (body.username && reqUser.role === UserRoles.admin) {
+    user.username = body.username
+  }
+
+  // Handle profile fields.
+  if (body.profile) {
+    user.profile = { ...user.toObject().profile, ...body.profile }
+  }
+
+  await user.save()
+
+  return user.toObject()
+}
+
+/**
  * Deletes users by id.
  *
  * @param {UserDocument} reqUser
@@ -208,6 +355,7 @@ userSchema.methods.getList = async function(reqUser: UserDocument, params: IRequ
  *   Array of user ids.
  *
  * @returns {Promise<void>}
+ *   Empty promise.
  */
 userSchema.methods.delete = async function(reqUser: UserDocument, ids: string[]) {
   if (!reqUser) {
