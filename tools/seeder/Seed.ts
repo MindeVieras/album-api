@@ -1,5 +1,6 @@
 import SeedDevUsers from './SeedDevUsers'
 import SeedUsers from './SeedUsers'
+import SeedAlbums from './SeedAlbums'
 
 /**
  * Database seed function.
@@ -9,6 +10,7 @@ export async function Seed() {
   // Run default seeds.
   await SeedDevUsers()
   await SeedUsers()
+  await SeedAlbums(SeedDefaults.count * 10)
 }
 
 /**

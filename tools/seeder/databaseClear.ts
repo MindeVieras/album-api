@@ -1,10 +1,11 @@
-import { User } from '../../src/models/UserModel'
+import { User, Album } from '../../src/models'
 
 /**
- * Database cear function.
- * Usefull when need to remove data after tests.
+ * Database clear function.
+ * Useful when need to remove data after tests.
  */
 export async function databaseClear() {
   // All the collections to be cleared.
   await User.deleteMany({})
+  await Album.deleteMany({})
 }
