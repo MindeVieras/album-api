@@ -56,10 +56,14 @@ export class UserController {
         // Set last login date.
         user.setLastLogin()
 
-        // Sign for JWT token.
-        const token = jwt.sign(user.toObject(), config.jwtSecret)
+        const userObject = user.toObject()
+        // Remove createBy prop from user.
+        delete userObject.createdBy
 
-        return new ApiResponse(res, { ...user.toObject(), token }, httpStatus.OK)
+        // Sign for JWT token.
+        const token = jwt.sign(userObject, config.jwtSecret)
+
+        return new ApiResponse(res, { ...userObject, token }, httpStatus.OK)
       })
     })(req, res, next)
   }
