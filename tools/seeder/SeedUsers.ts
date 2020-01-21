@@ -75,8 +75,28 @@ export default async function SeedUsers(
     total: count,
   })
 
-  for (const u of users) {
+  for (let u of users) {
     try {
+      let countQuery = {}
+      switch (u.role) {
+        case UserRoles.viewer:
+          countQuery = { role: [UserRoles.admin, UserRoles.editor] }
+          break
+
+        case UserRoles.editor:
+          countQuery = { role: UserRoles.admin }
+          break
+
+        case UserRoles.admin:
+          countQuery = { role: UserRoles.admin }
+          break
+      }
+
+      const count = await User.countDocuments(countQuery)
+      const random = Math.floor(Math.random() * count)
+      const randomUser = await User.findOne(countQuery).skip(random)
+      u.createdBy = randomUser?.get('id')
+
       await new User(u).save()
       bar.tick()
     } catch (error) {

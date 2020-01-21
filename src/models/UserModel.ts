@@ -16,7 +16,7 @@ export type UserDocument = mongoose.Document & {
   initials: string
   role: UserRoles
   status: UserStatus
-  createdBy?: mongoose.Schema.Types.ObjectId
+  createdBy?: UserDocument
   lastLogin?: Date
   updatedAt: Date
   createdAt: Date
@@ -35,7 +35,7 @@ export type UserDocument = mongoose.Document & {
 }
 
 /**
- * User post body from create or update endpoints.
+ * User post body for create or update endpoints.
  */
 export interface IUserPostBody {
   username?: string
@@ -214,7 +214,14 @@ userSchema.methods.getList = async function(
   if (search) {
     query = { $text: { $search: search }, ...query }
   }
-  const userPager = await User.paginate(query, { offset, limit, sort })
+  const userPager = await User.paginate(query, {
+    populate: {
+      path: 'createdBy',
+    },
+    offset,
+    limit,
+    sort,
+  })
   // Mutate pagination response to include user virtual props.
   const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
 
@@ -293,7 +300,7 @@ userSchema.methods.getOne = async function(
     query = { _id: id }
   }
 
-  const user = await User.findOne(query)
+  const user = await User.findOne(query).populate('createdBy')
   // Throw 404 error if no user.
   if (!user) {
     throw new ApiErrorNotFound()
@@ -323,7 +330,7 @@ userSchema.methods.updateOne = async function(
     throw new ApiErrorForbidden()
   }
 
-  const user = await User.findById(id)
+  const user = await User.findById(id).populate('createdBy')
 
   // Throw 404 error if no user.
   if (!user) {
