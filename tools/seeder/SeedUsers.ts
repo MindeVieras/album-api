@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { User, UserDocument } from '../../src/models/UserModel'
+import { User, UserDocument } from '../../src/models'
 import { UserRoles, UserStatus } from '../../src/enums'
 import { getRandomFieldIndex, SeedDefaults } from './Seed'
 
@@ -22,8 +22,8 @@ export default async function SeedUsers(
   password: string = SeedDefaults.password,
 ) {
   /**
-   * Build list of fake users.
-   * Randomize not required fields.
+   * Build list of fake users and
+   * randomize not required fields.
    */
   const users: UserDocument[] = []
   for (let i = 1; i <= count; i++) {
@@ -38,7 +38,7 @@ export default async function SeedUsers(
     users.push(user)
   }
 
-  // Randomize fake email fields.
+  // Randomize fake email field.
   for (let step = 0; step < getRandomFieldIndex(count); step++) {
     const randomEmailCount = Math.floor(Math.random() * count)
     users[randomEmailCount].profile = {
@@ -46,7 +46,7 @@ export default async function SeedUsers(
       email: faker.internet.email(),
     }
   }
-  // Randomize fake displayName fields.
+  // Randomize fake displayName field.
   for (let step = 0; step < getRandomFieldIndex(count); step++) {
     const randomDisplayNameCount = Math.floor(Math.random() * count)
     users[randomDisplayNameCount].profile = {
@@ -54,7 +54,7 @@ export default async function SeedUsers(
       displayName: faker.name.findName(),
     }
   }
-  // Randomize fake locale fields.
+  // Randomize fake locale field.
   for (let step = 0; step < getRandomFieldIndex(count); step++) {
     const randomLocaleCount = Math.floor(Math.random() * count)
     users[randomLocaleCount].profile = {
@@ -62,7 +62,7 @@ export default async function SeedUsers(
       locale: faker.random.locale(),
     }
   }
-  // Randomize fake lastLogin fields.
+  // Randomize fake lastLogin field.
   for (let step = 0; step < getRandomFieldIndex(count); step++) {
     users[Math.floor(Math.random() * count)].lastLogin = faker.date.past(2)
   }
