@@ -75,12 +75,20 @@ export const paramValidation = {
     profile: userProfileValidationSchema,
   }),
 
-  // PATCH /api/users/:_id
+  // PATCH /api/users/:id
   userPatchBody: Joi.object({
     username: Joi.string()
       .alphanum()
       .min(4)
       .max(30),
     profile: userProfileValidationSchema,
+  }),
+
+  // PATCH /api/albums/:id
+  albumPatchBody: Joi.object({
+    name: Joi.string()
+      .min(1)
+      .max(50),
+    body: Joi.string(),
   }),
 }
