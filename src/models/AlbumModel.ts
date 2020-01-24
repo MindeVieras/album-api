@@ -11,18 +11,18 @@ export type AlbumDocument = mongoose.Document & {
   name: string
   body?: string
   status: AlbumStatus
-  createdBy: UserDocument
-  updatedAt: Date
-  createdAt: Date
+  readonly createdBy: UserDocument
+  readonly updatedAt: Date
+  readonly createdAt: Date
 }
 
 /**
  * Album post body for create or update endpoints.
  */
 export interface IAlbumPostBody {
-  name?: string
-  body?: string
-  status?: AlbumStatus
+  readonly name?: string
+  readonly body?: string
+  readonly status?: AlbumStatus
 }
 
 /**
@@ -72,6 +72,6 @@ albumSchema.index({ name: 'text' })
 albumSchema.plugin(mongoosePaginate)
 
 /**
- * Export user schema as model.
+ * Export album schema as model.
  */
 export const Album = mongoose.model<AlbumDocument>('Album', albumSchema)

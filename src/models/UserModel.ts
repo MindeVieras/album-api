@@ -13,13 +13,13 @@ import { IRequestListQuery } from '../typings'
 export type UserDocument = mongoose.Document & {
   username: string
   hash: string
-  initials: string
+  readonly initials: string
   role: UserRoles
   status: UserStatus
-  createdBy?: UserDocument
-  lastLogin?: Date
-  updatedAt: Date
-  createdAt: Date
+  readonly createdBy?: UserDocument
+  readonly lastLogin?: Date
+  readonly updatedAt: Date
+  readonly createdAt: Date
   setLastLogin(date?: Date): void
   comparePassword(password: string): Promise<boolean>
   getList(reqUser: UserDocument, params?: IRequestListQuery): Promise<PaginateResult<UserDocument>>
@@ -38,14 +38,14 @@ export type UserDocument = mongoose.Document & {
  * User post body for create or update endpoints.
  */
 export interface IUserPostBody {
-  username?: string
+  readonly username?: string
   password?: string
-  role?: UserRoles
-  status?: UserStatus
-  profile?: {
-    email?: string
-    displayName?: string
-    locale?: string
+  readonly role?: UserRoles
+  readonly status?: UserStatus
+  readonly profile?: {
+    readonly email?: string
+    readonly displayName?: string
+    readonly locale?: string
   }
 }
 
