@@ -12,7 +12,7 @@ export type AlbumDocument = mongoose.Document & {
   name: string
   body?: string
   status: AlbumStatus
-  readonly createdBy: UserDocument
+  createdBy: UserDocument
   readonly updatedAt: Date
   readonly createdAt: Date
   getList(reqUser: UserDocument, params?: IRequestListQuery): Promise<PaginateResult<UserDocument>>

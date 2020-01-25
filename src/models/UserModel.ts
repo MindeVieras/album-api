@@ -21,8 +21,8 @@ export type UserDocument = mongoose.Document & {
   readonly initials: string
   role: UserRoles
   status: UserStatus
-  readonly createdBy?: UserDocument
-  readonly lastLogin?: Date
+  createdBy?: UserDocument
+  lastLogin?: Date
   readonly updatedAt: Date
   readonly createdAt: Date
   setLastLogin(date?: Date): void
