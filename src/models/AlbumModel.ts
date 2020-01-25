@@ -3,7 +3,7 @@ import mongoose, { PaginateResult } from 'mongoose'
 import { AlbumStatus, UserRoles } from '../enums'
 import { UserDocument } from './UserModel'
 import { IRequestListQuery } from '../typings'
-import { ApiErrorForbidden, ApiErrorNotFound, mongoosePaginate } from '../helpers'
+import { ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 
 /**
  * Album document type.
@@ -272,11 +272,6 @@ albumSchema.methods.delete = async function(reqUser: UserDocument, ids: string[]
     await Album.deleteMany({ _id: { $in: ids }, createdBy: reqUser.id })
   }
 }
-
-/**
- * Add mongoose-paginate plugin.
- */
-albumSchema.plugin(mongoosePaginate)
 
 /**
  * Export album schema as model.

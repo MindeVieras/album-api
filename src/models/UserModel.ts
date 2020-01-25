@@ -3,13 +3,7 @@ import mongoose, { PaginateResult } from 'mongoose'
 import httpStatus from 'http-status-codes'
 
 import { UserRoles, UserStatus } from '../enums'
-import {
-  makeInitials,
-  ApiError,
-  ApiErrorForbidden,
-  ApiErrorNotFound,
-  mongoosePaginate,
-} from '../helpers'
+import { makeInitials, ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 import { IRequestListQuery } from '../typings'
 
 /**
@@ -390,11 +384,6 @@ userSchema.virtual('initials').get(function(this: UserDocument) {
   const displayName = this.profile && this.profile.displayName ? this.profile.displayName : ''
   return makeInitials(this.username, displayName)
 })
-
-/**
- * Add mongoose-paginate plugin.
- */
-userSchema.plugin(mongoosePaginate)
 
 /**
  * Export user schema as model.
