@@ -1,10 +1,9 @@
 import mongoose, { PaginateResult } from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate'
 
 import { AlbumStatus, UserRoles } from '../enums'
 import { UserDocument } from './UserModel'
 import { IRequestListQuery } from '../typings'
-import { ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
+import { ApiErrorForbidden, ApiErrorNotFound, mongoosePaginate } from '../helpers'
 
 /**
  * Album document type.

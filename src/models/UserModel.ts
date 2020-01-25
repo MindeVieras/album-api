@@ -1,10 +1,15 @@
 import bcrypt from 'bcryptjs'
 import mongoose, { PaginateResult } from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate'
 import httpStatus from 'http-status-codes'
 
 import { UserRoles, UserStatus } from '../enums'
-import { makeInitials, ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
+import {
+  makeInitials,
+  ApiError,
+  ApiErrorForbidden,
+  ApiErrorNotFound,
+  mongoosePaginate,
+} from '../helpers'
 import { IRequestListQuery } from '../typings'
 
 /**
