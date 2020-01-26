@@ -4,6 +4,7 @@ import { AlbumStatus, UserRoles } from '../enums'
 import { UserDocument } from './UserModel'
 import { IRequestListQuery } from '../typings'
 import { ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
+import { populateCreatedBy, ICreatedBy } from '../config'
 
 /**
  * Album document type.
@@ -12,7 +13,7 @@ export type AlbumDocument = mongoose.Document & {
   name: string
   body?: string
   status: AlbumStatus
-  createdBy: UserDocument
+  createdBy: ICreatedBy
   readonly updatedAt: Date
   readonly createdAt: Date
   getList(reqUser: UserDocument, params?: IRequestListQuery): Promise<PaginateResult<UserDocument>>
@@ -111,9 +112,7 @@ albumSchema.methods.getList = async function(
     query = { $text: { $search: search }, ...query }
   }
   const albumPager = await Album.paginate(query, {
-    populate: {
-      path: 'createdBy',
-    },
+    populate: populateCreatedBy,
     offset,
     limit,
     sort,
@@ -194,7 +193,7 @@ albumSchema.methods.getOne = async function(
     query = { _id: id }
   }
 
-  const album = await Album.findOne(query).populate('createdBy')
+  const album = await Album.findOne(query).populate(populateCreatedBy)
 
   // Throw 404 error if no album.
   if (!album) {
@@ -225,7 +224,7 @@ albumSchema.methods.updateOne = async function(
     throw new ApiErrorForbidden()
   }
 
-  const album = await Album.findById(id).populate('createdBy')
+  const album = await Album.findById(id).populate(populateCreatedBy)
 
   // Throw 404 error if no album.
   if (!album) {

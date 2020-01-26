@@ -5,6 +5,7 @@ import httpStatus from 'http-status-codes'
 import { UserRoles, UserStatus } from '../enums'
 import { makeInitials, ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 import { IRequestListQuery } from '../typings'
+import { populateCreatedBy, ICreatedBy } from '../config'
 
 /**
  * User document type.
@@ -15,7 +16,7 @@ export type UserDocument = mongoose.Document & {
   readonly initials: string
   role: UserRoles
   status: UserStatus
-  createdBy?: UserDocument
+  createdBy?: ICreatedBy
   lastLogin?: Date
   readonly updatedAt: Date
   readonly createdAt: Date
@@ -214,9 +215,7 @@ userSchema.methods.getList = async function(
     query = { $text: { $search: search }, ...query }
   }
   const userPager = await User.paginate(query, {
-    populate: {
-      path: 'createdBy',
-    },
+    populate: populateCreatedBy,
     offset,
     limit,
     sort,
@@ -299,7 +298,7 @@ userSchema.methods.getOne = async function(
     query = { _id: id }
   }
 
-  const user = await User.findOne(query).populate('createdBy')
+  const user = await User.findOne(query).populate(populateCreatedBy)
   // Throw 404 error if no user.
   if (!user) {
     throw new ApiErrorNotFound()
@@ -329,7 +328,7 @@ userSchema.methods.updateOne = async function(
     throw new ApiErrorForbidden()
   }
 
-  const user = await User.findById(id).populate('createdBy')
+  const user = await User.findById(id).populate(populateCreatedBy)
 
   // Throw 404 error if no user.
   if (!user) {
