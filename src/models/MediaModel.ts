@@ -1,8 +1,7 @@
 import mongoose from 'mongoose'
-import mongoosePaginate from 'mongoose-paginate'
 
 import { AlbumStatus, MediaType } from '../enums'
-import { UserDocument } from './UserModel'
+import { ICreatedBy } from '../config'
 
 /**
  * Media document type.
@@ -12,7 +11,7 @@ export type MediaDocument = mongoose.Document & {
   readonly size: number
   readonly mime: string
   readonly type: MediaType
-  readonly createdBy: UserDocument
+  createdBy: ICreatedBy
   readonly updatedAt: Date
   readonly createdAt: Date
   readonly width: number
@@ -70,11 +69,6 @@ const mediaSchema = new mongoose.Schema(
  * Set text indexes for search.
  */
 mediaSchema.index({ name: 'text' })
-
-/**
- * Add mongoose-paginate plugin.
- */
-mediaSchema.plugin(mongoosePaginate)
 
 /**
  * Export media schema as model.
