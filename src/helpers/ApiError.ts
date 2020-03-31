@@ -8,7 +8,7 @@ import { ValidationError } from '@hapi/joi'
  * and value is validation message string.
  */
 export interface IValidationErrors {
-  [name: string]: string
+  [name: string]: string | IValidationErrors
 }
 
 /**

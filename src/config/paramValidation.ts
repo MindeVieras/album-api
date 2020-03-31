@@ -7,9 +7,19 @@ import { IRequestListQuery, IRequestIdParam } from '../typings'
  * Reusable user profile fields validation schema.
  */
 const userProfileValidationSchema = Joi.object({
-  email: Joi.string().email(),
-  displayName: Joi.string().max(55),
-  locale: Joi.string(),
+  email: Joi.string()
+    .email()
+    .messages({
+      'string.email': 'Email address must be valid',
+    }),
+  displayName: Joi.string()
+    .max(55)
+    .messages({
+      'string.max': 'Display name cannot be more than {#limit} characters long',
+    }),
+  locale: Joi.string().messages({
+    'string.base': 'Locale is not valid',
+  }),
 })
 
 /**
@@ -61,17 +71,32 @@ export const paramValidation = {
       .max(30)
       .required()
       .messages({
-        // 'string.base': `"username" should be a type of 'text'`,
-        // 'string.alphanum': `"username" must be alphanum field`,
-        // 'string.min': `"username" should have a minimum length of {#limit}`,
+        'string.base': 'Username must be valid',
+        'string.alphanum': 'Username must be alphanum field',
+        'string.min': 'Username cannot be less than {#limit} characters long',
+        'string.max': 'Username cannot be more than {#limit} characters long',
         'any.required': 'Username is required',
       }),
     password: Joi.string()
       .min(5)
       .max(30)
-      .required(),
-    role: Joi.string().equal(...Object.values(UserRoles)),
-    status: Joi.string().equal(...Object.values(UserStatus)),
+      .required()
+      .messages({
+        'string.min': 'Password cannot be less than {#limit} characters long',
+        'string.max': 'Password cannot be more than {#limit} characters long',
+        'any.required': 'Password is required',
+      }),
+    role: Joi.string()
+      .equal(...Object.values(UserRoles))
+      .messages({
+        'any.only': 'User role is invalid, possible values: ' + Object.values(UserRoles).join(', '),
+      }),
+    status: Joi.string()
+      .equal(...Object.values(UserStatus))
+      .messages({
+        'any.only':
+          'User status is invalid, possible values: ' + Object.values(UserStatus).join(', '),
+      }),
     profile: userProfileValidationSchema,
   }),
 

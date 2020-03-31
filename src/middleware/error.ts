@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
+import { unflatten } from 'flat'
 
 import { ApiError, IValidationErrors, ApiErrorNotFound } from '../helpers'
 import { config } from '../config'
@@ -47,12 +48,20 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
 export const errorConverter = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   let convertedError = err
 
-  // Handle input validation errors.
+  // Handle Joi input validation errors.
   if (err.error && err.error.isJoi) {
-    const errors = {} as IValidationErrors
-    for (const error of err.error.details) {
-      errors[error.path[0]] = error.message
+    let errors = {} as IValidationErrors
+    for (const detail of err.error.details) {
+      console.log(detail)
+      // Make error path.
+      const path = detail.path.join('.')
+      // Unflatten Joi errors.
+      errors = unflatten({
+        ...errors,
+        [path]: detail.message,
+      })
     }
+
     convertedError = new ApiError('Input validation error', httpStatus.UNPROCESSABLE_ENTITY, errors)
   }
 
