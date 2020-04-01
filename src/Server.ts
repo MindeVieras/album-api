@@ -77,9 +77,12 @@ export default class Server {
 
   /**
    * Start HTTP server.
+   *
+   * @param {number} port
+   *   Optional port number.
    */
-  public listen(): void {
-    this.app.listen(config.port, () => {
+  public listen(port?: number): void {
+    this.app.listen(port ?? config.port, () => {
       // Log about success server start only for dev environment.
       if (config.env === 'development') {
         console.log(`Server running at ${Server.baseUrl}`)

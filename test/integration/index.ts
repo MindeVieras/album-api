@@ -3,12 +3,13 @@ import chalk from 'chalk'
 
 // import { databaseSetup } from '../../src/config'
 import Server from '../../src/Server'
+import { config } from '../../src/config'
 
 /**
  * Tests entry file.
  * All tests will run in order.
  */
-describe(chalk.green('Running full test suite...\n'), () => {
+describe(chalk.green('Running integration tests...\n'), () => {
   /**
    * Runs before all tests in this block.
    */
@@ -16,7 +17,7 @@ describe(chalk.green('Running full test suite...\n'), () => {
     // await databaseSetup()
 
     // Run express server.
-    new Server().listen()
+    new Server().listen(config.port + 1)
     // process.env.NODE_ENV = 'test'
   })
 
