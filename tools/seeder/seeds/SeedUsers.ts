@@ -2,9 +2,10 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { User, UserDocument } from '../../src/models'
-import { UserRoles, UserStatus } from '../../src/enums'
-import { getRandomFieldIndex, SeedDefaults } from './Seed'
+import { User, UserDocument } from '../../../src/models'
+import { UserRoles, UserStatus } from '../../../src/enums'
+import { getRandomFieldIndex } from '.'
+import { SeederDefaults } from '../seederEnums'
 
 /**
  * Seed users.
@@ -17,9 +18,9 @@ import { getRandomFieldIndex, SeedDefaults } from './Seed'
  * @returns {Promise<UserDocument[]>}
  *   Promise with an array of user instances.
  */
-export default async function SeedUsers(
-  count: number = SeedDefaults.count,
-  password: string = SeedDefaults.password,
+export async function SeedUsers(
+  count: number = SeederDefaults.total,
+  password: string = SeederDefaults.password,
 ) {
   /**
    * Build list of fake users and
@@ -67,16 +68,19 @@ export default async function SeedUsers(
     users[Math.floor(Math.random() * count)].lastLogin = faker.date.past(2)
   }
 
-  /**
-   * Save fake users.
-   */
+  // Set progress par.
   console.log(chalk.green('Generating fake users: '))
-  const bar = new ProgressBar(chalk.cyan(':percent :bar'), {
+  const bar = new ProgressBar(chalk.cyan(':current/:total :bar'), {
     total: count,
   })
 
+  // Initialize errors array.
+  let errors: string[] = []
+
+  // Loop through randomly generated array - 'users'.
   for (let u of users) {
     try {
+      // Count users by role.
       let countQuery = {}
       switch (u.role) {
         case UserRoles.viewer:
@@ -92,17 +96,29 @@ export default async function SeedUsers(
           break
       }
 
+      // Count all users by the role.
       const count = await User.countDocuments(countQuery)
+
+      // Get random user from the random count query.
       const random = Math.floor(Math.random() * count)
       const randomUser = await User.findOne(countQuery).skip(random)
+      // Set createdBy random user with matching role.
       u.createdBy = randomUser?.get('id')
 
+      // Save fake users.
       await new User(u).save()
-      bar.tick()
     } catch (error) {
-      console.log(chalk.red(`\n${error.message}`))
-      return users
+      // Collect all error messages.
+      errors.push(error.message)
     }
+
+    // Tick progress bar.
+    bar.tick()
+  }
+
+  // Log errors if any.
+  for (const e of errors) {
+    console.log(chalk.red(e))
   }
 
   // Summarize seed output.

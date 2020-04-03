@@ -2,9 +2,10 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { User, Album, AlbumDocument } from '../../src/models'
-import { UserRoles, AlbumStatus } from '../../src/enums'
-import { getRandomFieldIndex, SeedDefaults } from './Seed'
+import { User, Album, AlbumDocument } from '../../../src/models'
+import { UserRoles, AlbumStatus } from '../../../src/enums'
+import { getRandomFieldIndex } from '.'
+import { SeederDefaults } from '../seederEnums'
 
 /**
  * Seed albums.
@@ -15,7 +16,7 @@ import { getRandomFieldIndex, SeedDefaults } from './Seed'
  * @returns {Promise<AlbumDocument[]>}
  *   Promise with an array of album documents.
  */
-export default async function SeedAlbums(count: number = SeedDefaults.count) {
+export default async function SeedAlbums(count: number = SeederDefaults.total) {
   /**
    * Build list of fake albums and
    * randomize not required fields.
@@ -46,24 +47,24 @@ export default async function SeedAlbums(count: number = SeedDefaults.count) {
     total: count,
   })
 
-  for (let a of albums) {
-    try {
-      const countQuery = { role: [UserRoles.admin, UserRoles.editor] }
-      const count = await User.countDocuments(countQuery)
-      const random = Math.floor(Math.random() * count)
-      const randomUser = await User.findOne(countQuery).skip(random)
-      a.createdBy = randomUser?.get('id')
+  // for (let a of albums) {
+  //   try {
+  //     const countQuery = { role: [UserRoles.admin, UserRoles.editor] }
+  //     const count = await User.countDocuments(countQuery)
+  //     const random = Math.floor(Math.random() * count)
+  //     const randomUser = await User.findOne(countQuery).skip(random)
+  //     a.createdBy = randomUser?.get('id')
 
-      await new Album(a).save()
-      bar.tick()
-    } catch (error) {
-      console.log(chalk.red(`\n${error.message}`))
-      return albums
-    }
-  }
+  //     await new Album(a).save()
+  //     bar.tick()
+  //   } catch (error) {
+  //     console.log(chalk.red(`\n${error.message}`))
+  //     return albums
+  //   }
+  // }
 
-  // Summarize seed output.
-  console.log(chalk.green(`${albums.length} fake albums generated\n`))
+  // // Summarize seed output.
+  // console.log(chalk.green(`${albums.length} fake albums generated\n`))
 
   return albums
 }
