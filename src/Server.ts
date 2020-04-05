@@ -55,6 +55,12 @@ export default class Server {
     // Initialize passport middleware.
     this.app.use(passport.initialize())
 
+    // Setup ping route for test/dev.
+    this.app.get('/ping', (req: Request, res: Response) => {
+      console.log(config.env)
+      res.status(200).send('OK')
+    })
+
     // Home route.
     this.app.get('/', (req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, './index.html'))
@@ -87,6 +93,7 @@ export default class Server {
       if (config.env === 'development') {
         console.log(`Server running at ${Server.baseUrl}`)
       }
+      return this.app
     })
   }
 }

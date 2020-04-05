@@ -10,8 +10,8 @@
     "seed": "ts-node tools/seeder",
     "clean": "rimraf dist node_modules",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "test-integration": "NODE_ENV=test mocha test/integration",
-    "test": "NODE_ENV=test mocha"
+    "ti": "mocha test/integration",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -68,8 +68,8 @@
     "@types/passport-local": "^1.0.33",
     "@types/progress": "^2.0.3",
     "@types/superagent": "^4.1.7",
-    "@types/supertest": "^2.0.8",
     "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
     "faker": "^4.1.0",
     "inquirer": "^7.1.0",
     "mocha": "^7.1.1",
@@ -79,7 +79,6 @@
     "progress": "^2.0.3",
     "rimraf": "^3.0.2",
     "source-map-support": "^0.5.16",
-    "supertest": "^4.0.2",
     "ts-node": "^8.6.2",
     "tslint": "^6.1.0",
     "typescript": "^3.8.3"

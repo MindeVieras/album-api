@@ -16,13 +16,14 @@ export class UserController {
    * Get list of users.
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
-    try {
-      const currentUser = req.user as UserDocument
-      const users = await new User().getList(currentUser, req.query)
-      return new ApiResponse(res, users)
-    } catch (err) {
-      next(err)
-    }
+    return new ApiResponse(res, {})
+    // try {
+    //   const currentUser = req.user as UserDocument
+    //   const users = await new User().getList(currentUser, req.query)
+    //   return new ApiResponse(res, users)
+    // } catch (err) {
+    //   next(err)
+    // }
   }
 
   /**
