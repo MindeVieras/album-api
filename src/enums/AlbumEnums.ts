@@ -8,9 +8,9 @@ export enum AlbumStatus {
   active = 'active',
 
   /**
-   * Blocked album.
+   * Private album.
    */
-  blocked = 'blocked',
+  private = 'private',
 
   /**
    * Album in the trash.
