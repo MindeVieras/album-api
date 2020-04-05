@@ -27,7 +27,7 @@ export type AlbumDocument = mongoose.Document & {
  * Album post body for create or update endpoints.
  */
 export interface IAlbumPostBody {
-  readonly name?: string
+  readonly name: string
   readonly body?: string
   readonly status?: AlbumStatus
 }
@@ -182,11 +182,11 @@ albumSchema.methods.getOne = async function(
   }
 
   // Admin can access any album,
-  // editor users can only access they own users
-  // and viewers can only access own user.
+  // editor users can only access they own albums
+  // and viewers can only access the albums created by its creator.
   let query = {}
-  if (reqUser.role === UserRoles.viewer) {
-    query = { _id: reqUser.id }
+  if (reqUser.role === UserRoles.viewer && reqUser.createdBy) {
+    query = { _id: reqUser.createdBy.id }
   } else if (reqUser.role === UserRoles.editor) {
     query = { _id: id, createdBy: reqUser.id }
   } else {

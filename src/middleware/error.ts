@@ -9,10 +9,10 @@ import { config } from '../config'
  * API error middleware response interface.
  */
 interface IErrorResponse {
-  status: 'CLIENT_ERROR' | 'SERVER_ERROR'
-  message: string
-  errors?: IValidationErrors
-  code?: number | string
+  readonly status: 'CLIENT_ERROR' | 'SERVER_ERROR'
+  readonly message: string
+  readonly errors?: IValidationErrors
+  readonly code?: number | string
   stack?: string
 }
 

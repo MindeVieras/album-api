@@ -8,19 +8,19 @@ dotenv.config()
  * Configuration interface.
  */
 interface IConfig {
-  env: string
-  host: string
-  port: number
-  locale: string
-  jwtSecret: string
-  mongodb: string
-  aws: {
-    region: string
-    accessKey: string
-    secretKey: string
-    bucket: string
-    facesCollection: string
-    transcoderPipeline: string
+  readonly env: string
+  readonly host: string
+  readonly port: number
+  readonly locale: string
+  readonly jwtSecret: string
+  readonly mongodb: string
+  readonly aws: {
+    readonly region: string
+    readonly accessKey: string
+    readonly secretKey: string
+    readonly bucket: string
+    readonly facesCollection: string
+    readonly transcoderPipeline: string
   }
 }
 

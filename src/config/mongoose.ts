@@ -1,10 +1,10 @@
 import { UserRoles } from '../enums'
 
 export interface ICreatedBy {
-  id: string
-  username: string
-  initials: string
-  role: UserRoles
+  readonly id: string
+  readonly username: string
+  readonly initials: string
+  readonly role: UserRoles
 }
 
 /**
