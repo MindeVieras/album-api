@@ -1,9 +1,8 @@
 // Set test env variables.
 process.env.NODE_ENV = 'test'
-process.env.MONGODB_URI = 'mongodb://localhost:27017/album_test'
 
 import chalk from 'chalk'
-// import mongoose from 'mongoose'
+import mongoose from 'mongoose'
 // let Book = require('../app/models/book');
 
 import chai, { expect } from 'chai'
@@ -26,29 +25,45 @@ describe(chalk.blueBright('Initialize the tests...\n'), () => {
     password: 'Password123!',
   }
 
-  // beforeEach(async (done) => {
-  //   try {
-  //     // Make sure to connect to MongoDB before server runs.
-  //     await databaseSetup()
+  before(async () => {
+    // Make sure to connect to MongoDB before server runs.
+    await databaseSetup()
 
-  //     await SeedDevUsers()
-  //     console.log('Before each...')
-  //     done()
-  //   } catch (error) {
-  //     done(error)
-  //   }
+    // Seed dev users to have some initial data.
+    // await SeedDevUsers()
+
+    // console.log(devUsers)
+  })
+
+  after(async () => {
+    // Drop collection after the test.
+    await mongoose.connection.db.dropCollection('Users')
+  })
+  // before((done) => {
+  //   databaseSetup()
+  //   SeedDevUsers()
+  //   // try {
+  //   //   // Make sure to connect to MongoDB before server runs.
+  //   //   await databaseSetup()
+
+  //   //   await SeedDevUsers()
+  //   //   console.log('Before each...')
+  //   //   done()
+  //   // } catch (error) {
+  //   //   done(error)
+  //   // }
   //   //Before each test we empty the database
   //   // Book.remove({}, (err) => {
   //   //   done()
   //   // })
   // })
 
-  before((done) =>
-    Promise.all([databaseSetup(), SeedDevUsers()]).then(() => {
-      console.log('Before...')
-      done()
-    }),
-  )
+  // before((done) =>
+  //   Promise.all([databaseSetup(), SeedDevUsers()]).then(() => {
+  //     console.log('Before...')
+  //     done()
+  //   }),
+  // )
 
   /*
    * Test the /GET route

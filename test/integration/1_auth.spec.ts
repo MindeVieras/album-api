@@ -1,9 +1,7 @@
-// // Set test env variables.
-// process.env.NODE_ENV = 'test'
-
 import chalk from 'chalk'
 // import mongoose from 'mongoose'
-// let Book = require('../app/models/book');
+
+import { User, UserDocument } from '../../src/models'
 
 import chai, { expect } from 'chai'
 import chaiHttp from 'chai-http'
@@ -15,22 +13,25 @@ const { app } = new Server()
 
 //Our parent block
 describe(chalk.blueBright('Authentication tests\n'), () => {
+  let testUser: UserDocument
+
   /**
-   * Create fake users.
+   * Create test user.
    */
-  const fakeUser = {
-    username: 'admin',
-    password: 'Password123!',
+  const testUserData = {
+    username: 'testUser',
+    hash: 'password',
   }
 
-  // beforeEach((done) => {
-  //   console.log('Before each...')
-  //   done()
-  //   //Before each test we empty the database
-  //   // Book.remove({}, (err) => {
-  //   //   done()
-  //   // })
-  // })
+  before(async () => {
+    const user = new User(testUserData)
+    testUser = await user.save()
+  })
+
+  after(async () => {
+    await User.deleteOne({ username: testUser.username })
+  })
+
   /*
    * Test the /GET route
    */
@@ -38,12 +39,19 @@ describe(chalk.blueBright('Authentication tests\n'), () => {
     it('POST /api/auth should return success on user login', (done) => {
       chai
         .request(app)
-        .get('/ping')
+        .post('/api/auth')
+        .send({ username: testUserData.username, password: testUserData.hash })
         .end((err, res) => {
+          expect(res).to.be.json
           expect(res.status).to.equal(200)
-          // res.should.have.status(200)
-          // res.body.should.be.a('array')
-          // res.body.length.should.be.eql(0)
+
+          expect(res.body.status).to.equal('SUCCESS')
+
+          // expect(res.body.data).to.be.an('object')
+          expect(res.body.data.username).to.equal(testUser.username)
+          expect(res.body.data.status).to.equal(testUser.status)
+          expect(res.body.data.role).to.equal(testUser.role)
+
           done()
         })
     })

@@ -9,6 +9,9 @@ import { SeederDefaults } from '../seederEnums'
 /**
  * Seed users for development.
  *
+ * @param {string} password
+ *   Optional password to pass.
+ *
  * @returns {Promise<UserDocument[]>}
  *   Admin user document.
  */

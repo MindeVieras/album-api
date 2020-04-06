@@ -8,7 +8,7 @@ dotenv.config()
  * Configuration interface.
  */
 interface IConfig {
-  readonly env: string
+  readonly env: 'development' | 'production' | 'test'
   readonly host: string
   readonly port: number
   readonly locale: string
@@ -76,7 +76,7 @@ export const config: IConfig = {
   port: envVars.PORT,
   locale: envVars.DEFAULT_LOCALE,
   jwtSecret: envVars.JWT_SECRET,
-  mongodb: envVars.MONGODB_URI,
+  mongodb: envVars.NODE_ENV === 'test' ? `${envVars.MONGODB_URI}_test` : envVars.MONGODB_URI,
   aws: {
     region: envVars.AWS_REGION,
     accessKey: envVars.AWS_ACCESS_KEY_ID,
