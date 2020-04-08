@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import mongoose, { PaginateResult } from 'mongoose'
+import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
 import httpStatus from 'http-status-codes'
 
 import { UserRoles, UserStatus } from '../enums'
@@ -12,6 +12,32 @@ import { populateCreatedBy, ICreatedBy } from '../config'
  */
 export interface IUserObject {
   id: string
+  username: UserDocument['username']
+  readonly initials: UserDocument['initials']
+  role: UserDocument['role']
+  status: UserDocument['status']
+  createdBy: UserDocument['createdBy']
+  lastLogin?: UserDocument['lastLogin']
+  readonly updatedAt: UserDocument['updatedAt']
+  readonly createdAt: UserDocument['createdAt']
+  profile?: UserDocument['profile']
+}
+
+/**
+ * User post body for create or update endpoints.
+ */
+export interface IUserInput {
+  username?: UserDocument['username']
+  password?: string
+  role?: UserDocument['role']
+  status?: UserDocument['status']
+  profile?: UserDocument['profile']
+}
+
+/**
+ * User document type.
+ */
+export type UserDocument = Document & {
   username: string
   hash: string
   readonly initials: string
@@ -21,6 +47,13 @@ export interface IUserObject {
   lastLogin?: Date
   readonly updatedAt: Date
   readonly createdAt: Date
+  setLastLogin(date?: Date): void
+  comparePassword(password: string): Promise<boolean>
+  getList(reqUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
+  create(reqUser: IUserObject, body: IUserInput): Promise<IUserObject>
+  getOne(reqUser: IUserObject, id: string): Promise<IUserObject>
+  updateOne(reqUser: IUserObject, id: string, body: IUserInput): Promise<IUserObject>
+  delete(reqUser: IUserObject, ids: string[]): Promise<void>
   profile?: {
     email?: string
     displayName?: string
@@ -29,39 +62,9 @@ export interface IUserObject {
 }
 
 /**
- * User post body for create or update endpoints.
- */
-export interface IUserInput {
-  readonly username?: string
-  password?: string
-  readonly role?: UserRoles
-  readonly status?: UserStatus
-  readonly profile?: {
-    readonly email?: string
-    readonly displayName?: string
-    readonly locale?: string
-  }
-}
-
-/**
- * User document type.
- */
-export type UserDocument = IUserObject &
-  mongoose.Document & {
-    hash: string
-    setLastLogin(date?: Date): void
-    comparePassword(password: string): Promise<boolean>
-    getList(reqUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
-    create(reqUser: IUserObject, body: IUserInput): Promise<IUserObject>
-    getOne(reqUser: IUserObject, id: string): Promise<IUserObject>
-    updateOne(reqUser: IUserObject, id: string, body: IUserInput): Promise<IUserObject>
-    delete(reqUser: IUserObject, ids: string[]): Promise<void>
-  }
-
-/**
  * User schema.
  */
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema(
   {
     username: {
       type: String,
@@ -288,7 +291,10 @@ userSchema.methods.create = async function(
  * @returns {Promise<IUserObject>}
  *   User document.
  */
-userSchema.methods.getOne = async function(reqUser: IUserObject, id: string): Promise<IUserObject> {
+userSchema.methods.getOne = async function(
+  reqUser: IUserObject,
+  id: string,
+): Promise<UserDocument> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
@@ -387,7 +393,7 @@ userSchema.methods.delete = async function(reqUser: IUserObject, ids: string[]) 
  * User virtual field 'initials'.
  */
 userSchema.virtual('initials').get(function(this: UserDocument) {
-  const displayName = this.profile && this.profile.displayName ? this.profile.displayName : ''
+  const displayName = this.profile?.displayName ? this.profile.displayName : ''
   return makeInitials(this.username, displayName)
 })
 

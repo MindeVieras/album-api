@@ -74,7 +74,8 @@ export class UserController {
       const { id } = req.params
       const currentUser = req.user as IUserObject
       const user = await new User().getOne(currentUser, id)
-      return new ApiResponse(res, user)
+      new ApiResponse(res, user)
+      next()
     } catch (err) {
       next(err)
     }
