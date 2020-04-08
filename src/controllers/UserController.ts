@@ -6,36 +6,12 @@ import jwt from 'jsonwebtoken'
 
 import { config } from '../config'
 import { User, UserDocument, IUserObject } from '../models'
-import { ApiResponse, ApiError } from '../helpers'
+import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
 
 /**
  * User controller class.
  */
 export class UserController {
-  /**
-   * Get list of users.
-   */
-  public async getList(req: Request, res: Response, next: NextFunction) {
-    try {
-      const users = await new User().getList(req.authedUser, req.query)
-      return new ApiResponse(res, users)
-    } catch (err) {
-      next(err)
-    }
-  }
-
-  /**
-   * Create new user.
-   */
-  public async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const savedUser = await new User().create(req.authedUser, req.body)
-      return new ApiResponse(res, savedUser, httpStatus.CREATED)
-    } catch (err) {
-      next(err)
-    }
-  }
-
   /**
    * Authenticates user.
    */
@@ -65,15 +41,51 @@ export class UserController {
   }
 
   /**
+   * Get list of users.
+   */
+  public async getList(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { authedUser, query } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const users = await new User().getList(authedUser, query)
+      return new ApiResponse(res, users)
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  /**
+   * Create new user.
+   */
+  public async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { authedUser, body } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const savedUser = await new User().create(authedUser, body)
+      return new ApiResponse(res, savedUser, httpStatus.CREATED)
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  /**
    * Get single user.
    */
   public async getOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params
-      const user = await new User().getOne(req.authedUser, id)
+      const { authedUser, params } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const { id } = params
+      const user = await new User().getOne(authedUser, id)
       return new ApiResponse(res, user)
     } catch (err) {
-      next(err)
+      return next(err)
     }
   }
 
@@ -82,11 +94,15 @@ export class UserController {
    */
   public async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params
-      const user = await new User().updateOne(req.authedUser, id, req.body)
+      const { authedUser, params, body } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const { id } = params
+      const user = await new User().updateOne(authedUser, id, body)
       return new ApiResponse(res, user)
     } catch (err) {
-      next(err)
+      return next(err)
     }
   }
 
@@ -95,10 +111,14 @@ export class UserController {
    */
   public async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      new User().delete(req.authedUser, req.body)
+      const { authedUser, body } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      new User().delete(authedUser, body)
       return new ApiResponse(res)
     } catch (err) {
-      next(err)
+      return next(err)
     }
   }
 }

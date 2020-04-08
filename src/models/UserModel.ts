@@ -49,11 +49,11 @@ export type UserDocument = Document & {
   readonly createdAt: Date
   setLastLogin(date?: Date): void
   comparePassword(password: string): Promise<boolean>
-  getList(reqUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
-  create(reqUser: IUserObject, body: IUserInput): Promise<IUserObject>
-  getOne(reqUser: IUserObject, id: string): Promise<IUserObject>
-  updateOne(reqUser: IUserObject, id: string, body: IUserInput): Promise<IUserObject>
-  delete(reqUser: IUserObject, ids: string[]): Promise<void>
+  getList(authedUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
+  create(authedUser: IUserObject, body: IUserInput): Promise<IUserObject>
+  getOne(authedUser: IUserObject, id: string): Promise<IUserObject>
+  updateOne(authedUser: IUserObject, id: string, body: IUserInput): Promise<IUserObject>
+  delete(authedUser: IUserObject, ids: string[]): Promise<void>
   profile?: {
     email?: string
     displayName?: string
@@ -192,7 +192,7 @@ userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
 /**
  * Gets list of users.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {IRequestListQuery} params
  *   List parameters.
@@ -201,18 +201,14 @@ userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
  *   Mongoose pagination results including user documents.
  */
 userSchema.methods.getList = async function(
-  reqUser: IUserObject,
+  authedUser: IUserObject,
   params: IRequestListQuery = {},
 ): Promise<PaginateResult<IUserObject>> {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
-
-  const { limit, offset, sort, search, filters } = params as IRequestListQuery
+  const { limit, offset, sort, search, filters } = params
   let query = {}
 
   if (filters) {
-    const filtersQuery = {} as { [name: string]: string }
+    const filtersQuery: { [name: string]: string } = {}
     filters.split(';').map((f) => {
       const filter = f.split(':')
       filtersQuery[filter[0]] = filter[1]
@@ -221,8 +217,8 @@ userSchema.methods.getList = async function(
   }
   // Only admin users can list all users.
   // Others can only list they own users.
-  if (reqUser.role !== UserRoles.admin) {
-    query = { createdBy: reqUser.id }
+  if (authedUser.role !== UserRoles.admin) {
+    query = { createdBy: authedUser.id }
   }
   if (search) {
     query = { $text: { $search: search }, ...query }
@@ -242,7 +238,7 @@ userSchema.methods.getList = async function(
 /**
  * Creates user.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {IUserInput} body
  *   User body to save.
@@ -251,12 +247,9 @@ userSchema.methods.getList = async function(
  *   User document.
  */
 userSchema.methods.create = async function(
-  reqUser: IUserObject,
+  authedUser: IUserObject,
   body: IUserInput,
 ): Promise<IUserObject> {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
   const { password, role } = body
 
   // Remove password from request as soon as possible.
@@ -265,13 +258,13 @@ userSchema.methods.create = async function(
   // If role is provided,
   // make sure that only admin users
   // can create other admins.
-  if (role && role === UserRoles.admin && reqUser.role !== UserRoles.admin) {
+  if (role && role === UserRoles.admin && authedUser.role !== UserRoles.admin) {
     throw new ApiErrorForbidden()
   }
 
   // Create user data object, set password as hash.
   // Actual hash is generated at the model level.
-  const userDataToSave = { ...body, hash: password, createdBy: reqUser.id }
+  const userDataToSave = { ...body, hash: password, createdBy: authedUser.id }
 
   // Save user to database.
   const user = new User(userDataToSave)
@@ -283,7 +276,7 @@ userSchema.methods.create = async function(
 /**
  * Gets user by id.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {string} id
  *   User document object id.
@@ -292,21 +285,17 @@ userSchema.methods.create = async function(
  *   User document.
  */
 userSchema.methods.getOne = async function(
-  reqUser: IUserObject,
+  authedUser: IUserObject,
   id: string,
-): Promise<UserDocument> {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
-
+): Promise<IUserObject> {
   // Admin can access any user,
   // editor users can only access they own users
   // and viewers can only access own user.
   let query = {}
-  if (reqUser.role === UserRoles.viewer) {
-    query = { _id: reqUser.id }
-  } else if (reqUser.role === UserRoles.editor) {
-    query = { _id: id, createdBy: reqUser.id }
+  if (authedUser.role === UserRoles.viewer) {
+    query = { _id: authedUser.id }
+  } else if (authedUser.role === UserRoles.editor) {
+    query = { _id: id, createdBy: authedUser.id }
   } else {
     query = { _id: id }
   }
@@ -322,7 +311,7 @@ userSchema.methods.getOne = async function(
 /**
  * Updates user by id.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {string} id
  *   User document object id.
@@ -333,14 +322,10 @@ userSchema.methods.getOne = async function(
  *   Updated user document.
  */
 userSchema.methods.updateOne = async function(
-  reqUser: IUserObject,
+  authedUser: IUserObject,
   id: string,
   body: IUserInput,
 ): Promise<IUserObject> {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
-
   const user = await User.findById(id).populate(populateCreatedBy)
 
   // Throw 404 error if no user.
@@ -350,7 +335,7 @@ userSchema.methods.updateOne = async function(
 
   // Handle username field,
   // it can only by updated by an admin user.
-  if (body.username && reqUser.role === UserRoles.admin) {
+  if (body.username && authedUser.role === UserRoles.admin) {
     user.username = body.username
   }
 
@@ -367,7 +352,7 @@ userSchema.methods.updateOne = async function(
 /**
  * Deletes users by id.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {string[]} ids
  *   Array of user ids.
@@ -375,17 +360,13 @@ userSchema.methods.updateOne = async function(
  * @returns {Promise<void>}
  *   Empty promise.
  */
-userSchema.methods.delete = async function(reqUser: IUserObject, ids: string[]) {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
-
+userSchema.methods.delete = async function(authedUser: IUserObject, ids: string[]) {
   // Only admin can delete any user,
   // others can only delete they own users.
-  if (reqUser.role === UserRoles.admin) {
+  if (authedUser.role === UserRoles.admin) {
     await User.deleteMany({ _id: { $in: ids } })
   } else {
-    await User.deleteMany({ _id: { $in: ids }, createdBy: reqUser.id })
+    await User.deleteMany({ _id: { $in: ids }, createdBy: authedUser.id })
   }
 }
 

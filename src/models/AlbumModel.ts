@@ -10,34 +10,39 @@ import { populateCreatedBy, ICreatedBy } from '../config'
  * Album object interface.
  */
 export interface IAlbumObject {
+  name: AlbumDocument['name']
+  body?: AlbumDocument['body']
+  status: AlbumDocument['status']
+  createdBy: AlbumDocument['createdBy']
+  readonly updatedAt: AlbumDocument['createdAt']
+  readonly createdAt: AlbumDocument['updatedAt']
+}
+
+/**
+ * Album post body for create or update endpoints.
+ */
+export interface IAlbumInput {
+  name?: AlbumDocument['name']
+  body?: AlbumDocument['body']
+  status?: AlbumDocument['status']
+}
+
+/**
+ * Album document type.
+ */
+export type AlbumDocument = mongoose.Document & {
   name: string
   body?: string
   status: AlbumStatus
   createdBy: ICreatedBy | string | null
   readonly updatedAt: Date
   readonly createdAt: Date
+  getList(authedUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
+  create(authedUser: IUserObject, body: IAlbumInput): Promise<IAlbumObject>
+  getOne(authedUser: IUserObject, id: string): Promise<IAlbumObject>
+  updateOne(authedUser: IUserObject, id: string, body: IAlbumInput): Promise<IAlbumObject>
+  delete(authedUser: IUserObject, ids: string[]): Promise<void>
 }
-
-/**
- * Album post body for create or update endpoints.
- */
-export interface IAlbumPostBody {
-  readonly name: string
-  readonly body?: string
-  readonly status?: AlbumStatus
-}
-
-/**
- * Album document type.
- */
-export type AlbumDocument = IAlbumObject &
-  mongoose.Document & {
-    getList(reqUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
-    create(reqUser: IUserObject, body: IAlbumPostBody): Promise<IAlbumObject>
-    getOne(reqUser: IUserObject, id: string): Promise<IAlbumObject>
-    updateOne(reqUser: IUserObject, id: string, body: IAlbumPostBody): Promise<IAlbumObject>
-    delete(reqUser: IUserObject, ids: string[]): Promise<void>
-  }
 
 /**
  * Album schema.
@@ -83,7 +88,7 @@ albumSchema.index({ name: 'text' })
 /**
  * Gets list of albums.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {IRequestListQuery} params
  *   List parameters.
@@ -92,13 +97,9 @@ albumSchema.index({ name: 'text' })
  *   Mongoose pagination results including album documents.
  */
 albumSchema.methods.getList = async function(
-  reqUser: IUserObject,
+  authedUser: IUserObject,
   params: IRequestListQuery = {},
 ): Promise<PaginateResult<IAlbumObject>> {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
-
   const { limit, offset, sort, search, filters } = params as IRequestListQuery
   let query = {}
 
@@ -112,8 +113,8 @@ albumSchema.methods.getList = async function(
   }
   // Only admin users can list all albums.
   // Others can only list they own albums.
-  if (reqUser.role !== UserRoles.admin) {
-    query = { createdBy: reqUser.id }
+  if (authedUser.role !== UserRoles.admin) {
+    query = { createdBy: authedUser.id }
   }
   if (search) {
     query = { $text: { $search: search }, ...query }
@@ -133,34 +134,31 @@ albumSchema.methods.getList = async function(
 /**
  * Creates album.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
- * @param {IAlbumPostBody} body
+ * @param {IAlbumInput} body
  *   Album body to save.
  *
  * @returns {Promise<IAlbumObject>}
  *   Album document.
  */
 albumSchema.methods.create = async function(
-  reqUser: IUserObject,
-  body: IAlbumPostBody,
+  authedUser: IUserObject,
+  body: IAlbumInput,
 ): Promise<IAlbumObject> {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
   // @ts-ignore
   const { password, role } = body
 
   // If role is provided,
   // make sure that only admin users
   // can create other admins.
-  if (role && role === UserRoles.admin && reqUser.role !== UserRoles.admin) {
+  if (role && role === UserRoles.admin && authedUser.role !== UserRoles.admin) {
     throw new ApiErrorForbidden()
   }
 
   // Create user data object, set password as hash.
   // Actual hash is generated at the model level.
-  const userDataToSave = { ...body, hash: password, createdBy: reqUser.id }
+  const userDataToSave = { ...body, hash: password, createdBy: authedUser.id }
 
   // Save user to database.
   const album = new Album(userDataToSave)
@@ -172,7 +170,7 @@ albumSchema.methods.create = async function(
 /**
  * Gets album by id.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {string} id
  *   Album document object id.
@@ -181,22 +179,18 @@ albumSchema.methods.create = async function(
  *   Album document.
  */
 albumSchema.methods.getOne = async function(
-  reqUser: IUserObject,
+  authedUser: IUserObject,
   id: string,
 ): Promise<IAlbumObject> {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
-
-  // console.log(reqUser)
+  // console.log(authedUser)
   // Admin can access any album,
   // editor users can only access they own albums
   // and viewers can only access the albums created by its creator.
   let query = { _id: id }
-  // if (reqUser.role === UserRoles.viewer && reqUser.createdBy) {
-  //   query = { _id: reqUser.createdBy.id }
-  // } else if (reqUser.role === UserRoles.editor) {
-  //   query = { _id: id, createdBy: reqUser.id }
+  // if (authedUser.role === UserRoles.viewer && authedUser.createdBy) {
+  //   query = { _id: authedUser.createdBy.id }
+  // } else if (authedUser.role === UserRoles.editor) {
+  //   query = { _id: id, createdBy: authedUser.id }
   // } else {
   //   query = { _id: id }
   // }
@@ -213,25 +207,21 @@ albumSchema.methods.getOne = async function(
 /**
  * Updates album by id.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {string} id
  *   Album document object id.
- * @param {IAlbumPostBody} body
+ * @param {IAlbumInput} body
  *   Album body to save.
  *
  * @returns {Promise<IAlbumObject>}
  *   Updated album document.
  */
 albumSchema.methods.updateOne = async function(
-  reqUser: IUserObject,
+  authedUser: IUserObject,
   id: string,
-  body: IAlbumPostBody,
+  body: IAlbumInput,
 ): Promise<IAlbumObject> {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
-
   const album = await Album.findById(id).populate(populateCreatedBy)
 
   // Throw 404 error if no album.
@@ -241,7 +231,7 @@ albumSchema.methods.updateOne = async function(
 
   // // Handle username field,
   // // it can only by updated by an admin user.
-  // if (body.username && reqUser.role === UserRoles.admin) {
+  // if (body.username && authedUser.role === UserRoles.admin) {
   //   user.username = body.username
   // }
 
@@ -258,7 +248,7 @@ albumSchema.methods.updateOne = async function(
 /**
  * Deletes albums by id.
  *
- * @param {IUserObject} reqUser
+ * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {string[]} ids
  *   Array of album ids.
@@ -266,17 +256,13 @@ albumSchema.methods.updateOne = async function(
  * @returns {Promise<void>}
  *   Empty promise.
  */
-albumSchema.methods.delete = async function(reqUser: IUserObject, ids: string[]) {
-  if (!reqUser) {
-    throw new ApiErrorForbidden()
-  }
-
+albumSchema.methods.delete = async function(authedUser: IUserObject, ids: string[]) {
   // Only admin can delete any album,
   // others can only delete they own albums.
-  if (reqUser.role === UserRoles.admin) {
+  if (authedUser.role === UserRoles.admin) {
     await Album.deleteMany({ _id: { $in: ids } })
   } else {
-    await Album.deleteMany({ _id: { $in: ids }, createdBy: reqUser.id })
+    await Album.deleteMany({ _id: { $in: ids }, createdBy: authedUser.id })
   }
 }
 

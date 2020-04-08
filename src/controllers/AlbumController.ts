@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 
 import { Album } from '../models'
-import { ApiResponse } from '../helpers'
+import { ApiResponse, ApiErrorForbidden } from '../helpers'
 
 /**
  * Album controller class.
@@ -13,10 +13,14 @@ export class AlbumController {
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const albums = await new Album().getList(req.authedUser, req.query)
+      const { authedUser, query } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const albums = await new Album().getList(authedUser, query)
       return new ApiResponse(res, albums)
     } catch (err) {
-      next(err)
+      return next(err)
     }
   }
 
@@ -25,10 +29,14 @@ export class AlbumController {
    */
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const savedAlbum = await new Album().create(req.authedUser, req.body)
+      const { authedUser, body } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const savedAlbum = await new Album().create(authedUser, body)
       return new ApiResponse(res, savedAlbum, httpStatus.CREATED)
     } catch (err) {
-      next(err)
+      return next(err)
     }
   }
 
@@ -37,11 +45,15 @@ export class AlbumController {
    */
   public async getOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params
-      const album = await new Album().getOne(req.authedUser, id)
+      const { authedUser, params } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const { id } = params
+      const album = await new Album().getOne(authedUser, id)
       return new ApiResponse(res, album)
     } catch (err) {
-      next(err)
+      return next(err)
     }
   }
 
@@ -50,11 +62,15 @@ export class AlbumController {
    */
   public async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params
-      const album = await new Album().updateOne(req.authedUser, id, req.body)
+      const { authedUser, body, params } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const { id } = params
+      const album = await new Album().updateOne(authedUser, id, body)
       return new ApiResponse(res, album)
     } catch (err) {
-      next(err)
+      return next(err)
     }
   }
 
@@ -63,10 +79,14 @@ export class AlbumController {
    */
   public async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      new Album().delete(req.authedUser, req.body)
+      const { authedUser, body } = req
+      if (!authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      new Album().delete(authedUser, body)
       return new ApiResponse(res)
     } catch (err) {
-      next(err)
+      return next(err)
     }
   }
 }
