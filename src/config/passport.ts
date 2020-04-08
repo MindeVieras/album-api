@@ -3,7 +3,7 @@ import passport from 'passport'
 import passportLocal, { IVerifyOptions } from 'passport-local'
 import passportJwt from 'passport-jwt'
 
-import { User, UserDocument } from '../models/UserModel'
+import { User, UserDocument, IUserObject } from '../models/UserModel'
 import { ApiErrorForbidden } from '../helpers'
 import { UserRoles } from '../enums'
 import { config } from './config'
@@ -70,8 +70,8 @@ export function isAuthed(userRole: UserRoles) {
     passport.authenticate(
       'jwt',
       { session: false },
-      (err, user: UserDocument, info: IVerifyOptions) => {
-        const { role } = user as UserDocument
+      (err, user: IUserObject, info: IVerifyOptions) => {
+        const { role } = user
         if (
           // Admin.
           role === UserRoles.admin ||

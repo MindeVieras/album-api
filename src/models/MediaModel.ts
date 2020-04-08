@@ -11,7 +11,7 @@ export type MediaDocument = mongoose.Document & {
   readonly size: number
   readonly mime: string
   readonly type: MediaType
-  createdBy: ICreatedBy
+  createdBy: ICreatedBy | string | null
   readonly updatedAt: Date
   readonly createdAt: Date
   readonly width: number

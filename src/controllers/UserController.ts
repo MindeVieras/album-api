@@ -5,7 +5,7 @@ import { IVerifyOptions } from 'passport-local'
 import jwt from 'jsonwebtoken'
 
 import { config } from '../config'
-import { User, UserDocument } from '../models'
+import { User, UserDocument, IUserObject } from '../models'
 import { ApiResponse, ApiError } from '../helpers'
 
 /**
@@ -17,7 +17,7 @@ export class UserController {
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as UserDocument
+      const currentUser = req.user as IUserObject
       const users = await new User().getList(currentUser, req.query)
       return new ApiResponse(res, users)
     } catch (err) {
@@ -30,7 +30,7 @@ export class UserController {
    */
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as UserDocument
+      const currentUser = req.user as IUserObject
       const savedUser = await new User().create(currentUser, req.body)
       return new ApiResponse(res, savedUser, httpStatus.CREATED)
     } catch (err) {
@@ -56,9 +56,7 @@ export class UserController {
         // Set last login date.
         user.setLastLogin()
 
-        const userObject = user.toObject()
-        // Remove createBy prop from user.
-        delete userObject.createdBy
+        const userObject: IUserObject = user.toObject()
 
         // Sign for JWT token.
         const token = jwt.sign(userObject, config.jwtSecret)
@@ -74,7 +72,7 @@ export class UserController {
   public async getOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-      const currentUser = req.user as UserDocument
+      const currentUser = req.user as IUserObject
       const user = await new User().getOne(currentUser, id)
       return new ApiResponse(res, user)
     } catch (err) {
@@ -88,7 +86,7 @@ export class UserController {
   public async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-      const currentUser = req.user as UserDocument
+      const currentUser = req.user as IUserObject
       const user = await new User().updateOne(currentUser, id, req.body)
       return new ApiResponse(res, user)
     } catch (err) {
@@ -101,7 +99,7 @@ export class UserController {
    */
   public async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as UserDocument
+      const currentUser = req.user as IUserObject
       new User().delete(currentUser, req.body)
       return new ApiResponse(res)
     } catch (err) {

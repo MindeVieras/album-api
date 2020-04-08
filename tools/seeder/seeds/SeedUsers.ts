@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { User, UserDocument } from '../../../src/models'
+import { User, IUserObject } from '../../../src/models'
 import { UserRoles, UserStatus } from '../../../src/enums'
 import { getRandomFieldIndex } from '.'
 import { SeederDefaults } from '../seederEnums'
@@ -15,7 +15,7 @@ import { SeederDefaults } from '../seederEnums'
  * @param {string} password
  *   Password for all seeded users.
  *
- * @returns {Promise<UserDocument[]>}
+ * @returns {Promise<IUserObject[]>}
  *   Promise with an array of user instances.
  */
 export async function SeedUsers(
@@ -26,16 +26,17 @@ export async function SeedUsers(
    * Build list of fake users and
    * randomize not required fields.
    */
-  const users: UserDocument[] = []
+  const users: IUserObject[] = []
   for (let i = 1; i <= count; i++) {
-    const user = {
+    const user: IUserObject = {
       username: faker.internet.userName(),
       hash: password,
       role: faker.random.arrayElement(Object.values(UserRoles)),
       status: faker.random.arrayElement(Object.values(UserStatus)),
       createdAt: faker.date.past(5),
       updatedAt: faker.date.past(),
-    } as UserDocument
+      createdBy: 'asdadad',
+    }
     users.push(user)
   }
 
@@ -77,36 +78,45 @@ export async function SeedUsers(
   // Initialize errors array.
   let errors: string[] = []
 
-  // Loop through randomly generated array - 'users'.
+  // Loop through randomly generated users array.
   for (let u of users) {
     try {
+      // Save fake users.
+      const savedUser = await new User(u).save()
+
       // Count users by role.
       let countQuery = {}
-      switch (u.role) {
+      switch (savedUser.role) {
         case UserRoles.viewer:
+          // Viewers can be created by admins and editors.
           countQuery = { role: [UserRoles.admin, UserRoles.editor] }
           break
 
         case UserRoles.editor:
+          // Editors can only be created by admins.
           countQuery = { role: UserRoles.admin }
           break
 
         case UserRoles.admin:
+          // Admins can only be created by admins.
           countQuery = { role: UserRoles.admin }
           break
       }
 
-      // Count all users by the role.
+      // Count all currently available users by the role.
       const count = await User.countDocuments(countQuery)
 
       // Get random user from the random count query.
       const random = Math.floor(Math.random() * count)
       const randomUser = await User.findOne(countQuery).skip(random)
-      // Set createdBy random user with matching role.
-      u.createdBy = randomUser?.get('id')
 
-      // Save fake users.
-      await new User(u).save()
+      if (randomUser) {
+        await savedUser.update({ createdBy: randomUser.id })
+      }
+      // Set createdBy random user with matching role.
+      // u.createdBy = randomUser?.get('id')
+      // console.log(randomUser?.get('id'))
+      // console.log(count)
     } catch (error) {
       // Collect all error messages.
       errors.push(error.message)

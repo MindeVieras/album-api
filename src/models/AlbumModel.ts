@@ -1,26 +1,21 @@
 import mongoose, { PaginateResult } from 'mongoose'
 
 import { AlbumStatus, UserRoles } from '../enums'
-import { UserDocument } from './UserModel'
+import { IUserObject } from './UserModel'
 import { IRequestListQuery } from '../typings'
 import { ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 import { populateCreatedBy, ICreatedBy } from '../config'
 
 /**
- * Album document type.
+ * Album object interface.
  */
-export type AlbumDocument = mongoose.Document & {
+export interface IAlbumObject {
   name: string
   body?: string
   status: AlbumStatus
-  createdBy: ICreatedBy
+  createdBy: ICreatedBy | string | null
   readonly updatedAt: Date
   readonly createdAt: Date
-  getList(reqUser: UserDocument, params?: IRequestListQuery): Promise<PaginateResult<UserDocument>>
-  create(reqUser: UserDocument, body: IAlbumPostBody): Promise<AlbumDocument>
-  getOne(reqUser: UserDocument, id: string): Promise<AlbumDocument>
-  updateOne(reqUser: UserDocument, id: string, body: IAlbumPostBody): Promise<AlbumDocument>
-  delete(reqUser: UserDocument, ids: string[]): Promise<void>
 }
 
 /**
@@ -31,6 +26,18 @@ export interface IAlbumPostBody {
   readonly body?: string
   readonly status?: AlbumStatus
 }
+
+/**
+ * Album document type.
+ */
+export type AlbumDocument = IAlbumObject &
+  mongoose.Document & {
+    getList(reqUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
+    create(reqUser: IUserObject, body: IAlbumPostBody): Promise<IAlbumObject>
+    getOne(reqUser: IUserObject, id: string): Promise<IAlbumObject>
+    updateOne(reqUser: IUserObject, id: string, body: IAlbumPostBody): Promise<IAlbumObject>
+    delete(reqUser: IUserObject, ids: string[]): Promise<void>
+  }
 
 /**
  * Album schema.
@@ -76,18 +83,18 @@ albumSchema.index({ name: 'text' })
 /**
  * Gets list of albums.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {IRequestListQuery} params
  *   List parameters.
  *
- * @returns {PaginateResult<AlbumDocument>}
+ * @returns {PaginateResult<IAlbumObject>}
  *   Mongoose pagination results including album documents.
  */
 albumSchema.methods.getList = async function(
-  reqUser: UserDocument,
+  reqUser: IUserObject,
   params: IRequestListQuery = {},
-): Promise<PaginateResult<AlbumDocument>> {
+): Promise<PaginateResult<IAlbumObject>> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
@@ -118,26 +125,26 @@ albumSchema.methods.getList = async function(
     sort,
   })
   // Mutate pagination response to include user virtual props.
-  const docs: AlbumDocument[] = albumPager.docs.map((d) => d.toObject())
+  const docs: IAlbumObject[] = albumPager.docs.map((d) => d.toObject())
 
-  return { ...albumPager, docs } as PaginateResult<AlbumDocument>
+  return { ...albumPager, docs } as PaginateResult<IAlbumObject>
 }
 
 /**
  * Creates album.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {IAlbumPostBody} body
  *   Album body to save.
  *
- * @returns {Promise<AlbumDocument>}
+ * @returns {Promise<IAlbumObject>}
  *   Album document.
  */
 albumSchema.methods.create = async function(
-  reqUser: UserDocument,
+  reqUser: IUserObject,
   body: IAlbumPostBody,
-): Promise<AlbumDocument> {
+): Promise<IAlbumObject> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
@@ -165,33 +172,34 @@ albumSchema.methods.create = async function(
 /**
  * Gets album by id.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {string} id
  *   Album document object id.
  *
- * @returns {Promise<AlbumDocument>}
+ * @returns {Promise<IAlbumObject>}
  *   Album document.
  */
 albumSchema.methods.getOne = async function(
-  reqUser: UserDocument,
+  reqUser: IUserObject,
   id: string,
-): Promise<AlbumDocument> {
+): Promise<IAlbumObject> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
 
+  // console.log(reqUser)
   // Admin can access any album,
   // editor users can only access they own albums
   // and viewers can only access the albums created by its creator.
-  let query = {}
-  if (reqUser.role === UserRoles.viewer && reqUser.createdBy) {
-    query = { _id: reqUser.createdBy.id }
-  } else if (reqUser.role === UserRoles.editor) {
-    query = { _id: id, createdBy: reqUser.id }
-  } else {
-    query = { _id: id }
-  }
+  let query = { _id: id }
+  // if (reqUser.role === UserRoles.viewer && reqUser.createdBy) {
+  //   query = { _id: reqUser.createdBy.id }
+  // } else if (reqUser.role === UserRoles.editor) {
+  //   query = { _id: id, createdBy: reqUser.id }
+  // } else {
+  //   query = { _id: id }
+  // }
 
   const album = await Album.findOne(query).populate(populateCreatedBy)
 
@@ -205,21 +213,21 @@ albumSchema.methods.getOne = async function(
 /**
  * Updates album by id.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {string} id
  *   Album document object id.
  * @param {IAlbumPostBody} body
  *   Album body to save.
  *
- * @returns {Promise<AlbumDocument>}
+ * @returns {Promise<IAlbumObject>}
  *   Updated album document.
  */
 albumSchema.methods.updateOne = async function(
-  reqUser: UserDocument,
+  reqUser: IUserObject,
   id: string,
   body: IAlbumPostBody,
-): Promise<AlbumDocument> {
+): Promise<IAlbumObject> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
@@ -250,7 +258,7 @@ albumSchema.methods.updateOne = async function(
 /**
  * Deletes albums by id.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {string[]} ids
  *   Array of album ids.
@@ -258,7 +266,7 @@ albumSchema.methods.updateOne = async function(
  * @returns {Promise<void>}
  *   Empty promise.
  */
-albumSchema.methods.delete = async function(reqUser: UserDocument, ids: string[]) {
+albumSchema.methods.delete = async function(reqUser: IUserObject, ids: string[]) {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }

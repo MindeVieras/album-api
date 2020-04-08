@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { User, UserDocument } from '../../../src/models/UserModel'
+import { User, IUserObject } from '../../../src/models/UserModel'
 import { UserRoles, UserStatus } from '../../../src/enums'
 import { SeederDefaults } from '../seederEnums'
 
@@ -12,28 +12,42 @@ import { SeederDefaults } from '../seederEnums'
  * @param {string} password
  *   Optional password to pass.
  *
- * @returns {Promise<UserDocument[]>}
+ * @returns {Promise<IUserObject[]>}
  *   Admin user document.
  */
 export async function SeedDevUsers(password: string = SeederDefaults.password) {
   /**
    * Build dev users array.
    */
-  const users: UserDocument[] = []
-  for (const role in UserRoles) {
-    const user = {
+  const users: IUserObject[] = Object.keys(UserRoles).map((role) => {
+    return {
       username: role,
       hash: password,
       role,
       status: UserStatus.active,
+      createdBy: SeederDefaults.fakeId,
       profile: {
         email: faker.internet.email(),
         displayName: `${role.replace(/^\w/, (c) => c.toUpperCase())} user`,
         locale: 'en',
       },
-    } as UserDocument
-    users.push(user)
-  }
+    }
+  })
+  // for (const role in UserRoles) {
+  //   const user: IUserObject = {
+  //     username: role,
+  //     hash: password,
+  //     role: UserRoles.admin,
+  //     status: UserStatus.active,
+  //     createdBy: SeederDefaults.fakeId,
+  //     profile: {
+  //       email: faker.internet.email(),
+  //       displayName: `${role.replace(/^\w/, (c) => c.toUpperCase())} user`,
+  //       locale: 'en',
+  //     },
+  //   }
+  //   users.push(user)
+  // }
 
   // Set progress par.
   console.log(chalk.green('Generating fake dev users: '))

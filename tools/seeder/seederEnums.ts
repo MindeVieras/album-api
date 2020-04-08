@@ -10,7 +10,7 @@ export enum SeederDefaults {
   /**
    * Maximum number of items to seed.
    */
-  'maxTotal' = 10000,
+  'maxTotal' = 1000000,
 
   /**
    * Default total items.
@@ -21,4 +21,9 @@ export enum SeederDefaults {
    * Default user password.
    */
   'password' = 'Password123!',
+
+  /**
+   * Fake object id.
+   */
+  'fakeId' = '5e8b85188cdf3afa841cdb30',
 }

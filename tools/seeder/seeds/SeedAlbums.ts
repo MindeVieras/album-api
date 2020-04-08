@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { User, Album, AlbumDocument } from '../../../src/models'
+import { Album, IAlbumObject } from '../../../src/models'
 import { UserRoles, AlbumStatus } from '../../../src/enums'
 import { getRandomFieldIndex } from '.'
 import { SeederDefaults } from '../seederEnums'
@@ -13,22 +13,22 @@ import { SeederDefaults } from '../seederEnums'
  * @param {number} count
  *   How many fake albums to seed?
  *
- * @returns {Promise<AlbumDocument[]>}
+ * @returns {Promise<IAlbumObject[]>}
  *   Promise with an array of album documents.
  */
-export default async function SeedAlbums(count: number = SeederDefaults.total) {
+export async function SeedAlbums(count: number = SeederDefaults.total) {
   /**
    * Build list of fake albums and
    * randomize not required fields.
    */
-  const albums: AlbumDocument[] = []
+  const albums: IAlbumObject[] = []
   for (let i = 1; i <= count; i++) {
-    const album = {
+    const album: IAlbumObject = {
       name: faker.lorem.sentence(Math.floor(Math.random() * 4) + 1).slice(0, -1),
       status: faker.random.arrayElement(Object.values(AlbumStatus)),
       createdAt: faker.date.past(5),
       updatedAt: faker.date.past(),
-    } as AlbumDocument
+    }
     albums.push(album)
   }
 
@@ -39,32 +39,42 @@ export default async function SeedAlbums(count: number = SeederDefaults.total) {
     )
   }
 
-  /**
-   * Save fake albums.
-   */
+  // Initialize errors array.
+  let errors: string[] = []
+
+  // Set progress par.
   console.log(chalk.green('Generating fake albums: '))
-  const bar = new ProgressBar(chalk.cyan(':percent :bar'), {
+  const bar = new ProgressBar(chalk.cyan(':current/:total :bar'), {
     total: count,
   })
 
-  // for (let a of albums) {
-  //   try {
-  //     const countQuery = { role: [UserRoles.admin, UserRoles.editor] }
-  //     const count = await User.countDocuments(countQuery)
-  //     const random = Math.floor(Math.random() * count)
-  //     const randomUser = await User.findOne(countQuery).skip(random)
-  //     a.createdBy = randomUser?.get('id')
+  // Loop through randomly generated albums array.
+  for (let a of albums) {
+    try {
+      const countQuery = { role: [UserRoles.admin, UserRoles.editor] }
+      // const count = await User.countDocuments(countQuery)
+      // const random = Math.floor(Math.random() * count)
+      // const randomUser = await Album.findOne(countQuery).skip(random)
+      // a.createdBy = randomUser?.get('id')
+      a.createdBy = '5e8b7e5512cfadedf57ade35'
 
-  //     await new Album(a).save()
-  //     bar.tick()
-  //   } catch (error) {
-  //     console.log(chalk.red(`\n${error.message}`))
-  //     return albums
-  //   }
-  // }
+      await new Album(a).save()
+    } catch (error) {
+      // Collect all error messages.
+      errors.push(error.message)
+    }
 
-  // // Summarize seed output.
-  // console.log(chalk.green(`${albums.length} fake albums generated\n`))
+    // Tick progress bar.
+    bar.tick()
+  }
+
+  // Log errors if any.
+  for (const e of errors) {
+    console.log(chalk.red(e))
+  }
+
+  // Summarize seed output.
+  console.log(chalk.green(`${albums.length} fake albums generated\n`))
 
   return albums
 }

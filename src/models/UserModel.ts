@@ -8,25 +8,19 @@ import { IRequestListQuery } from '../typings'
 import { populateCreatedBy, ICreatedBy } from '../config'
 
 /**
- * User document type.
+ * User object interface.
  */
-export type UserDocument = mongoose.Document & {
+export interface IUserObject {
+  id: string
   username: string
   hash: string
   readonly initials: string
   role: UserRoles
   status: UserStatus
-  createdBy?: ICreatedBy
+  createdBy: ICreatedBy | string | null
   lastLogin?: Date
   readonly updatedAt: Date
   readonly createdAt: Date
-  setLastLogin(date?: Date): void
-  comparePassword(password: string): Promise<boolean>
-  getList(reqUser: UserDocument, params?: IRequestListQuery): Promise<PaginateResult<UserDocument>>
-  create(reqUser: UserDocument, body: IUserPostBody): Promise<UserDocument>
-  getOne(reqUser: UserDocument, id: string): Promise<UserDocument>
-  updateOne(reqUser: UserDocument, id: string, body: IUserPostBody): Promise<UserDocument>
-  delete(reqUser: UserDocument, ids: string[]): Promise<void>
   profile?: {
     email?: string
     displayName?: string
@@ -37,7 +31,7 @@ export type UserDocument = mongoose.Document & {
 /**
  * User post body for create or update endpoints.
  */
-export interface IUserPostBody {
+export interface IUserInput {
   readonly username?: string
   password?: string
   readonly role?: UserRoles
@@ -48,6 +42,21 @@ export interface IUserPostBody {
     readonly locale?: string
   }
 }
+
+/**
+ * User document type.
+ */
+export type UserDocument = IUserObject &
+  mongoose.Document & {
+    hash: string
+    setLastLogin(date?: Date): void
+    comparePassword(password: string): Promise<boolean>
+    getList(reqUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
+    create(reqUser: IUserObject, body: IUserInput): Promise<IUserObject>
+    getOne(reqUser: IUserObject, id: string): Promise<IUserObject>
+    updateOne(reqUser: IUserObject, id: string, body: IUserInput): Promise<IUserObject>
+    delete(reqUser: IUserObject, ids: string[]): Promise<void>
+  }
 
 /**
  * User schema.
@@ -78,6 +87,7 @@ const userSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      required: 'User createdBy is required',
     },
     lastLogin: Date,
     profile: {
@@ -179,18 +189,18 @@ userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
 /**
  * Gets list of users.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {IRequestListQuery} params
  *   List parameters.
  *
- * @returns {PaginateResult<UserDocument>}
+ * @returns {PaginateResult<IUserObject>}
  *   Mongoose pagination results including user documents.
  */
 userSchema.methods.getList = async function(
-  reqUser: UserDocument,
+  reqUser: IUserObject,
   params: IRequestListQuery = {},
-): Promise<PaginateResult<UserDocument>> {
+): Promise<PaginateResult<IUserObject>> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
@@ -221,26 +231,26 @@ userSchema.methods.getList = async function(
     sort,
   })
   // Mutate pagination response to include user virtual props.
-  const docs: UserDocument[] = userPager.docs.map((d) => d.toObject())
+  const docs: IUserObject[] = userPager.docs.map((d) => d.toObject())
 
-  return { ...userPager, docs } as PaginateResult<UserDocument>
+  return { ...userPager, docs } as PaginateResult<IUserObject>
 }
 
 /**
  * Creates user.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
- * @param {IUserPostBody} body
+ * @param {IUserInput} body
  *   User body to save.
  *
- * @returns {Promise<UserDocument>}
+ * @returns {Promise<IUserObject>}
  *   User document.
  */
 userSchema.methods.create = async function(
-  reqUser: UserDocument,
-  body: IUserPostBody,
-): Promise<UserDocument> {
+  reqUser: IUserObject,
+  body: IUserInput,
+): Promise<IUserObject> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
@@ -270,18 +280,15 @@ userSchema.methods.create = async function(
 /**
  * Gets user by id.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {string} id
  *   User document object id.
  *
- * @returns {Promise<UserDocument>}
+ * @returns {Promise<IUserObject>}
  *   User document.
  */
-userSchema.methods.getOne = async function(
-  reqUser: UserDocument,
-  id: string,
-): Promise<UserDocument> {
+userSchema.methods.getOne = async function(reqUser: IUserObject, id: string): Promise<IUserObject> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
@@ -309,21 +316,21 @@ userSchema.methods.getOne = async function(
 /**
  * Updates user by id.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {string} id
  *   User document object id.
- * @param {IUserPostBody} body
+ * @param {IUserInput} body
  *   User body to save.
  *
- * @returns {Promise<UserDocument>}
+ * @returns {Promise<IUserObject>}
  *   Updated user document.
  */
 userSchema.methods.updateOne = async function(
-  reqUser: UserDocument,
+  reqUser: IUserObject,
   id: string,
-  body: IUserPostBody,
-): Promise<UserDocument> {
+  body: IUserInput,
+): Promise<IUserObject> {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }
@@ -354,7 +361,7 @@ userSchema.methods.updateOne = async function(
 /**
  * Deletes users by id.
  *
- * @param {UserDocument} reqUser
+ * @param {IUserObject} reqUser
  *   Authenticated user request.
  * @param {string[]} ids
  *   Array of user ids.
@@ -362,7 +369,7 @@ userSchema.methods.updateOne = async function(
  * @returns {Promise<void>}
  *   Empty promise.
  */
-userSchema.methods.delete = async function(reqUser: UserDocument, ids: string[]) {
+userSchema.methods.delete = async function(reqUser: IUserObject, ids: string[]) {
   if (!reqUser) {
     throw new ApiErrorForbidden()
   }

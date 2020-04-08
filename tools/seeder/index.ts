@@ -11,7 +11,7 @@ import {
   userPassQuestion,
 } from './seederQuestions'
 
-import { SeedUsers, SeedDevUsers } from './seeds'
+import { SeedUsers, SeedDevUsers, SeedAlbums } from './seeds'
 
 // Clear console on seeder start.
 console.clear()
@@ -74,8 +74,8 @@ async function runSeeder() {
          * Seed random albums.
          */
         const { total } = await prompt([totalQuestion])
-        console.log(total)
-        // await SeedAlbums(total)
+        await SeedAlbums(total)
+
         break
     }
 
