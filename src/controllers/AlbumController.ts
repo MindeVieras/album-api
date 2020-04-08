@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 
-import { Album, IUserObject } from '../models'
+import { Album } from '../models'
 import { ApiResponse } from '../helpers'
 
 /**
@@ -13,8 +13,7 @@ export class AlbumController {
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as IUserObject
-      const albums = await new Album().getList(currentUser, req.query)
+      const albums = await new Album().getList(req.authedUser, req.query)
       return new ApiResponse(res, albums)
     } catch (err) {
       next(err)
@@ -26,8 +25,7 @@ export class AlbumController {
    */
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as IUserObject
-      const savedAlbum = await new Album().create(currentUser, req.body)
+      const savedAlbum = await new Album().create(req.authedUser, req.body)
       return new ApiResponse(res, savedAlbum, httpStatus.CREATED)
     } catch (err) {
       next(err)
@@ -40,8 +38,7 @@ export class AlbumController {
   public async getOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-      const currentUser = req.user as IUserObject
-      const album = await new Album().getOne(currentUser, id)
+      const album = await new Album().getOne(req.authedUser, id)
       return new ApiResponse(res, album)
     } catch (err) {
       next(err)
@@ -54,8 +51,7 @@ export class AlbumController {
   public async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-      const currentUser = req.user as IUserObject
-      const album = await new Album().updateOne(currentUser, id, req.body)
+      const album = await new Album().updateOne(req.authedUser, id, req.body)
       return new ApiResponse(res, album)
     } catch (err) {
       next(err)
@@ -67,8 +63,7 @@ export class AlbumController {
    */
   public async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as IUserObject
-      new Album().delete(currentUser, req.body)
+      new Album().delete(req.authedUser, req.body)
       return new ApiResponse(res)
     } catch (err) {
       next(err)

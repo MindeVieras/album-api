@@ -81,7 +81,7 @@ export function isAuthed(userRole: UserRoles) {
           (role === UserRoles.viewer && userRole === UserRoles.viewer)
         ) {
           // Set authenticated user object to the request.
-          req.user = user
+          req.authedUser = user
           return next()
         } else {
           return next(new ApiErrorForbidden())

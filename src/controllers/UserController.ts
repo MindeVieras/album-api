@@ -17,8 +17,7 @@ export class UserController {
    */
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as IUserObject
-      const users = await new User().getList(currentUser, req.query)
+      const users = await new User().getList(req.authedUser, req.query)
       return new ApiResponse(res, users)
     } catch (err) {
       next(err)
@@ -30,8 +29,7 @@ export class UserController {
    */
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as IUserObject
-      const savedUser = await new User().create(currentUser, req.body)
+      const savedUser = await new User().create(req.authedUser, req.body)
       return new ApiResponse(res, savedUser, httpStatus.CREATED)
     } catch (err) {
       next(err)
@@ -72,10 +70,8 @@ export class UserController {
   public async getOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-      const currentUser = req.user as IUserObject
-      const user = await new User().getOne(currentUser, id)
-      new ApiResponse(res, user)
-      next()
+      const user = await new User().getOne(req.authedUser, id)
+      return new ApiResponse(res, user)
     } catch (err) {
       next(err)
     }
@@ -87,8 +83,7 @@ export class UserController {
   public async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-      const currentUser = req.user as IUserObject
-      const user = await new User().updateOne(currentUser, id, req.body)
+      const user = await new User().updateOne(req.authedUser, id, req.body)
       return new ApiResponse(res, user)
     } catch (err) {
       next(err)
@@ -100,8 +95,7 @@ export class UserController {
    */
   public async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = req.user as IUserObject
-      new User().delete(currentUser, req.body)
+      new User().delete(req.authedUser, req.body)
       return new ApiResponse(res)
     } catch (err) {
       next(err)
