@@ -41,7 +41,7 @@ export type UserDocument = Document & {
   username: string
   hash: string
   readonly initials: string
-  role: UserRoles
+  role: UserRoles | UserRoles[]
   status: UserStatus
   createdBy: ICreatedBy | string | null
   lastLogin?: Date

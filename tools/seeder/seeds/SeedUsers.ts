@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { User, IUserObject } from '../../../src/models'
+import { User, UserDocument } from '../../../src/models'
 import { UserRoles, UserStatus } from '../../../src/enums'
 import { getRandomFieldIndex } from '.'
 import { SeederDefaults } from '../seederEnums'
@@ -15,7 +15,7 @@ import { SeederDefaults } from '../seederEnums'
  * @param {string} password
  *   Password for all seeded users.
  *
- * @returns {Promise<IUserObject[]>}
+ * @returns {Promise<UserDocument[]>}
  *   Promise with an array of user instances.
  */
 export async function SeedUsers(
@@ -26,17 +26,17 @@ export async function SeedUsers(
    * Build list of fake users and
    * randomize not required fields.
    */
-  const users: IUserObject[] = []
+  const users: UserDocument[] = []
   for (let i = 1; i <= count; i++) {
-    const user: IUserObject = {
+    const user = new User({
       username: faker.internet.userName(),
       hash: password,
       role: faker.random.arrayElement(Object.values(UserRoles)),
       status: faker.random.arrayElement(Object.values(UserStatus)),
       createdAt: faker.date.past(5),
       updatedAt: faker.date.past(),
-      createdBy: 'asdadad',
-    }
+      createdBy: SeederDefaults.fakeId,
+    })
     users.push(user)
   }
 
@@ -81,8 +81,8 @@ export async function SeedUsers(
   // Loop through randomly generated users array.
   for (let u of users) {
     try {
-      // Save fake users.
-      const savedUser = await new User(u).save()
+      // Save fake user.
+      const savedUser = await u.save()
 
       // Count users by role.
       let countQuery = {}
@@ -111,12 +111,9 @@ export async function SeedUsers(
       const randomUser = await User.findOne(countQuery).skip(random)
 
       if (randomUser) {
+        // Set createdBy random user with matching role.
         await savedUser.update({ createdBy: randomUser.id })
       }
-      // Set createdBy random user with matching role.
-      // u.createdBy = randomUser?.get('id')
-      // console.log(randomUser?.get('id'))
-      // console.log(count)
     } catch (error) {
       // Collect all error messages.
       errors.push(error.message)

@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { User, IUserObject } from '../../../src/models/UserModel'
+import { User, UserDocument } from '../../../src/models/UserModel'
 import { UserRoles, UserStatus } from '../../../src/enums'
 import { SeederDefaults } from '../seederEnums'
 
@@ -12,15 +12,16 @@ import { SeederDefaults } from '../seederEnums'
  * @param {string} password
  *   Optional password to pass.
  *
- * @returns {Promise<IUserObject[]>}
+ * @returns {Promise<UserDocument[]>}
  *   Admin user document.
  */
 export async function SeedDevUsers(password: string = SeederDefaults.password) {
   /**
    * Build dev users array.
    */
-  const users: IUserObject[] = Object.keys(UserRoles).map((role) => {
-    return {
+  const users: UserDocument[] = []
+  for (const role in UserRoles) {
+    const user = new User({
       username: role,
       hash: password,
       role,
@@ -31,23 +32,9 @@ export async function SeedDevUsers(password: string = SeederDefaults.password) {
         displayName: `${role.replace(/^\w/, (c) => c.toUpperCase())} user`,
         locale: 'en',
       },
-    }
-  })
-  // for (const role in UserRoles) {
-  //   const user: IUserObject = {
-  //     username: role,
-  //     hash: password,
-  //     role: UserRoles.admin,
-  //     status: UserStatus.active,
-  //     createdBy: SeederDefaults.fakeId,
-  //     profile: {
-  //       email: faker.internet.email(),
-  //       displayName: `${role.replace(/^\w/, (c) => c.toUpperCase())} user`,
-  //       locale: 'en',
-  //     },
-  //   }
-  //   users.push(user)
-  // }
+    })
+    users.push(user)
+  }
 
   // Set progress par.
   console.log(chalk.green('Generating fake dev users: '))
@@ -61,7 +48,7 @@ export async function SeedDevUsers(password: string = SeederDefaults.password) {
   for (const u of users) {
     try {
       // Save fake dev users.
-      await new User(u).save()
+      await u.save()
     } catch (error) {
       // Collect all error messages.
       errors.push(error.message)
