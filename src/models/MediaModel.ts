@@ -1,55 +1,75 @@
-import mongoose from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose'
 
-import { AlbumStatus, MediaType } from '../enums'
+import { MediaStatus, MediaType } from '../enums'
 import { ICreatedBy } from '../config'
 
 /**
  * Media document type.
  */
-export type MediaDocument = mongoose.Document & {
+export type MediaDocument = Document & {
   readonly key: string
+  filename: string
   readonly size: number
-  readonly mime: string
+  readonly mimeType: string
   readonly type: MediaType
+  status: MediaStatus
   createdBy: ICreatedBy | string | null
-  readonly updatedAt: Date
-  readonly createdAt: Date
+  albumId: string
   readonly width: number
   readonly height: number
-  filename: string
-
-  metadata: string[]
-  objects: string[]
-  text: string[]
-  faces: string[]
+  readonly updatedAt: Date
+  readonly createdAt: Date
 }
 
 /**
  * Media post body for create or update endpoints.
  */
-export interface IMediaPostBody {
-  filename?: string
-}
+// export interface IMediaPostBody {
+//   filename?: string
+// }
 
 /**
  * Media schema.
  */
-const mediaSchema = new mongoose.Schema(
+const mediaSchema = new Schema(
   {
     key: {
       type: String,
       required: 'Media key is required',
     },
-    body: String,
+    filename: {
+      type: String,
+      required: 'Media file name is required',
+    },
+    size: {
+      type: Number,
+      required: 'Media file size is required',
+    },
+    mimeType: {
+      type: String,
+      required: 'Media mime type is required',
+    },
     status: {
       type: String,
-      enum: Object.values(AlbumStatus),
-      default: AlbumStatus.active,
+      enum: Object.values(MediaStatus),
+      default: MediaStatus.active,
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: 'Media createdBy is required',
+    },
+    albumId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Album',
+    },
+    width: {
+      type: Number,
+      required: 'Media width is required',
+    },
+    height: {
+      type: Number,
+      required: 'Media height is required',
     },
   },
   {
@@ -68,7 +88,7 @@ const mediaSchema = new mongoose.Schema(
 /**
  * Set text indexes for search.
  */
-mediaSchema.index({ name: 'text' })
+mediaSchema.index({ filename: 'text' })
 
 /**
  * Export media schema as model.

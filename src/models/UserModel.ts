@@ -88,7 +88,7 @@ const userSchema = new Schema(
       default: UserStatus.active,
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: 'User createdBy is required',
     },

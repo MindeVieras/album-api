@@ -16,7 +16,7 @@ export const collectionQuestion: ListQuestion<{ collection: string }> = {
   type: 'list',
   name: 'collection',
   message: 'Which collection would you like to seed?',
-  choices: ['Users', 'Albums'],
+  choices: ['Users', 'Albums', 'Media'],
 }
 
 /**

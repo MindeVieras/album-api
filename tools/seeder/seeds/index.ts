@@ -15,3 +15,4 @@ export function getRandomFieldIndex(total: number): number {
 export * from './SeedUsers'
 export * from './SeedDevUsers'
 export * from './SeedAlbums'
+export * from './SeedMedia'
