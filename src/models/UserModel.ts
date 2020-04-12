@@ -11,13 +11,13 @@ import { populateCreatedBy, ICreatedBy } from '../config'
  * User object interface.
  */
 export interface IUserObject {
-  id: string
+  readonly id: string
   username: UserDocument['username']
   readonly initials: UserDocument['initials']
   role: UserDocument['role']
   status: UserDocument['status']
   createdBy: UserDocument['createdBy']
-  lastLogin?: UserDocument['lastLogin']
+  readonly lastLogin?: UserDocument['lastLogin']
   readonly updatedAt: UserDocument['updatedAt']
   readonly createdAt: UserDocument['createdAt']
   profile?: UserDocument['profile']

@@ -4,19 +4,36 @@ import { MediaStatus, MediaType } from '../enums'
 import { ICreatedBy } from '../config'
 
 /**
+ * Media object interface.
+ */
+export interface IMediaObject {
+  id: string
+  readonly key: MediaDocument['key']
+  filename: MediaDocument['filename']
+  readonly filesize: MediaDocument['filesize']
+  readonly mimeType: MediaDocument['mimeType']
+  status: MediaDocument['status']
+  createdBy: MediaDocument['createdBy']
+  readonly width: MediaDocument['width']
+  readonly height: MediaDocument['height']
+  readonly updatedAt: MediaDocument['createdAt']
+  readonly createdAt: MediaDocument['updatedAt']
+}
+
+/**
  * Media document type.
  */
 export type MediaDocument = Document & {
   readonly key: string
   filename: string
-  readonly size: number
+  readonly filesize: number
   readonly mimeType: string
   readonly type: MediaType
   status: MediaStatus
   createdBy: ICreatedBy | string | null
-  albumId: string
   readonly width: number
   readonly height: number
+  readonly ratio: string
   readonly updatedAt: Date
   readonly createdAt: Date
 }
@@ -41,7 +58,7 @@ const mediaSchema = new Schema(
       type: String,
       required: 'Media file name is required',
     },
-    size: {
+    filesize: {
       type: Number,
       required: 'Media file size is required',
     },
@@ -58,10 +75,6 @@ const mediaSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: 'Media createdBy is required',
-    },
-    albumId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Album',
     },
     width: {
       type: Number,

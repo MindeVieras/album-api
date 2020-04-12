@@ -1,21 +1,24 @@
-import mongoose, { PaginateResult } from 'mongoose'
+import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
 
 import { AlbumStatus, UserRoles } from '../enums'
 import { IUserObject } from './UserModel'
+import { IMediaObject, MediaDocument } from './MediaModel'
 import { IRequestListQuery } from '../typings'
 import { ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
-import { populateCreatedBy, ICreatedBy } from '../config'
+import { populateCreatedBy, populateMedia, ICreatedBy } from '../config'
 
 /**
  * Album object interface.
  */
 export interface IAlbumObject {
+  readonly id: string
   name: AlbumDocument['name']
   body?: AlbumDocument['body']
   status: AlbumDocument['status']
   createdBy: AlbumDocument['createdBy']
   readonly updatedAt: AlbumDocument['createdAt']
   readonly createdAt: AlbumDocument['updatedAt']
+  media?: IMediaObject[]
 }
 
 /**
@@ -30,11 +33,12 @@ export interface IAlbumInput {
 /**
  * Album document type.
  */
-export type AlbumDocument = mongoose.Document & {
+export type AlbumDocument = Document & {
   name: string
   body?: string
   status: AlbumStatus
   createdBy: ICreatedBy | string | null
+  media?: MediaDocument[]
   readonly updatedAt: Date
   readonly createdAt: Date
   getList(authedUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
@@ -47,7 +51,7 @@ export type AlbumDocument = mongoose.Document & {
 /**
  * Album schema.
  */
-const albumSchema = new mongoose.Schema(
+const albumSchema = new Schema(
   {
     name: {
       type: String,
@@ -62,10 +66,11 @@ const albumSchema = new mongoose.Schema(
       default: AlbumStatus.active,
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: 'Album createdBy is required',
     },
+    media: [{ type: Schema.Types.ObjectId, ref: 'Media' }],
   },
   {
     collection: 'Albums',
@@ -120,6 +125,7 @@ albumSchema.methods.getList = async function(
     query = { $text: { $search: search }, ...query }
   }
   const albumPager = await Album.paginate(query, {
+    select: '-media',
     populate: populateCreatedBy,
     offset,
     limit,
@@ -195,7 +201,9 @@ albumSchema.methods.getOne = async function(
   //   query = { _id: id }
   // }
 
-  const album = await Album.findOne(query).populate(populateCreatedBy)
+  const album = await Album.findOne(query)
+    .populate(populateCreatedBy)
+    .populate(populateMedia)
 
   // Throw 404 error if no album.
   if (!album) {

@@ -14,3 +14,11 @@ export const populateCreatedBy = {
   path: 'createdBy',
   select: 'username role',
 }
+
+/**
+ * Reusable media population object.
+ */
+export const populateMedia = {
+  path: 'media',
+  populate: populateCreatedBy,
+}

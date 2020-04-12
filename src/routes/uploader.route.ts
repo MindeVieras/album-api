@@ -16,7 +16,9 @@ const router = express.Router()
  */
 const Uploader = new UploaderController()
 
+// @todo validate params.
 router.post('/sign', isAuthed(UserRoles.editor), Uploader.getSignature)
+// @todo validate params.
 router.post('/success', isAuthed(UserRoles.editor), Uploader.onSuccess)
 
 export default router

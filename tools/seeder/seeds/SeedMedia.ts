@@ -2,10 +2,24 @@ import chalk from 'chalk'
 import faker from 'faker'
 import ProgressBar from 'progress'
 
-import { Media, MediaDocument, Album, User } from '../../../src/models'
-import { UserRoles, AlbumStatus, MediaStatus } from '../../../src/enums'
-import { getRandomFieldIndex } from '.'
+import { Media, MediaDocument, User } from '../../../src/models'
+import { UserRoles, MediaStatus } from '../../../src/enums'
 import { SeederDefaults } from '../seederEnums'
+
+const imageSizes = [
+  {
+    width: 1024,
+    height: 768,
+  },
+  {
+    width: 2240,
+    height: 1680,
+  },
+  {
+    width: 3264,
+    height: 2448,
+  },
+]
 
 /**
  * Seed media.
@@ -23,28 +37,21 @@ export async function SeedMedia(count: number = SeederDefaults.total) {
    */
   const media: MediaDocument[] = []
   for (let i = 1; i <= count; i++) {
+    const imageSize = faker.random.arrayElement(imageSizes)
     const med = new Media({
       key: faker.random.image(),
       filename: 'image.jpg',
-      size: 732412,
+      filesize: faker.random.number({ min: 2020, max: 20200412 }),
       mimeType: 'image/jpeg',
       status: faker.random.arrayElement(Object.values(MediaStatus)),
       createdBy: SeederDefaults.fakeId,
-      albumId: SeederDefaults.fakeId,
-      width: 1024,
-      height: 800,
+      width: imageSize.width,
+      height: imageSize.height,
       createdAt: faker.date.past(5),
       updatedAt: faker.date.past(),
     })
     media.push(med)
   }
-
-  // Randomize fake body field.
-  // for (let step = 0; step < getRandomFieldIndex(count); step++) {
-  //   albums[Math.floor(Math.random() * count)].body = faker.lorem.sentences(
-  //     Math.floor(Math.random() * 10),
-  //   )
-  // }
 
   // Initialize errors array.
   let errors: string[] = []
@@ -55,9 +62,8 @@ export async function SeedMedia(count: number = SeederDefaults.total) {
     total: count,
   })
 
-  // Media and albums can only be created by admins and editors.
+  // Media can only be created by admins and editors.
   const users = await User.find({ role: [UserRoles.admin, UserRoles.editor] })
-  const albums = await Album.find({ role: [UserRoles.admin, UserRoles.editor] })
 
   // Loop through randomly generated media array.
   for (let m of media) {
@@ -71,14 +77,6 @@ export async function SeedMedia(count: number = SeederDefaults.total) {
       if (randomUser) {
         // Set createdBy random user with matching role.
         await savedMedia.update({ createdBy: randomUser.id })
-      }
-
-      // Get random album.
-      const randomAlbumNumber = Math.floor(Math.random() * albums.length)
-      const randomAlbum = albums[randomAlbumNumber]
-      if (randomAlbum) {
-        // Set albumId random album with matching role.
-        await savedMedia.update({ albumId: randomAlbum.id })
       }
     } catch (error) {
       // Collect all error messages.
