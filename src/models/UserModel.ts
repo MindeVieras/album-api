@@ -198,7 +198,7 @@ userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
  *   List parameters.
  *
  * @returns {PaginateResult<IUserObject>}
- *   Mongoose pagination results including user documents.
+ *   Mongoose pagination results including user objects.
  */
 userSchema.methods.getList = async function(
   authedUser: IUserObject,
@@ -244,7 +244,7 @@ userSchema.methods.getList = async function(
  *   User body to save.
  *
  * @returns {Promise<IUserObject>}
- *   User document.
+ *   User object.
  */
 userSchema.methods.create = async function(
   authedUser: IUserObject,
@@ -279,10 +279,10 @@ userSchema.methods.create = async function(
  * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {string} id
- *   User document object id.
+ *   User document id.
  *
  * @returns {Promise<IUserObject>}
- *   User document.
+ *   User object.
  */
 userSchema.methods.getOne = async function(
   authedUser: IUserObject,
@@ -314,12 +314,12 @@ userSchema.methods.getOne = async function(
  * @param {IUserObject} authedUser
  *   Authenticated user request.
  * @param {string} id
- *   User document object id.
+ *   User document id.
  * @param {IUserInput} body
  *   User body to save.
  *
  * @returns {Promise<IUserObject>}
- *   Updated user document.
+ *   Updated user object.
  */
 userSchema.methods.updateOne = async function(
   authedUser: IUserObject,

@@ -99,7 +99,7 @@ albumSchema.index({ name: 'text' })
  *   List parameters.
  *
  * @returns {PaginateResult<IAlbumObject>}
- *   Mongoose pagination results including album documents.
+ *   Mongoose pagination results including album objects.
  */
 albumSchema.methods.getList = async function(
   authedUser: IUserObject,
@@ -146,7 +146,7 @@ albumSchema.methods.getList = async function(
  *   Album body to save.
  *
  * @returns {Promise<IAlbumObject>}
- *   Album document.
+ *   Album object.
  */
 albumSchema.methods.create = async function(
   authedUser: IUserObject,
@@ -182,7 +182,7 @@ albumSchema.methods.create = async function(
  *   Album document object id.
  *
  * @returns {Promise<IAlbumObject>}
- *   Album document.
+ *   Album object.
  */
 albumSchema.methods.getOne = async function(
   authedUser: IUserObject,
@@ -223,7 +223,7 @@ albumSchema.methods.getOne = async function(
  *   Album body to save.
  *
  * @returns {Promise<IAlbumObject>}
- *   Updated album document.
+ *   Updated album object.
  */
 albumSchema.methods.updateOne = async function(
   authedUser: IUserObject,

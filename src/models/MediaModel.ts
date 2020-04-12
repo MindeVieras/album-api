@@ -1,7 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
+import { IUserObject } from './UserModel'
 import { MediaStatus, MediaType } from '../enums'
-import { ICreatedBy } from '../config'
+import { ICreatedBy, populateCreatedBy } from '../config'
+import { ApiErrorNotFound } from '../helpers'
 
 /**
  * Media object interface.
@@ -36,6 +38,7 @@ export type MediaDocument = Document & {
   readonly ratio: string
   readonly updatedAt: Date
   readonly createdAt: Date
+  getOne(authedUser: IUserObject, id: string): Promise<IMediaObject>
 }
 
 /**
@@ -102,6 +105,31 @@ const mediaSchema = new Schema(
  * Set text indexes for search.
  */
 mediaSchema.index({ filename: 'text' })
+
+/**
+ * Gets media by id.
+ *
+ * @param {IUserObject} authedUser
+ *   Authenticated user request.
+ * @param {string} id
+ *   Media document object id.
+ *
+ * @returns {Promise<IMediaObject>}
+ *   Media object.
+ */
+mediaSchema.methods.getOne = async function(
+  authedUser: IUserObject,
+  id: string,
+): Promise<IMediaObject> {
+  let query = { _id: id }
+  const media = await Media.findOne(query).populate(populateCreatedBy)
+
+  // Throw 404 error if no media.
+  if (!media) {
+    throw new ApiErrorNotFound()
+  }
+  return media.toObject()
+}
 
 /**
  * Export media schema as model.
