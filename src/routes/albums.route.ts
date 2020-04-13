@@ -20,7 +20,7 @@ const Album = new AlbumController()
 router
   .route('/')
   .get(isAuthed(UserRoles.viewer), validator.query(paramValidation.listQuery), Album.getList)
-  .post(isAuthed(UserRoles.editor), validator.body(paramValidation.userPostBody), Album.create)
+  .post(isAuthed(UserRoles.editor), validator.body(paramValidation.albumPostBody), Album.create)
   .delete(isAuthed(UserRoles.editor), validator.body(paramValidation.deleteBody), Album.delete)
 
 router
