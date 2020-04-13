@@ -31,4 +31,9 @@ export enum MediaType {
    * Video.
    */
   video = 'video',
+
+  /**
+   * Unknown type.
+   */
+  unknown = 'unknown',
 }

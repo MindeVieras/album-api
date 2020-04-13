@@ -18,6 +18,10 @@ const router = express.Router()
 const Media = new MediaController()
 
 router
+  .route('/')
+  .post(isAuthed(UserRoles.editor), validator.body(paramValidation.mediaPostBody), Media.create)
+
+router
   .route('/:id')
   .get(isAuthed(UserRoles.viewer), validator.params(paramValidation.idParam), Media.getOne)
 
