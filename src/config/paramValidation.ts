@@ -202,6 +202,17 @@ export const paramValidation = {
       .messages({
         'any.required': 'UUID is required',
       }),
+    size: Joi.number()
+      .min(0)
+      .required()
+      .messages({
+        'any.required': 'File size is required',
+      }),
+    mime: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'Mime type is required',
+      }),
   }),
 
   // POST /api/media
@@ -210,6 +221,22 @@ export const paramValidation = {
       .required()
       .messages({
         'any.required': 'S3 object key is required',
+      }),
+    name: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'File name is required',
+      }),
+    size: Joi.number()
+      .min(0)
+      .required()
+      .messages({
+        'any.required': 'File size is required',
+      }),
+    mime: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'Mime type is required',
       }),
   }),
 }

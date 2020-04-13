@@ -3,33 +3,46 @@ import CryptoJS from 'crypto-js'
 import httpStatus from 'http-status-codes'
 
 import { config } from '../config'
-import { ApiResponse, ApiError } from '../helpers'
-import { Media } from '../models'
+import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
+import { Media, MediaDocument } from '../models'
 
+/**
+ * Fine uploader POST request body on success.
+ */
 interface IUploaderOnSuccessBody {
   bucket: string
   etag: string
   key: string
   name: string
   uuid: string
+  size: MediaDocument['size']
+  mime: MediaDocument['mime']
 }
 
+// @todo set those correctly.
 // Change to numbers to enable policy document verification
-// on file size (recommended)
+// on file size (recommended).
 const expectedMinSize: number | null = null
 const expectedMaxSize: number | null = null
 
+/**
+ * Uploader controller to handle AWS signature
+ * and upload success.
+ */
 export class UploaderController {
   /**
    * On uploader success callback.
    */
   public async onSuccess(req: Request, res: Response) {
     try {
-      const { key }: IUploaderOnSuccessBody = req.body
-      const savedMedia = await Media.create(req.authedUser, { key })
-      return new ApiResponse(res, savedMedia.toObject(), httpStatus.CREATED)
+      if (!req.authedUser) {
+        throw new ApiErrorForbidden()
+      }
+      const { key, name, size, mime }: IUploaderOnSuccessBody = req.body
+      const savedMedia = await new Media().create(req.authedUser, { key, name, size, mime })
+      new ApiResponse(res, savedMedia.toObject(), httpStatus.CREATED)
     } catch (err) {
-      return new ApiError(err)
+      new ApiError(err)
     }
   }
 
