@@ -1,8 +1,9 @@
 import express from 'express'
 
 import { UploaderController } from '../controllers'
-import { isAuthed } from '../config'
+import { isAuthed, paramValidation } from '../config'
 import { UserRoles } from '../enums'
+import { validator } from '../middleware'
 
 /**
  * Create Uploader router.
@@ -16,9 +17,13 @@ const router = express.Router()
  */
 const Uploader = new UploaderController()
 
-// @todo validate params.
 router.post('/sign', isAuthed(UserRoles.editor), Uploader.getSignature)
-// @todo validate params.
-router.post('/success', isAuthed(UserRoles.editor), Uploader.onSuccess)
+
+router.post(
+  '/success',
+  isAuthed(UserRoles.editor),
+  validator.body(paramValidation.uploaderSuccessPostBody),
+  Uploader.onSuccess,
+)
 
 export default router

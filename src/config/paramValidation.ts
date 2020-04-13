@@ -1,7 +1,8 @@
 import Joi from '@hapi/joi'
 
-import { UserRoles, UserStatus } from '../enums'
+import { UserRoles, UserStatus, AlbumStatus } from '../enums'
 import { IRequestListQuery, IRequestIdParam } from '../typings'
+import { config } from './config'
 
 /**
  * Reusable user profile fields validation schema.
@@ -105,15 +106,110 @@ export const paramValidation = {
     username: Joi.string()
       .alphanum()
       .min(4)
-      .max(30),
+      .max(30)
+      .messages({
+        'string.base': 'Username must be valid',
+        'string.alphanum': 'Username must be alphanum field',
+        'string.min': 'Username cannot be less than {#limit} characters long',
+        'string.max': 'Username cannot be more than {#limit} characters long',
+      }),
+    password: Joi.string()
+      .min(5)
+      .max(30)
+      .messages({
+        'string.min': 'Password cannot be less than {#limit} characters long',
+        'string.max': 'Password cannot be more than {#limit} characters long',
+      }),
+    role: Joi.string()
+      .equal(...Object.values(UserRoles))
+      .messages({
+        'any.only': 'User role is invalid, possible values: ' + Object.values(UserRoles).join(', '),
+      }),
+    status: Joi.string()
+      .equal(...Object.values(UserStatus))
+      .messages({
+        'any.only':
+          'User status is invalid, possible values: ' + Object.values(UserStatus).join(', '),
+      }),
     profile: userProfileValidationSchema,
+  }),
+
+  // POST /api/albums
+  albumPostBody: Joi.object({
+    name: Joi.string()
+      .min(1)
+      .max(50)
+      .required()
+      .messages({
+        'string.base': 'Album name must be valid',
+        'string.min': 'Album name cannot be less than {#limit} characters long',
+        'string.max': 'Album name cannot be more than {#limit} characters long',
+        'any.required': 'Album name is required',
+      }),
+    body: Joi.string(),
+    status: Joi.string()
+      .equal(...Object.values(AlbumStatus))
+      .messages({
+        'any.only':
+          'Album status is invalid, possible values: ' + Object.values(AlbumStatus).join(', '),
+      }),
   }),
 
   // PATCH /api/albums/:id
   albumPatchBody: Joi.object({
     name: Joi.string()
       .min(1)
-      .max(50),
+      .max(50)
+      .messages({
+        'string.base': 'Album name must be valid',
+        'string.min': 'Album name cannot be less than {#limit} characters long',
+        'string.max': 'Album name cannot be more than {#limit} characters long',
+      }),
     body: Joi.string(),
+    status: Joi.string()
+      .equal(...Object.values(AlbumStatus))
+      .messages({
+        'any.only':
+          'Album status is invalid, possible values: ' + Object.values(AlbumStatus).join(', '),
+      }),
+  }),
+
+  // POST /api/uploader/success
+  uploaderSuccessPostBody: Joi.object({
+    key: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'S3 object key is required',
+      }),
+    bucket: Joi.string()
+      .valid(config.aws.bucket)
+      .required()
+      .messages({
+        'any.required': 'S3 bucket is required',
+      }),
+    etag: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'Etag is required',
+      }),
+    name: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'File name is required',
+      }),
+    uuid: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'UUID is required',
+      }),
+  }),
+
+  // POST /api/media
+  mediaPostBody: Joi.object({
+    key: Joi.string()
+      .required()
+      .messages({
+        'any.required': 'S3 object key is required',
+      }),
   }),
 }
