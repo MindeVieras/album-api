@@ -226,16 +226,12 @@ userSchema.methods.getList = async function(
   if (search) {
     query = { $text: { $search: search }, ...query }
   }
-  const userPager = await User.paginate(query, {
+  return await User.paginate(query, {
     populate: populateCreatedBy,
     offset,
     limit,
     sort,
   })
-  // Mutate pagination response to include user virtual props.
-  const docs: UserDocument[] = userPager.docs
-
-  return { ...userPager, docs } as PaginateResult<UserDocument>
 }
 
 /**

@@ -52,7 +52,7 @@ export class UserController {
       const users = await new User().getList(authedUser, query)
       const { docs, ...usersCopy } = users
       const objects: IUserObject[] = docs.map((d) => d.toObject())
-      return new ApiResponse(res, { ...usersCopy, ...objects })
+      return new ApiResponse(res, { docs: objects, ...usersCopy })
     } catch (err) {
       return next(err)
     }
