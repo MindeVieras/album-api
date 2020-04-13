@@ -49,10 +49,13 @@ export type UserDocument = Document & {
   readonly createdAt: Date
   setLastLogin(date?: Date): void
   comparePassword(password: string): Promise<boolean>
-  getList(authedUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
-  create(authedUser: IUserObject, body: IUserInput): Promise<IUserObject>
-  getOne(authedUser: IUserObject, id: string): Promise<IUserObject>
-  updateOne(authedUser: IUserObject, id: string, body: IUserInput): Promise<IUserObject>
+  getList(
+    authedUser: IUserObject,
+    params?: IRequestListQuery,
+  ): Promise<PaginateResult<UserDocument>>
+  create(authedUser: IUserObject, body: IUserInput): Promise<UserDocument>
+  getOne(authedUser: IUserObject, id: string): Promise<UserDocument>
+  updateOne(authedUser: IUserObject, id: string, body: IUserInput): Promise<UserDocument>
   delete(authedUser: IUserObject, ids: string[]): Promise<void>
   profile?: {
     email?: string
@@ -197,13 +200,13 @@ userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
  * @param {IRequestListQuery} params
  *   List parameters.
  *
- * @returns {PaginateResult<IUserObject>}
- *   Mongoose pagination results including user objects.
+ * @returns {PaginateResult<UserDocument>}
+ *   Mongoose pagination results including user documents.
  */
 userSchema.methods.getList = async function(
   authedUser: IUserObject,
   params: IRequestListQuery = {},
-): Promise<PaginateResult<IUserObject>> {
+): Promise<PaginateResult<UserDocument>> {
   const { limit, offset, sort, search, filters } = params
   let query = {}
 
@@ -230,9 +233,9 @@ userSchema.methods.getList = async function(
     sort,
   })
   // Mutate pagination response to include user virtual props.
-  const docs: IUserObject[] = userPager.docs.map((d) => d.toObject())
+  const docs: UserDocument[] = userPager.docs
 
-  return { ...userPager, docs } as PaginateResult<IUserObject>
+  return { ...userPager, docs } as PaginateResult<UserDocument>
 }
 
 /**
@@ -243,13 +246,13 @@ userSchema.methods.getList = async function(
  * @param {IUserInput} body
  *   User body to save.
  *
- * @returns {Promise<IUserObject>}
- *   User object.
+ * @returns {Promise<UserDocument>}
+ *   User document.
  */
 userSchema.methods.create = async function(
   authedUser: IUserObject,
   body: IUserInput,
-): Promise<IUserObject> {
+): Promise<UserDocument> {
   const { password, role } = body
 
   // Remove password from request as soon as possible.
@@ -267,10 +270,7 @@ userSchema.methods.create = async function(
   const userDataToSave = { ...body, hash: password, createdBy: authedUser.id }
 
   // Save user to database.
-  const user = new User(userDataToSave)
-  const savedUser = await user.save()
-
-  return savedUser.toObject()
+  return await new User(userDataToSave).save()
 }
 
 /**
@@ -281,13 +281,13 @@ userSchema.methods.create = async function(
  * @param {string} id
  *   User document id.
  *
- * @returns {Promise<IUserObject>}
- *   User object.
+ * @returns {Promise<UserDocument>}
+ *   User document.
  */
 userSchema.methods.getOne = async function(
   authedUser: IUserObject,
   id: string,
-): Promise<IUserObject> {
+): Promise<UserDocument> {
   // Admin can access any user,
   // editor users can only access they own users
   // and viewers can only access own user.
@@ -301,11 +301,12 @@ userSchema.methods.getOne = async function(
   }
 
   const user = await User.findOne(query).populate(populateCreatedBy)
+
   // Throw 404 error if no user.
   if (!user) {
     throw new ApiErrorNotFound()
   }
-  return user.toObject()
+  return user
 }
 
 /**
@@ -319,13 +320,13 @@ userSchema.methods.getOne = async function(
  *   User body to save.
  *
  * @returns {Promise<IUserObject>}
- *   Updated user object.
+ *   Updated user document.
  */
 userSchema.methods.updateOne = async function(
   authedUser: IUserObject,
   id: string,
   body: IUserInput,
-): Promise<IUserObject> {
+): Promise<UserDocument> {
   const user = await User.findById(id).populate(populateCreatedBy)
 
   // Throw 404 error if no user.
@@ -344,9 +345,7 @@ userSchema.methods.updateOne = async function(
     user.profile = { ...user.toObject().profile, ...body.profile }
   }
 
-  await user.save()
-
-  return user.toObject()
+  return await user.save()
 }
 
 /**

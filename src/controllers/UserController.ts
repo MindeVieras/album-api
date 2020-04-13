@@ -50,7 +50,9 @@ export class UserController {
         throw new ApiErrorForbidden()
       }
       const users = await new User().getList(authedUser, query)
-      return new ApiResponse(res, users)
+      const { docs, ...usersCopy } = users
+      const objects: IUserObject[] = docs.map((d) => d.toObject())
+      return new ApiResponse(res, { ...usersCopy, ...objects })
     } catch (err) {
       return next(err)
     }
@@ -66,7 +68,7 @@ export class UserController {
         throw new ApiErrorForbidden()
       }
       const savedUser = await new User().create(authedUser, body)
-      return new ApiResponse(res, savedUser, httpStatus.CREATED)
+      return new ApiResponse(res, savedUser.toObject(), httpStatus.CREATED)
     } catch (err) {
       return next(err)
     }
@@ -83,7 +85,7 @@ export class UserController {
       }
       const { id } = params
       const user = await new User().getOne(authedUser, id)
-      return new ApiResponse(res, user)
+      return new ApiResponse(res, user.toObject())
     } catch (err) {
       return next(err)
     }
@@ -100,7 +102,7 @@ export class UserController {
       }
       const { id } = params
       const user = await new User().updateOne(authedUser, id, body)
-      return new ApiResponse(res, user)
+      return new ApiResponse(res, user.toObject())
     } catch (err) {
       return next(err)
     }
