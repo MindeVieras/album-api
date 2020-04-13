@@ -41,10 +41,13 @@ export type AlbumDocument = Document & {
   media?: MediaDocument[]
   readonly updatedAt: Date
   readonly createdAt: Date
-  getList(authedUser: IUserObject, params?: IRequestListQuery): Promise<PaginateResult<IUserObject>>
-  create(authedUser: IUserObject, body: IAlbumInput): Promise<IAlbumObject>
-  getOne(authedUser: IUserObject, id: string): Promise<IAlbumObject>
-  updateOne(authedUser: IUserObject, id: string, body: IAlbumInput): Promise<IAlbumObject>
+  getList(
+    authedUser: IUserObject,
+    params?: IRequestListQuery,
+  ): Promise<PaginateResult<AlbumDocument>>
+  create(authedUser: IUserObject, body: IAlbumInput): Promise<AlbumDocument>
+  getOne(authedUser: IUserObject, id: string): Promise<AlbumDocument>
+  updateOne(authedUser: IUserObject, id: string, body: IAlbumInput): Promise<AlbumDocument>
   delete(authedUser: IUserObject, ids: string[]): Promise<void>
 }
 
@@ -98,14 +101,14 @@ albumSchema.index({ name: 'text' })
  * @param {IRequestListQuery} params
  *   List parameters.
  *
- * @returns {PaginateResult<IAlbumObject>}
- *   Mongoose pagination results including album objects.
+ * @returns {PaginateResult<AlbumDocument>}
+ *   Mongoose pagination results including album documents.
  */
 albumSchema.methods.getList = async function(
   authedUser: IUserObject,
   params: IRequestListQuery = {},
-): Promise<PaginateResult<IAlbumObject>> {
-  const { limit, offset, sort, search, filters } = params as IRequestListQuery
+): Promise<PaginateResult<AlbumDocument>> {
+  const { limit, offset, sort, search, filters } = params
   let query = {}
 
   if (filters) {
@@ -124,17 +127,13 @@ albumSchema.methods.getList = async function(
   if (search) {
     query = { $text: { $search: search }, ...query }
   }
-  const albumPager = await Album.paginate(query, {
+  return await Album.paginate(query, {
     select: '-media',
     populate: populateCreatedBy,
     offset,
     limit,
     sort,
   })
-  // Mutate pagination response to include user virtual props.
-  const docs: IAlbumObject[] = albumPager.docs.map((d) => d.toObject())
-
-  return { ...albumPager, docs } as PaginateResult<IAlbumObject>
 }
 
 /**
@@ -145,32 +144,21 @@ albumSchema.methods.getList = async function(
  * @param {IAlbumInput} body
  *   Album body to save.
  *
- * @returns {Promise<IAlbumObject>}
- *   Album object.
+ * @returns {Promise<AlbumDocument>}
+ *   Album document.
  */
 albumSchema.methods.create = async function(
   authedUser: IUserObject,
   body: IAlbumInput,
-): Promise<IAlbumObject> {
-  // @ts-ignore
-  const { password, role } = body
-
-  // If role is provided,
-  // make sure that only admin users
-  // can create other admins.
-  if (role && role === UserRoles.admin && authedUser.role !== UserRoles.admin) {
+): Promise<AlbumDocument> {
+  // Make sure that only admins and
+  // editors can create albums.
+  if (authedUser.role === UserRoles.viewer) {
     throw new ApiErrorForbidden()
   }
 
-  // Create user data object, set password as hash.
-  // Actual hash is generated at the model level.
-  const userDataToSave = { ...body, hash: password, createdBy: authedUser.id }
-
-  // Save user to database.
-  const album = new Album(userDataToSave)
-  const savedAlbum = await album.save()
-
-  return savedAlbum.toObject()
+  // Save album to database.
+  return await new Album({ ...body, createdBy: authedUser.id }).save()
 }
 
 /**
@@ -181,25 +169,29 @@ albumSchema.methods.create = async function(
  * @param {string} id
  *   Album document object id.
  *
- * @returns {Promise<IAlbumObject>}
- *   Album object.
+ * @returns {Promise<AlbumDocument>}
+ *   Album document.
  */
 albumSchema.methods.getOne = async function(
   authedUser: IUserObject,
   id: string,
-): Promise<IAlbumObject> {
-  // console.log(authedUser)
+): Promise<AlbumDocument> {
+  console.log(authedUser)
   // Admin can access any album,
   // editor users can only access they own albums
   // and viewers can only access the albums created by its creator.
-  let query = { _id: id }
-  // if (authedUser.role === UserRoles.viewer && authedUser.createdBy) {
-  //   query = { _id: authedUser.createdBy.id }
-  // } else if (authedUser.role === UserRoles.editor) {
-  //   query = { _id: id, createdBy: authedUser.id }
-  // } else {
-  //   query = { _id: id }
-  // }
+  let query = {}
+  if (
+    authedUser.role === UserRoles.viewer &&
+    authedUser.createdBy &&
+    typeof authedUser.createdBy === 'string'
+  ) {
+    query = { _id: authedUser.createdBy }
+  } else if (authedUser.role === UserRoles.editor && typeof authedUser.createdBy === 'string') {
+    query = { _id: id, createdBy: authedUser.id }
+  } else {
+    query = { _id: id }
+  }
 
   const album = await Album.findOne(query)
     .populate(populateCreatedBy)
@@ -209,7 +201,7 @@ albumSchema.methods.getOne = async function(
   if (!album) {
     throw new ApiErrorNotFound()
   }
-  return album.toObject()
+  return album
 }
 
 /**
@@ -222,15 +214,17 @@ albumSchema.methods.getOne = async function(
  * @param {IAlbumInput} body
  *   Album body to save.
  *
- * @returns {Promise<IAlbumObject>}
- *   Updated album object.
+ * @returns {Promise<AlbumDocument>}
+ *   Updated album document.
  */
 albumSchema.methods.updateOne = async function(
   authedUser: IUserObject,
   id: string,
   body: IAlbumInput,
-): Promise<IAlbumObject> {
-  const album = await Album.findById(id).populate(populateCreatedBy)
+): Promise<AlbumDocument> {
+  const album = await Album.findById(id)
+    .populate(populateCreatedBy)
+    .populate(populateMedia)
 
   // Throw 404 error if no album.
   if (!album) {
@@ -250,7 +244,7 @@ albumSchema.methods.updateOne = async function(
 
   await album.save()
 
-  return album.toObject()
+  return album
 }
 
 /**
