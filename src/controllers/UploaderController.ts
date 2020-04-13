@@ -1,10 +1,18 @@
 import { Request, Response } from 'express'
 import CryptoJS from 'crypto-js'
+import httpStatus from 'http-status-codes'
 
 import { config } from '../config'
-import { ApiResponse, ApiErrorForbidden } from '../helpers'
+import { ApiResponse, ApiError } from '../helpers'
+import { Media } from '../models'
 
-// const getMediaDimensions = require('./aws/lambda/get_media_dimensions')
+interface IUploaderOnSuccessBody {
+  bucket: string
+  etag: string
+  key: string
+  name: string
+  uuid: string
+}
 
 // Change to numbers to enable policy document verification
 // on file size (recommended)
@@ -16,58 +24,13 @@ export class UploaderController {
    * On uploader success callback.
    */
   public async onSuccess(req: Request, res: Response) {
-    console.log(req.body)
     try {
-      // const { authedUser, query } = req
-      // if (!authedUser) {
-      //   throw new ApiErrorForbidden()
-      // }
-      // const users = await new User().getList(authedUser, query)
-      return new ApiResponse(res, req.body)
+      const { key }: IUploaderOnSuccessBody = req.body
+      const savedMedia = await Media.create(req.authedUser, { key })
+      return new ApiResponse(res, savedMedia.toObject(), httpStatus.CREATED)
     } catch (err) {
-      return new Error('Error!!!')
-      // return next(err)
+      return new ApiError(err)
     }
-    // res.json({ ack: 'OK!!!' })
-    // const { key, name, filesize, mime, entity, entity_id, status } = req.body
-    // const { uid } = req.app.get('user')
-    // if (key) {
-    //   let fileData = {}
-
-    //   getMediaDimensions
-    //     .get(key)
-    //     .then((dimensions) => {
-    //       fileData = {
-    //         s3_key: key,
-    //         mime,
-    //         filesize: parseInt(filesize),
-    //         org_filename: name,
-    //         entity: parseInt(entity),
-    //         entity_id: parseInt(entity_id),
-    //         status: parseInt(status),
-    //         author: uid,
-    //         width: dimensions.width,
-    //         height: dimensions.height,
-    //         weight: 0,
-    //       }
-
-    //       return conn.query(`INSERT INTO media set ?`, fileData)
-    //     })
-    //     .then((row) => {
-    //       const { ...fileCopy } = fileData
-    //       fileData = {
-    //         ...fileCopy,
-    //         media_id: row.insertId,
-    //       }
-    //       res.json({ success: true, data: fileData })
-    //     })
-    //     .catch((err) => {
-    //       let msg = err.sqlMessage ? err.sqlMessage : err
-    //       res.json({ ack: 'err', msg })
-    //     })
-    // } else {
-    //   res.json({ ack: 'err', msg: 'No key' })
-    // }
   }
 
   /**
