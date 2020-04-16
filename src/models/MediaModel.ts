@@ -1,10 +1,55 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import httpStatus from 'http-status-codes'
+import AWS from 'aws-sdk'
 
 import { IUserObject } from './UserModel'
 import { MediaStatus, MediaType, UserRoles } from '../enums'
-import { ICreatedBy, populateCreatedBy } from '../config'
+import { ICreatedBy, populateCreatedBy, config } from '../config'
 import { ApiErrorNotFound, ApiError, ApiErrorForbidden } from '../helpers'
+import { Model } from 'mongoose'
+
+/**
+ * Media document type.
+ */
+export type MediaDocument = Document & {
+  // Properties.
+  readonly key: string
+  name: string
+  readonly size: number
+  readonly mime: string
+  readonly type: MediaType
+  status: MediaStatus
+  createdBy: ICreatedBy | string | null
+  readonly updatedAt: Date
+  readonly createdAt: Date
+  metadata: {
+    width: number
+    height: number
+    timestamp?: number
+    flash?: number
+    iso?: number
+    make?: string
+    model?: string
+    orientation?: number
+    location?: {
+      alt?: number
+      altRef: number
+      lat?: number
+      lon?: number
+    }
+  }
+  // Methods.
+  getOne(authedUser: IUserObject, id: string): Promise<MediaDocument>
+  create(authedUser: IUserObject, body: IMediaInput): Promise<MediaDocument>
+}
+
+/**
+ * Media model definition.
+ */
+export interface IMediaModel extends Model<MediaDocument> {
+  // Statics.
+  getNewMetadata(key: MediaDocument['key']): Promise<MediaDocument['metadata']>
+}
 
 /**
  * Media object interface.
@@ -20,23 +65,7 @@ export interface IMediaObject {
   createdBy: MediaDocument['createdBy']
   readonly updatedAt: MediaDocument['createdAt']
   readonly createdAt: MediaDocument['updatedAt']
-}
-
-/**
- * Media document type.
- */
-export type MediaDocument = Document & {
-  readonly key: string
-  name: string
-  readonly size: number
-  readonly mime: string
-  readonly type: MediaType
-  status: MediaStatus
-  createdBy: ICreatedBy | string | null
-  readonly updatedAt: Date
-  readonly createdAt: Date
-  getOne(authedUser: IUserObject, id: string): Promise<MediaDocument>
-  create(authedUser: IUserObject, body: IMediaInput): Promise<MediaDocument>
+  metadata: MediaDocument['metadata']
 }
 
 /**
@@ -48,6 +77,8 @@ export interface IMediaInput {
   size: MediaDocument['size']
   mime: MediaDocument['mime']
 }
+
+const lambda = new AWS.Lambda()
 
 /**
  * Media schema.
@@ -80,6 +111,9 @@ const mediaSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: 'Media createdBy is required',
+    },
+    metadata: {
+      type: Object,
     },
   },
   {
@@ -165,8 +199,15 @@ mediaSchema.methods.create = async function(
     throw new ApiErrorForbidden()
   }
 
+  // Get media metadata.
+  const metadata = await Media.getNewMetadata(body.key)
+
   // Create media data object.
-  const mediaDataToSave = { ...body, createdBy: authedUser.id }
+  const mediaDataToSave = {
+    ...body,
+    createdBy: authedUser.id,
+    metadata,
+  }
 
   // Save media to database.
   const media = new Media(mediaDataToSave)
@@ -175,8 +216,54 @@ mediaSchema.methods.create = async function(
   return savedMedia
 }
 
+interface ILambdaGetMediaMetadataResponse {
+  success: boolean
+  data: MediaDocument['metadata']
+  error?: string
+}
+
+/**
+ * Gets media metadata by invoking Lambda.
+ *
+ * @param {MediaDocument['key']} key
+ *   The key of the file on S3.
+ *
+ * @returns {Promise<MediaDocument['metadata']>}
+ *   Promise including metadata object.
+ */
+mediaSchema.statics.getNewMetadata = async function(
+  key: MediaDocument['key'],
+): Promise<MediaDocument['metadata']> {
+  try {
+    let params = {
+      FunctionName: 'aws-album_get_media_metadata',
+      Payload: `{"key": "${key}", "bucket": "${config.aws.bucket}"}`,
+    }
+    const lambdaResponse = await lambda.invoke(params).promise()
+
+    if (typeof lambdaResponse.Payload === 'string') {
+      const { success, error, data }: ILambdaGetMediaMetadataResponse = JSON.parse(
+        lambdaResponse.Payload,
+      )
+      if (error) {
+        throw new Error(error)
+      }
+      if (success) {
+        return data
+      }
+    }
+
+    throw new Error('Lambda function must return json encoded string')
+  } catch (error) {
+    return error
+  }
+}
+
 /**
  * Media virtual field 'type'.
+ *
+ * @returns {MediaType}
+ *   Readable media type parsed from the mime type.
  */
 mediaSchema.virtual('type').get(function(this: MediaDocument): MediaType {
   const mime = this.mime
@@ -191,4 +278,4 @@ mediaSchema.virtual('type').get(function(this: MediaDocument): MediaType {
 /**
  * Export media schema as model.
  */
-export const Media = mongoose.model<MediaDocument>('Media', mediaSchema)
+export const Media: IMediaModel = mongoose.model<MediaDocument, IMediaModel>('Media', mediaSchema)
