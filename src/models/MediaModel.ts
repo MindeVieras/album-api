@@ -25,12 +25,15 @@ export type MediaDocument = Document & {
   metadata: {
     width: number
     height: number
-    timestamp?: number
+    datetime?: Date
     flash?: number
     iso?: number
     make?: string
     model?: string
     orientation?: number
+    duration?: number
+    frameRate?: number
+    codec?: string
     location?: {
       alt?: number
       altRef: number
