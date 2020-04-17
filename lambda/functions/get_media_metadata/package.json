@@ -9,6 +9,8 @@
   "author": "Minde Vieras",
   "license": "ISC",
   "dependencies": {
-    "exif-parser": "^0.1.12"
+    "exif-parser": "^0.1.12",
+    "ffprobe": "^1.1.0",
+    "moment": "^2.24.0"
   }
 }
