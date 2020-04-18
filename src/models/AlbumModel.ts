@@ -127,6 +127,13 @@ albumSchema.methods.getList = async function(
   if (search) {
     query = { $text: { $search: search }, ...query }
   }
+
+  // Exclude trashed items.
+  query = {
+    ...query,
+    status: { $ne: AlbumStatus.trashed },
+  }
+
   return await Album.paginate(query, {
     select: '-media',
     populate: populateCreatedBy,
