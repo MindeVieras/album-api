@@ -213,6 +213,11 @@ export const paramValidation = {
       .messages({
         'any.required': 'Mime type is required',
       }),
+    album: Joi.string()
+      .hex()
+      .messages({
+        'string.base': 'Album be valid id',
+      }),
   }),
 
   // POST /api/media
@@ -237,6 +242,11 @@ export const paramValidation = {
       .required()
       .messages({
         'any.required': 'Mime type is required',
+      }),
+    album: Joi.string()
+      .hex()
+      .messages({
+        'string.base': 'Album be valid id',
       }),
   }),
 }

@@ -1,12 +1,12 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema, Model } from 'mongoose'
 import httpStatus from 'http-status-codes'
 import AWS from 'aws-sdk'
 
 import { IUserObject } from './UserModel'
+import { Album } from './AlbumModel'
 import { MediaStatus, MediaType, UserRoles } from '../enums'
-import { ICreatedBy, populateCreatedBy, config } from '../config'
+import { ICreatedBy, populateCreatedBy, config, IPopulatedMediaAlbum } from '../config'
 import { ApiErrorNotFound, ApiError, ApiErrorForbidden } from '../helpers'
-import { Model } from 'mongoose'
 
 /**
  * Media document type.
@@ -20,6 +20,7 @@ export type MediaDocument = Document & {
   readonly type: MediaType
   status: MediaStatus
   createdBy: ICreatedBy | string | null
+  album?: IPopulatedMediaAlbum | string | null
   readonly updatedAt: Date
   readonly createdAt: Date
   metadata: {
@@ -66,6 +67,7 @@ export interface IMediaObject {
   readonly type: MediaDocument['type']
   status: MediaDocument['status']
   createdBy: MediaDocument['createdBy']
+  album?: MediaDocument['album']
   readonly updatedAt: MediaDocument['createdAt']
   readonly createdAt: MediaDocument['updatedAt']
   metadata: MediaDocument['metadata']
@@ -79,6 +81,7 @@ export interface IMediaInput {
   name: MediaDocument['name']
   size: MediaDocument['size']
   mime: MediaDocument['mime']
+  album?: IMediaObject['id']
 }
 
 const lambda = new AWS.Lambda()
@@ -115,6 +118,10 @@ const mediaSchema = new Schema(
       ref: 'User',
       required: 'Media createdBy is required',
     },
+    album: {
+      type: Schema.Types.ObjectId,
+      ref: 'Album',
+    },
     metadata: {
       type: Object,
     },
@@ -149,6 +156,19 @@ mediaSchema.pre('save', async function(next) {
     const mediaKeyExists = await Media.findOne({ key: media.key })
     if (mediaKeyExists) {
       throw new ApiError(`Media key '${media.key}' already exists`, httpStatus.CONFLICT)
+    }
+
+    // Get media metadata.
+    media.metadata = await Media.getNewMetadata(media.key)
+
+    // Handle album field.
+    if (media.album) {
+      // Check if album exists.
+      const albumExists = await Album.findById(media.album)
+      // Assign media item to album.
+      if (albumExists) {
+        await albumExists.update({ media: [...(albumExists.media ?? []), media.id] })
+      }
     }
 
     next()
@@ -202,14 +222,10 @@ mediaSchema.methods.create = async function(
     throw new ApiErrorForbidden()
   }
 
-  // Get media metadata.
-  const metadata = await Media.getNewMetadata(body.key)
-
   // Create media data object.
   const mediaDataToSave = {
     ...body,
     createdBy: authedUser.id,
-    metadata,
   }
 
   // Save media to database.

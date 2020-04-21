@@ -7,6 +7,11 @@ export interface ICreatedBy {
   readonly role: UserRoles
 }
 
+export interface IPopulatedMediaAlbum {
+  readonly id: string
+  readonly name: string
+}
+
 /**
  * Reusable createdBy population object.
  */
@@ -21,4 +26,12 @@ export const populateCreatedBy = {
 export const populateMedia = {
   path: 'media',
   populate: populateCreatedBy,
+}
+
+/**
+ * Media album population object.
+ */
+export const populateMediaAlbum = {
+  path: 'album',
+  select: 'name',
 }

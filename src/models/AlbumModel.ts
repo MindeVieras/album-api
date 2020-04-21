@@ -183,7 +183,6 @@ albumSchema.methods.getOne = async function(
   authedUser: IUserObject,
   id: string,
 ): Promise<AlbumDocument> {
-  console.log(authedUser)
   // Admin can access any album,
   // editor users can only access they own albums
   // and viewers can only access the albums created by its creator.

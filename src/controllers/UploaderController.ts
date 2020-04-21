@@ -4,19 +4,15 @@ import httpStatus from 'http-status-codes'
 
 import { config } from '../config'
 import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
-import { Media, MediaDocument } from '../models'
+import { Media, MediaDocument, IMediaInput } from '../models'
 
 /**
  * Fine uploader POST request body on success.
  */
-interface IUploaderOnSuccessBody {
+interface IUploaderOnSuccessBody extends IMediaInput {
   bucket: string
   etag: string
-  key: string
-  name: string
   uuid: string
-  size: MediaDocument['size']
-  mime: MediaDocument['mime']
 }
 
 // @todo set those correctly.
@@ -38,8 +34,14 @@ export class UploaderController {
       if (!req.authedUser) {
         throw new ApiErrorForbidden()
       }
-      const { key, name, size, mime }: IUploaderOnSuccessBody = req.body
-      const savedMedia = await new Media().create(req.authedUser, { key, name, size, mime })
+      const { key, name, size, mime, album }: IUploaderOnSuccessBody = req.body
+      const savedMedia = await new Media().create(req.authedUser, {
+        key,
+        name,
+        size,
+        mime,
+        album,
+      })
       new ApiResponse(res, savedMedia.toObject(), httpStatus.CREATED)
     } catch (err) {
       new ApiError(err)
