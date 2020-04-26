@@ -1,4 +1,4 @@
-import { UserRoles } from '../enums'
+import { UserRoles, MediaStatus } from '../enums'
 
 export interface ICreatedBy {
   readonly id: string
@@ -25,6 +25,7 @@ export const populateCreatedBy = {
  */
 export const populateMedia = {
   path: 'media',
+  match: { status: [MediaStatus.active, MediaStatus.private] },
   populate: populateCreatedBy,
 }
 
