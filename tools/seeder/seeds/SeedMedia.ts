@@ -40,9 +40,9 @@ export async function SeedMedia(count: number = SeederDefaults.total) {
     const imageSize = faker.random.arrayElement(imageSizes)
     const med = new Media({
       key: faker.random.image(),
-      filename: 'image.jpg',
-      filesize: faker.random.number({ min: 2020, max: 20200412 }),
-      mimeType: 'image/jpeg',
+      name: 'image.jpg',
+      size: faker.random.number({ min: 2020, max: 20200412 }),
+      mime: 'image/jpeg',
       status: faker.random.arrayElement(Object.values(MediaStatus)),
       createdBy: SeederDefaults.fakeId,
       width: imageSize.width,
