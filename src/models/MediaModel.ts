@@ -26,6 +26,7 @@ export type MediaDocument = Document & {
   metadata: {
     width: number
     height: number
+    icon: string
     datetime?: Date
     flash?: number
     iso?: number

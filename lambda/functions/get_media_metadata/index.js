@@ -2,6 +2,7 @@ const AWS = require('aws-sdk')
 const ExifParser = require('exif-parser')
 const ffprobe = require('ffprobe')
 const moment = require('moment')
+const gm = require('gm').subClass({ imageMagick: true })
 
 const s3 = new AWS.S3()
 
@@ -46,11 +47,16 @@ exports.handle = async function(input) {
         // Parse exif data from the image.
         const parser = ExifParser.create(s3File.Body)
         const { tags, imageSize } = parser.parse()
+
+        // Generate image icon, it is small in size so ok to save to database.
+        const icon = await generateImageIcon(s3File.Body)
+
         return {
           success: true,
           data: {
             width: imageSize.width,
             height: imageSize.height,
+            icon,
             ...prepareExifTags(tags),
           },
         }
@@ -69,7 +75,10 @@ exports.handle = async function(input) {
 
         return {
           success: true,
-          data: prepareFfprobeTags(ffprobeData.streams),
+          data: {
+            icon: 'videoBase64IconString',
+            ...prepareFfprobeTags(ffprobeData.streams),
+          },
         }
       }
     }
@@ -150,4 +159,34 @@ function prepareFfprobeTags(streams) {
   }
 
   return meta
+}
+
+/**
+ * Generates image icon.
+ *
+ * @param {Buffer} file
+ *   File buffer from s3.
+ *
+ * @returns {Promise<string>}
+ *   Base64 encoded icon string.
+ */
+function generateImageIcon(file) {
+  const iconSize = {
+    width: 48,
+    height: 48,
+  }
+  return new Promise((resolve, reject) => {
+    gm(file)
+      .quality(45)
+      .resize(iconSize.width, iconSize.height, '^')
+      .gravity('Center')
+      .crop(iconSize.width, iconSize.height)
+      .toBuffer((err, buffer) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(buffer.toString('base64'))
+        }
+      })
+  })
 }
