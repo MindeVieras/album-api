@@ -184,7 +184,7 @@ function prepareFfprobeTags(streams) {
 function generateImageIcon(file) {
   return new Promise((resolve, reject) => {
     gm(file)
-      .quality(45)
+      .quality(70)
       .resize(iconSize.width, iconSize.height, '^')
       .gravity('Center')
       .crop(iconSize.width, iconSize.height)
