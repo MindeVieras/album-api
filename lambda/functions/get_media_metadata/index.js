@@ -1,3 +1,5 @@
+const { spawn } = require('child_process')
+const { createWriteStream } = require('fs')
 const AWS = require('aws-sdk')
 const ExifParser = require('exif-parser')
 const ffprobe = require('ffprobe')
@@ -5,6 +7,14 @@ const moment = require('moment')
 const gm = require('gm').subClass({ imageMagick: true })
 
 const s3 = new AWS.S3()
+
+const ffprobePath = '/opt/bin/ffprobe'
+const ffmpegPath = '/opt/bin/ffmpeg'
+const tmpFileName = '/tmp/icon.jpg'
+const iconSize = {
+  width: 54,
+  height: 54,
+}
 
 /**
  * Lambda function to get media metadata.
@@ -16,7 +26,7 @@ const s3 = new AWS.S3()
  *
  * @returns {object}
  *   Object including boolean 'success' key and a data object
- *   including metadata or error message if 'success' is false
+ *   including metadata or error message if 'success' is false.
  */
 exports.handle = async function(input) {
   // Input keys.
@@ -68,15 +78,16 @@ exports.handle = async function(input) {
         const url = s3.getSignedUrl('getObject', {
           Bucket: bucket,
           Key: key,
-          Expires: 60,
+          Expires: 2,
         })
         // ffprobe is added to '/opt/bin/ffprobe' by lambda layer.
-        const ffprobeData = await ffprobe(url, { path: '/opt/bin/ffprobe' })
+        const ffprobeData = await ffprobe(url, { path: ffprobePath })
+        const icon = await generateVideoIcon(url)
 
         return {
           success: true,
           data: {
-            icon: 'videoBase64IconString',
+            icon,
             ...prepareFfprobeTags(ffprobeData.streams),
           },
         }
@@ -171,10 +182,6 @@ function prepareFfprobeTags(streams) {
  *   Base64 encoded icon string.
  */
 function generateImageIcon(file) {
-  const iconSize = {
-    width: 48,
-    height: 48,
-  }
   return new Promise((resolve, reject) => {
     gm(file)
       .quality(45)
@@ -188,5 +195,51 @@ function generateImageIcon(file) {
           resolve(buffer.toString('base64'))
         }
       })
+  })
+}
+
+/**
+ * Helper function to generate video icon using ffmpeg.
+ *
+ * @param {string} target
+ *   Url or path for a video file.
+ *
+ * @returns {Promise<string>}
+ *   Base64 encoded icon string.
+ */
+function generateVideoIcon(target) {
+  return new Promise((resolve, reject) => {
+    const seek = 0
+    let tmpFile = createWriteStream(tmpFileName)
+
+    const ffmpeg = spawn(ffmpegPath, [
+      '-i',
+      target,
+      '-ss',
+      seek,
+      '-vf',
+      'thumbnail',
+      '-qscale:v',
+      '2',
+      '-frames:v',
+      '1',
+      '-f',
+      'image2',
+      '-c:v',
+      'mjpeg',
+      'pipe:1',
+    ])
+
+    ffmpeg.stdout.pipe(tmpFile)
+
+    ffmpeg.on('close', (code) => {
+      tmpFile.end()
+
+      resolve(generateImageIcon(tmpFileName))
+    })
+
+    ffmpeg.on('error', (err) => {
+      reject(err)
+    })
   })
 }
