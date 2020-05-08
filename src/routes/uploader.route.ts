@@ -1,4 +1,5 @@
 import express from 'express'
+import companion from '@uppy/companion'
 
 import { UploaderController } from '../controllers'
 import { isAuthed, paramValidation } from '../config'
@@ -16,6 +17,8 @@ const router = express.Router()
  * Initiate Uploader controller.
  */
 const Uploader = new UploaderController()
+
+router.use('/', companion.app(UploaderController.uppyOptions))
 
 router.post('/sign', isAuthed(UserRoles.editor), Uploader.getSignature)
 

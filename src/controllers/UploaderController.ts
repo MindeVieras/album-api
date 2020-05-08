@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import CryptoJS from 'crypto-js'
 import httpStatus from 'http-status-codes'
+import { IUppyCompanionOptions } from '@uppy/companion'
 
 import { config } from '../config'
 import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
@@ -26,6 +27,28 @@ const expectedMaxSize: number | null = null
  * and upload success.
  */
 export class UploaderController {
+  public static uppyOptions: IUppyCompanionOptions = {
+    providerOptions: {
+      s3: {
+        getKey: (req: Request, filename: string, metadata: any) => filename,
+        key: config.aws.accessKey,
+        secret: config.aws.secretKey,
+        bucket: config.aws.bucket,
+        region: config.aws.region,
+        useAccelerateEndpoint: false,
+        expires: 300,
+        acl: 'private',
+      },
+    },
+    server: {
+      host: `${config.host}:${config.port}`,
+      protocol: config.protocol,
+    },
+    filePath: '/tmp',
+    secret: config.uploaderSecret,
+    debug: true,
+  }
+
   /**
    * On uploader success callback.
    */

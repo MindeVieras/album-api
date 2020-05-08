@@ -7,12 +7,14 @@ dotenv.config()
 /**
  * Configuration interface.
  */
-interface IConfig {
+export interface IConfig {
   readonly env: 'development' | 'production' | 'test'
+  readonly protocol: 'http' | 'https'
   readonly host: string
   readonly port: number
   readonly locale: string
   readonly jwtSecret: string
+  readonly uploaderSecret: string
   readonly mongodb: string
   readonly aws: {
     readonly region: string
@@ -32,6 +34,9 @@ const envVarsSchema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production', 'test')
     .default('development'),
+  PROTOCOL: Joi.string()
+    .valid('http', 'https')
+    .default('http'),
   HOST: Joi.string().default('localhost'),
   PORT: Joi.number().default(3000),
   DEFAULT_LOCALE: Joi.string().default('en'),
@@ -45,6 +50,9 @@ const envVarsSchema = Joi.object({
   JWT_SECRET: Joi.string()
     .required()
     .description('JWT Secret is required to sign'),
+  UPLOADER_SECRET: Joi.string()
+    .required()
+    .description('Uploader Secret is required to sign'),
 
   // AWS variables.
   AWS_REGION: Joi.string().required(),
@@ -72,10 +80,12 @@ if (error) {
  */
 export const config: IConfig = {
   env: envVars.NODE_ENV,
+  protocol: envVars.PROTOCOL,
   host: envVars.HOST,
   port: envVars.PORT,
   locale: envVars.DEFAULT_LOCALE,
   jwtSecret: envVars.JWT_SECRET,
+  uploaderSecret: envVars.UPLOADER_SECRET,
   mongodb: envVars.NODE_ENV === 'test' ? `${envVars.MONGODB_URI}_test` : envVars.MONGODB_URI,
   aws: {
     region: envVars.AWS_REGION,

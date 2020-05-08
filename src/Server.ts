@@ -31,7 +31,7 @@ export default class Server {
   /**
    * Server base url.
    */
-  public static baseUrl = `http://${config.host}:${config.port}`
+  public static baseUrl = `${config.protocol}://${config.host}:${config.port}`
 
   constructor() {
     // Add some extra security to the API.
@@ -41,7 +41,7 @@ export default class Server {
     this.app.use(compression())
 
     // CORS.
-    this.app.use(cors())
+    this.app.use(cors({ methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'] }))
 
     // Body parser.
     this.app.use(bodyParser.urlencoded({ extended: true })).use(bodyParser.json())
