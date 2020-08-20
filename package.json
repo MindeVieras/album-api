@@ -27,7 +27,7 @@
     "@hapi/joi": "^16.1.7",
     "aspect-ratio": "^2.1.0",
     "aws-sdk": "^2.565.0",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "crypto-js": "^3.1.9-1",
