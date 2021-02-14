@@ -30,7 +30,7 @@ export class UserController {
         // Set last login date.
         user.setLastLogin()
 
-        const userObject: IUserObject = user.toObject()
+        const userObject = user.toObject() as IUserObject
 
         // Sign for JWT token.
         const token = jwt.sign(userObject, config.jwtSecret)
@@ -51,7 +51,7 @@ export class UserController {
       }
       const users = await new User().getList(authedUser, query)
       const { docs, ...usersCopy } = users
-      const objects: IUserObject[] = docs.map((d) => d.toObject())
+      const objects = docs.map((d) => d.toObject()) as IUserObject[]
       return new ApiResponse(res, { docs: objects, ...usersCopy })
     } catch (err) {
       return next(err)

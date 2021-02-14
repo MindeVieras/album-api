@@ -19,7 +19,7 @@ export class AlbumController {
       }
       const albums = await new Album().getList(authedUser, query)
       const { docs, ...albumCopy } = albums
-      const objects: IAlbumObject[] = docs.map((d) => d.toObject())
+      const objects = docs.map((d) => d.toObject()) as IAlbumObject[]
       return new ApiResponse(res, { docs: objects, ...albumCopy })
     } catch (err) {
       return next(err)

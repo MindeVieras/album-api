@@ -4,7 +4,7 @@ import { Model, Schema, PaginateResult, PaginateOptions } from 'mongoose'
  * Mongoose pagination factory function.
  */
 function paginate<T extends Model<any>>() {
-  return async function(
+  return async function (
     this: T,
     query: Object = {},
     options: PaginateOptions = {},
@@ -46,8 +46,8 @@ function paginate<T extends Model<any>>() {
  * @returns {mongoose.Schema}
  *   Mongoose schema including paginate plugin.
  */
-export function mongoosePaginate<T extends Model<any>>(schema: Schema) {
-  schema.statics.paginate = paginate<T>()
+export function mongoosePaginate(schema: Schema) {
+  schema.statics.paginate = paginate()
   return schema
 }
 
