@@ -1,0 +1,22 @@
+{
+  "name": "album-api",
+  "version": "0.0.1",
+  "description": "Album API project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MindeVieras/album-api.git"
+  },
+  "author": "Minde Vieras",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MindeVieras/album-api/issues"
+  },
+  "homepage": "https://github.com/MindeVieras/album-api#readme",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {}
+}
