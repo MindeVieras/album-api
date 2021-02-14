@@ -127,7 +127,7 @@ userSchema.index({ username: 'text', role: 'text' })
 /**
  * Run middleware before user is saved.
  */
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   const user = this as UserDocument
 
   if (!user.isModified('hash')) {
@@ -161,9 +161,10 @@ userSchema.pre('save', async function(next) {
  * @returns {Promise<boolean>}
  *   Whether password match or not.
  */
-userSchema.methods.comparePassword = function(password: string): Promise<boolean> {
+userSchema.methods.comparePassword = function (password: string): Promise<boolean> {
+  const user = this as UserDocument
   return new Promise((resolve, reject) => {
-    bcrypt.compare(password, this.hash, (err, isMatch) => {
+    bcrypt.compare(password, user.hash, (err, isMatch) => {
       if (err) {
         return reject(err)
       }
@@ -181,7 +182,7 @@ userSchema.methods.comparePassword = function(password: string): Promise<boolean
  * @param {Date} date
  *   Optional last login date to be set.
  */
-userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
+userSchema.methods.setLastLogin = function (date: Date = new Date()): void {
   User.collection.updateOne(
     { _id: this._id },
     {
@@ -203,7 +204,7 @@ userSchema.methods.setLastLogin = function(date: Date = new Date()): void {
  * @returns {PaginateResult<UserDocument>}
  *   Mongoose pagination results including user documents.
  */
-userSchema.methods.getList = async function(
+userSchema.methods.getList = async function (
   authedUser: IUserObject,
   params: IRequestListQuery = {},
 ): Promise<PaginateResult<UserDocument>> {
@@ -245,7 +246,7 @@ userSchema.methods.getList = async function(
  * @returns {Promise<UserDocument>}
  *   User document.
  */
-userSchema.methods.create = async function(
+userSchema.methods.create = async function (
   authedUser: IUserObject,
   body: IUserInput,
 ): Promise<UserDocument> {
@@ -280,7 +281,7 @@ userSchema.methods.create = async function(
  * @returns {Promise<UserDocument>}
  *   User document.
  */
-userSchema.methods.getOne = async function(
+userSchema.methods.getOne = async function (
   authedUser: IUserObject,
   id: string,
 ): Promise<UserDocument> {
@@ -318,7 +319,7 @@ userSchema.methods.getOne = async function(
  * @returns {Promise<IUserObject>}
  *   Updated user document.
  */
-userSchema.methods.updateOne = async function(
+userSchema.methods.updateOne = async function (
   authedUser: IUserObject,
   id: string,
   body: IUserInput,
@@ -355,7 +356,7 @@ userSchema.methods.updateOne = async function(
  * @returns {Promise<void>}
  *   Empty promise.
  */
-userSchema.methods.delete = async function(authedUser: IUserObject, ids: string[]) {
+userSchema.methods.delete = async function (authedUser: IUserObject, ids: string[]) {
   // Only admin can delete any user,
   // others can only delete they own users.
   if (authedUser.role === UserRoles.admin) {
@@ -368,7 +369,7 @@ userSchema.methods.delete = async function(authedUser: IUserObject, ids: string[
 /**
  * User virtual field 'initials'.
  */
-userSchema.virtual('initials').get(function(this: UserDocument) {
+userSchema.virtual('initials').get(function (this: UserDocument) {
   const displayName = this.profile?.displayName ? this.profile.displayName : ''
   return makeInitials(this.username, displayName)
 })

@@ -17,7 +17,7 @@ const JwtStrategy = passportJwt.Strategy
 passport.use(
   'local',
   new LocalStrategy({ usernameField: 'username', session: false }, (username, password, done) => {
-    User.findOne({ username }, (err, user: UserDocument) => {
+    User.findOne({ username }, null, null, (err, user) => {
       if (err) {
         return done(err)
       }
