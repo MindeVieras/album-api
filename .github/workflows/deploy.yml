@@ -19,7 +19,7 @@ jobs:
             cd ${{ secrets.PATH }}
             git pull
             npm install
-            npm run build
+            npm run build-prod
             cp src/index.html dist
             npm prune --production
             pm2 restart AlbumAPI
