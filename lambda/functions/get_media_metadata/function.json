@@ -1,9 +1,0 @@
-{
-  "name": "get_media_metadata",
-  "description": "Gets metadata from images and videos.",
-  "runtime": "nodejs10.x",
-  "memory": 2048,
-  "timeout": 10,
-  "role": "arn:aws:iam::492012502704:role/lambda_album",
-  "handler": "index.handle"
-}
