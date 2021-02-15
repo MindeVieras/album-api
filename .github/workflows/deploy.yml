@@ -17,6 +17,7 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.PATH }}
+            export NODE_OPTIONS="--max-old-space-size=8192"
             git pull
             npm install
             npm run build-prod
