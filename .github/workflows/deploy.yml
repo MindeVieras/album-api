@@ -17,9 +17,10 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.PATH }}
+            export NODE_OPTIONS="--max-old-space-size=8192"
             git pull
             npm install
-            npm run build
+            npm run build-prod
             cp src/index.html dist
             npm prune --production
             pm2 restart AlbumAPI
