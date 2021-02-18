@@ -8,7 +8,7 @@ import path from 'path'
 import passport from 'passport'
 import mongoose from 'mongoose'
 
-import { Config } from 'album-api-config'
+import Config from 'album-api-config'
 
 // Set global mongoose plugins.
 // Make sure to load it before routes.
