@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 import { unflatten } from 'flat'
 
+import { Config } from 'album-api-config'
+
 import { ApiError, IValidationErrors, ApiErrorNotFound } from '../helpers'
-import { config } from '../config'
 
 /**
  * API error middleware response interface.
@@ -34,7 +35,7 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
   }
 
   // Only keep stack property on dev environment.
-  if (config.env === 'development') {
+  if (Config.env === 'development') {
     response.stack = err.stack
   }
 

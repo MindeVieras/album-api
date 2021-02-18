@@ -1,8 +1,9 @@
 import Joi from '@hapi/joi'
 
+import { Config } from 'album-api-config'
+
 import { UserRoles, UserStatus, AlbumStatus } from '../enums'
 import { IRequestListQuery, IRequestIdParam } from '../typings'
-import { config } from './config'
 
 /**
  * Reusable user profile fields validation schema.
@@ -182,7 +183,7 @@ export const paramValidation = {
         'any.required': 'S3 object key is required',
       }),
     bucket: Joi.string()
-      .valid(config.aws.bucket)
+      .valid(Config.aws.bucket)
       .required()
       .messages({
         'any.required': 'S3 bucket is required',

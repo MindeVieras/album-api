@@ -1,14 +1,14 @@
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
-import { config } from './config'
+import { Config } from 'album-api-config'
 
 /**
  * Setup MongoDB connection.
  */
 export async function databaseSetup() {
   try {
-    await mongoose.connect(config.mongodb, {
+    await mongoose.connect(Config.mongodb, {
       useNewUrlParser: true,
       useCreateIndex: true,
       useFindAndModify: false,

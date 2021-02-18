@@ -8,12 +8,13 @@ import path from 'path'
 import passport from 'passport'
 import mongoose from 'mongoose'
 
+import { Config } from 'album-api-config'
+
 // Set global mongoose plugins.
 // Make sure to load it before routes.
 import { mongoosePaginate } from './helpers'
 mongoose.plugin(mongoosePaginate)
 
-import { config } from './config'
 import routes from './routes/index.route'
 import { errorConverter, errorNotFound, errorHandler } from './middleware'
 
@@ -31,7 +32,7 @@ export default class Server {
   /**
    * Server base url.
    */
-  public static baseUrl = `${config.protocol}://${config.host}:${config.port}`
+  public static baseUrl = `${Config.protocol}://${Config.host}:${Config.port}`
 
   constructor() {
     // Add some extra security to the API.
@@ -47,7 +48,7 @@ export default class Server {
     this.app.use(bodyParser.urlencoded({ extended: true })).use(bodyParser.json())
 
     // Middleware only for dev environment.
-    if (config.env === 'development') {
+    if (Config.env === 'development') {
       // Dev logger.
       this.app.use(morgan('dev'))
     }
@@ -57,7 +58,7 @@ export default class Server {
 
     // Setup ping route for test/dev.
     this.app.get('/ping', (req: Request, res: Response) => {
-      console.log(config.env)
+      console.log(Config.env)
       res.status(200).send('OK')
     })
 
@@ -88,9 +89,9 @@ export default class Server {
    *   Optional port number.
    */
   public listen(port?: number): void {
-    this.app.listen(port ?? config.port, () => {
+    this.app.listen(port ?? Config.port, () => {
       // Log about success server start only for dev environment.
-      if (config.env === 'development') {
+      if (Config.env === 'development') {
         console.log(`Server running at ${Server.baseUrl}`)
       }
       return this.app

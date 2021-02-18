@@ -4,7 +4,8 @@ import passport from 'passport'
 import { IVerifyOptions } from 'passport-local'
 import jwt from 'jsonwebtoken'
 
-import { config } from '../config'
+import { Config } from 'album-api-config'
+
 import { User, UserDocument, IUserObject } from '../models'
 import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
 
@@ -33,7 +34,7 @@ export class UserController {
         const userObject = user.toObject() as IUserObject
 
         // Sign for JWT token.
-        const token = jwt.sign(userObject, config.jwtSecret)
+        const token = jwt.sign(userObject, Config.jwtSecret)
 
         return new ApiResponse(res, { ...userObject, token }, httpStatus.OK)
       })
