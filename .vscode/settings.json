@@ -8,7 +8,9 @@
   "editor.wordWrapColumn": 120,
   "editor.wordWrap": "off",
   "editor.detectIndentation": true,
-  "editor.rulers": [120],
+  "editor.rulers": [
+    120
+  ],
   "[typescript]": {
     "editor.formatOnSave": true
   },

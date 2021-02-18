@@ -3,10 +3,11 @@ import passport from 'passport'
 import passportLocal, { IVerifyOptions } from 'passport-local'
 import passportJwt from 'passport-jwt'
 
-import { User, UserDocument, IUserObject } from '../models/UserModel'
+import { Config } from 'album-api-config'
+
+import { User, IUserObject } from '../models/UserModel'
 import { ApiErrorForbidden } from '../helpers'
 import { UserRoles } from '../enums'
-import { config } from './config'
 
 const LocalStrategy = passportLocal.Strategy
 const JwtStrategy = passportJwt.Strategy
@@ -48,7 +49,7 @@ passport.use(
   new JwtStrategy(
     {
       // Secret we used to sign our JWT.
-      secretOrKey: config.jwtSecret,
+      secretOrKey: Config.jwtSecret,
       jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     },
     async (token: string, done) => {

@@ -2,10 +2,12 @@ import mongoose, { Document, Schema, Model } from 'mongoose'
 import httpStatus from 'http-status-codes'
 import AWS from 'aws-sdk'
 
+import { Config } from 'album-api-config'
+
 import { IUserObject } from './UserModel'
 import { Album } from './AlbumModel'
 import { MediaStatus, MediaType, UserRoles } from '../enums'
-import { ICreatedBy, populateCreatedBy, config, IPopulatedMediaAlbum } from '../config'
+import { ICreatedBy, populateCreatedBy, IPopulatedMediaAlbum } from '../config'
 import { ApiErrorNotFound, ApiError, ApiErrorForbidden } from '../helpers'
 
 /**
@@ -148,7 +150,7 @@ mediaSchema.index({ filename: 'text' })
 /**
  * Run middleware before media is saved.
  */
-mediaSchema.pre('save', async function(next) {
+mediaSchema.pre('save', async function (next) {
   const media = this as MediaDocument
 
   try {
@@ -189,7 +191,7 @@ mediaSchema.pre('save', async function(next) {
  * @returns {Promise<MediaDocument>}
  *   Media document.
  */
-mediaSchema.methods.getOne = async function(
+mediaSchema.methods.getOne = async function (
   authedUser: IUserObject,
   id: string,
 ): Promise<MediaDocument> {
@@ -214,7 +216,7 @@ mediaSchema.methods.getOne = async function(
  * @returns {Promise<MediaDocument>}
  *   Media document.
  */
-mediaSchema.methods.create = async function(
+mediaSchema.methods.create = async function (
   authedUser: IUserObject,
   body: IMediaInput,
 ): Promise<MediaDocument> {
@@ -251,13 +253,13 @@ interface ILambdaGetMediaMetadataResponse {
  * @returns {Promise<MediaDocument['metadata']>}
  *   Promise including metadata object.
  */
-mediaSchema.statics.getNewMetadata = async function(
+mediaSchema.statics.getNewMetadata = async function (
   key: MediaDocument['key'],
 ): Promise<MediaDocument['metadata']> {
   try {
     let params = {
       FunctionName: 'aws-album_get_media_metadata',
-      Payload: `{"key": "${key}", "bucket": "${config.aws.bucket}"}`,
+      Payload: `{"key": "${key}", "bucket": "${Config.aws.bucket}"}`,
     }
     const lambdaResponse = await lambda.invoke(params).promise()
 
@@ -285,7 +287,7 @@ mediaSchema.statics.getNewMetadata = async function(
  * @returns {MediaType}
  *   Readable media type parsed from the mime type.
  */
-mediaSchema.virtual('type').get(function(this: MediaDocument): MediaType {
+mediaSchema.virtual('type').get(function (this: MediaDocument): MediaType {
   const mime = this.mime
   if (mime.includes(MediaType.image)) {
     return MediaType.image

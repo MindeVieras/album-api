@@ -3,7 +3,8 @@ import CryptoJS from 'crypto-js'
 import httpStatus from 'http-status-codes'
 import { IUppyCompanionOptions } from '@uppy/companion'
 
-import { config } from '../config'
+import { Config } from 'album-api-config'
+
 import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
 import { Media, MediaDocument, IMediaInput } from '../models'
 
@@ -31,21 +32,21 @@ export class UploaderController {
     providerOptions: {
       s3: {
         getKey: (req: Request, filename: string, metadata: any) => filename,
-        key: config.aws.accessKey,
-        secret: config.aws.secretKey,
-        bucket: config.aws.bucket,
-        region: config.aws.region,
+        key: Config.aws.accessKey,
+        secret: Config.aws.secretKey,
+        bucket: Config.aws.bucket,
+        region: Config.aws.region,
         useAccelerateEndpoint: false,
         expires: 300,
         acl: 'private',
       },
     },
     server: {
-      host: `${config.host}:${config.port}`,
-      protocol: config.protocol,
+      host: `${Config.host}:${Config.port}`,
+      protocol: Config.protocol,
     },
     filePath: '/tmp',
-    secret: config.uploaderSecret,
+    secret: Config.uploaderSecret,
     debug: true,
   }
 
@@ -122,7 +123,7 @@ export class UploaderController {
       '$1' + hashedCanonicalRequest,
     )
     return UploaderController.getV4SignatureKey(
-      config.aws.secretKey,
+      Config.aws.secretKey,
       matches[1],
       matches[2],
       's3',
@@ -171,7 +172,7 @@ export class UploaderController {
 
     const matches = /.+\/(.+)\/(.+)\/s3\/aws4_request/.exec(credentialCondition)!
     return UploaderController.getV4SignatureKey(
-      config.aws.secretKey,
+      Config.aws.secretKey,
       matches[1],
       matches[2],
       's3',
@@ -200,7 +201,7 @@ export class UploaderController {
       }
     })
 
-    isValid = bucket === config.aws.bucket
+    isValid = bucket === Config.aws.bucket
 
     // If expectedMinSize and expectedMax size are not null (see above), then
     // ensure that the client and server have agreed upon the exact same
@@ -222,7 +223,7 @@ export class UploaderController {
    */
   private static isValidRestRequest(headerStr: string): boolean {
     return (
-      new RegExp(`host:${config.aws.bucket}.s3.eu-west-1.amazonaws.com`).exec(headerStr) != null
+      new RegExp(`host:${Config.aws.bucket}.s3.eu-west-1.amazonaws.com`).exec(headerStr) != null
     )
   }
 
