@@ -1,6 +1,6 @@
 import Joi from '@hapi/joi'
 
-import Config from 'album-api-config'
+import { Config } from 'album-api-config'
 
 import { UserRoles, UserStatus, AlbumStatus } from '../enums'
 import { IRequestListQuery, IRequestIdParam } from '../typings'

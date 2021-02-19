@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js'
 import httpStatus from 'http-status-codes'
 import { IUppyCompanionOptions } from '@uppy/companion'
 
-import Config from 'album-api-config'
+import { Config } from 'album-api-config'
 
 import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
 import { Media, MediaDocument, IMediaInput } from '../models'
