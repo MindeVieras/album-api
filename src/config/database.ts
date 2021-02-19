@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
-import Config from 'album-api-config'
+import { Config } from 'album-api-config'
 
 /**
  * Setup MongoDB connection.

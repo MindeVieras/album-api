@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 import { unflatten } from 'flat'
 
-import Config from 'album-api-config'
+import { Config } from 'album-api-config'
 
 import { ApiError, IValidationErrors, ApiErrorNotFound } from '../helpers'
 

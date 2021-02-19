@@ -4,7 +4,7 @@ import passport from 'passport'
 import { IVerifyOptions } from 'passport-local'
 import jwt from 'jsonwebtoken'
 
-import Config from 'album-api-config'
+import { Config } from 'album-api-config'
 
 import { User, UserDocument, IUserObject } from '../models'
 import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'

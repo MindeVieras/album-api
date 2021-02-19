@@ -3,7 +3,7 @@ import passport from 'passport'
 import passportLocal, { IVerifyOptions } from 'passport-local'
 import passportJwt from 'passport-jwt'
 
-import Config from 'album-api-config'
+import { Config } from 'album-api-config'
 
 import { User, IUserObject } from '../models/UserModel'
 import { ApiErrorForbidden } from '../helpers'

@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Model } from 'mongoose'
 import httpStatus from 'http-status-codes'
 import AWS from 'aws-sdk'
 
-import Config from 'album-api-config'
+import { Config } from 'album-api-config'
 
 import { IUserObject } from './UserModel'
 import { Album } from './AlbumModel'
