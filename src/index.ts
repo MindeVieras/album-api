@@ -1,12 +1,14 @@
+import { Database } from 'album-api-config'
+
 import Server from './Server'
-import { databaseSetup } from './config'
 
 /**
  * Application initialization.
  */
 async function app() {
   // Make sure to connect to MongoDB before server runs.
-  await databaseSetup()
+  const db = new Database()
+  await db.setup()
 
   // Run express server.
   new Server().listen()
