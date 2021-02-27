@@ -2,8 +2,10 @@ import bcrypt from 'bcryptjs'
 import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
 import httpStatus from 'http-status-codes'
 
+import { makeInitials } from 'album-api-config'
+
 import { UserRoles, UserStatus } from '../enums'
-import { makeInitials, ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
+import { ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 import { IRequestListQuery } from '../typings'
 import { populateCreatedBy, ICreatedBy } from '../config'
 
