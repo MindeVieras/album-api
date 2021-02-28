@@ -3,10 +3,9 @@ import CryptoJS from 'crypto-js'
 import httpStatus from 'http-status-codes'
 import { IUppyCompanionOptions } from '@uppy/companion'
 
-import { Config } from 'album-api-config'
+import { Config, Media, IMediaInput } from 'album-api-config'
 
 import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
-import { Media, MediaDocument, IMediaInput } from '../models'
 
 /**
  * Fine uploader POST request body on success.

@@ -1,4 +1,4 @@
-import { IListQueryParams } from '../models'
+import { IListQueryParams } from 'album-api-config'
 
 /**
  * Request document by id param.
