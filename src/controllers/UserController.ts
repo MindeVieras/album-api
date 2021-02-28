@@ -4,10 +4,9 @@ import passport from 'passport'
 import { IVerifyOptions } from 'passport-local'
 import jwt from 'jsonwebtoken'
 
-import { Config } from 'album-api-config'
+import { Config, UserRoles, User, UserDocument, IUserObject } from 'album-api-config'
 
-import { User, UserDocument, IUserObject } from '../models'
-import { ApiResponse, ApiError, ApiErrorForbidden } from '../helpers'
+import { ApiResponse, ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 
 /**
  * User controller class.
@@ -68,6 +67,14 @@ export class UserController {
       if (!authedUser) {
         throw new ApiErrorForbidden()
       }
+
+      // If role is provided,
+      // make sure that only admin users
+      // can create other admins.
+      if (body.role && body.role === UserRoles.admin && authedUser.role !== UserRoles.admin) {
+        throw new ApiErrorForbidden()
+      }
+
       const savedUser = await new User().create(authedUser, body)
       return new ApiResponse(res, savedUser.toObject(), httpStatus.CREATED)
     } catch (err) {
@@ -86,6 +93,10 @@ export class UserController {
       }
       const { id } = params
       const user = await new User().getOne(authedUser, id)
+      // Throw 404 error if no user.
+      if (!user) {
+        throw new ApiErrorNotFound()
+      }
       return new ApiResponse(res, user.toObject())
     } catch (err) {
       return next(err)

@@ -1,4 +1,4 @@
-import { IUserObject } from '../../models'
+import { IUserObject } from 'album-api-config'
 
 declare global {
   namespace Express {

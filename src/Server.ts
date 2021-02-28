@@ -6,14 +6,8 @@ import express, { Application, Request, Response } from 'express'
 import morgan from 'morgan'
 import path from 'path'
 import passport from 'passport'
-import mongoose from 'mongoose'
 
 import { Config } from 'album-api-config'
-
-// Set global mongoose plugins.
-// Make sure to load it before routes.
-import { mongoosePaginate } from './helpers'
-mongoose.plugin(mongoosePaginate)
 
 import routes from './routes/index.route'
 import { errorConverter, errorNotFound, errorHandler } from './middleware'

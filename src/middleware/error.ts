@@ -48,12 +48,12 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
  */
 export const errorConverter = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   let convertedError = err
+  console.log(convertedError.message)
 
   // Handle Joi input validation errors.
   if (err.error && err.error.isJoi) {
     let errors = {} as IValidationErrors
     for (const detail of err.error.details) {
-      console.log(detail)
       // Make error path.
       const path = detail.path.join('.')
       // Unflatten Joi errors.
@@ -64,6 +64,21 @@ export const errorConverter = (err: ApiError, req: Request, res: Response, next:
     }
 
     convertedError = new ApiError('Input validation error', httpStatus.UNPROCESSABLE_ENTITY, errors)
+  }
+
+  /**
+   * Handle errors from the models.
+   */
+
+  // Entity already exists error.
+  if (err.name === 'MediaKeyAlreadyExistsError'
+    || err.name === 'UserAlreadyExistsError'
+  ) {
+    convertedError = new ApiError(err.message, httpStatus.CONFLICT)
+  }
+  // Entity not found error.
+  if (err.name === 'UserNotFoundError') {
+    convertedError = new ApiErrorNotFound()
   }
 
   return errorHandler(convertedError, req, res, next)
