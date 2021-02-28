@@ -1,9 +1,10 @@
 import express from 'express'
 
+import { UserRoles } from 'album-api-config'
+
 import { UserController } from '../controllers'
 import { paramValidation, isAuthed } from '../config'
 import { validator } from '../middleware'
-import { UserRoles } from '../enums'
 
 /**
  * Create Users router.

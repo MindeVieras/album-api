@@ -1,4 +1,4 @@
-import { UserRoles, MediaStatus } from '../enums'
+import { UserRoles, MediaStatus } from 'album-api-config'
 
 export interface ICreatedBy {
   readonly id: string

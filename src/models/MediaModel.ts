@@ -2,11 +2,10 @@ import mongoose, { Document, Schema, Model } from 'mongoose'
 import httpStatus from 'http-status-codes'
 import AWS from 'aws-sdk'
 
-import { Config } from 'album-api-config'
+import { Config, MediaStatus, MediaType, UserRoles } from 'album-api-config'
 
 import { IUserObject } from './UserModel'
 import { Album } from './AlbumModel'
-import { MediaStatus, MediaType, UserRoles } from '../enums'
 import { ICreatedBy, populateCreatedBy, IPopulatedMediaAlbum } from '../config'
 import { ApiErrorNotFound, ApiError, ApiErrorForbidden } from '../helpers'
 

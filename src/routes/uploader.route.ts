@@ -1,9 +1,10 @@
 import express from 'express'
 import companion from '@uppy/companion'
 
+import { UserRoles } from 'album-api-config'
+
 import { UploaderController } from '../controllers'
 import { isAuthed, paramValidation } from '../config'
-import { UserRoles } from '../enums'
 import { validator } from '../middleware'
 
 /**

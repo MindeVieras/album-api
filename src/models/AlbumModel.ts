@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
 
-import { AlbumStatus, UserRoles } from '../enums'
+import { AlbumStatus, UserRoles } from 'album-api-config'
+
 import { IUserObject } from './UserModel'
 import { IMediaObject, MediaDocument } from './MediaModel'
 import { IRequestListQuery } from '../typings'
@@ -104,7 +105,7 @@ albumSchema.index({ name: 'text' })
  * @returns {PaginateResult<AlbumDocument>}
  *   Mongoose pagination results including album documents.
  */
-albumSchema.methods.getList = async function(
+albumSchema.methods.getList = async function (
   authedUser: IUserObject,
   params: IRequestListQuery = {},
 ): Promise<PaginateResult<AlbumDocument>> {
@@ -154,7 +155,7 @@ albumSchema.methods.getList = async function(
  * @returns {Promise<AlbumDocument>}
  *   Album document.
  */
-albumSchema.methods.create = async function(
+albumSchema.methods.create = async function (
   authedUser: IUserObject,
   body: IAlbumInput,
 ): Promise<AlbumDocument> {
@@ -179,7 +180,7 @@ albumSchema.methods.create = async function(
  * @returns {Promise<AlbumDocument>}
  *   Album document.
  */
-albumSchema.methods.getOne = async function(
+albumSchema.methods.getOne = async function (
   authedUser: IUserObject,
   id: string,
 ): Promise<AlbumDocument> {
@@ -223,7 +224,7 @@ albumSchema.methods.getOne = async function(
  * @returns {Promise<AlbumDocument>}
  *   Updated album document.
  */
-albumSchema.methods.updateOne = async function(
+albumSchema.methods.updateOne = async function (
   authedUser: IUserObject,
   id: string,
   body: IAlbumInput,
@@ -264,7 +265,7 @@ albumSchema.methods.updateOne = async function(
  * @returns {Promise<void>}
  *   Empty promise.
  */
-albumSchema.methods.delete = async function(authedUser: IUserObject, ids: string[]) {
+albumSchema.methods.delete = async function (authedUser: IUserObject, ids: string[]) {
   // Only admin can delete any album,
   // others can only delete they own albums.
   if (authedUser.role === UserRoles.admin) {
