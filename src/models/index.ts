@@ -37,6 +37,18 @@ export const populateMediaAlbum = {
   select: 'name',
 }
 
+/**
+ * List query params.
+ */
+export interface IListQueryParams {
+  limit?: number
+  offset?: number
+  sort?: string
+  search?: string
+  filters?: string
+}
+
+
 // Export everything from other files.
 export * from './UserModel'
 export * from './AlbumModel'

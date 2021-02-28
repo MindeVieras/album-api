@@ -3,8 +3,7 @@ import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
 
 import { UserRoles, UserStatus, makeInitials } from 'album-api-config'
 
-import { populateCreatedBy, ICreatedBy } from './'
-import { IRequestListQuery } from '../typings'
+import { populateCreatedBy, ICreatedBy, IListQueryParams } from './'
 
 /**
  * User object interface.
@@ -50,7 +49,7 @@ export type UserDocument = Document & {
   comparePassword(password: string): Promise<boolean>
   getList(
     authedUser: IUserObject,
-    params?: IRequestListQuery,
+    params?: IListQueryParams,
   ): Promise<PaginateResult<UserDocument>>
   create(authedUser: IUserObject, body: IUserInput): Promise<UserDocument>
   getOne(authedUser: IUserObject, id: string): Promise<UserDocument>
@@ -199,7 +198,7 @@ userSchema.methods.setLastLogin = function (date: Date = new Date()): void {
  *
  * @param {IUserObject} authedUser
  *   Authenticated user request.
- * @param {IRequestListQuery} params
+ * @param {IListQueryParams} params
  *   List parameters.
  *
  * @returns {PaginateResult<UserDocument>}
@@ -207,7 +206,7 @@ userSchema.methods.setLastLogin = function (date: Date = new Date()): void {
  */
 userSchema.methods.getList = async function (
   authedUser: IUserObject,
-  params: IRequestListQuery = {},
+  params: IListQueryParams = {},
 ): Promise<PaginateResult<UserDocument>> {
   const { limit, offset, sort, search, filters } = params
   let query = {}

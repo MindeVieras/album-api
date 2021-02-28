@@ -1,3 +1,5 @@
+import { IListQueryParams } from '../models'
+
 /**
  * Request document by id param.
  */
@@ -7,10 +9,4 @@ export interface IRequestIdParam {
 /**
  * Request query params for getting documents from the collection.
  */
-export interface IRequestListQuery {
-  limit?: number
-  offset?: number
-  sort?: string
-  search?: string
-  filters?: string
-}
+export interface IRequestListQuery extends IListQueryParams { }

@@ -2,10 +2,9 @@ import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
 
 import { AlbumStatus, UserRoles } from 'album-api-config'
 
-import { populateCreatedBy, populateMedia, ICreatedBy } from './'
+import { populateCreatedBy, populateMedia, ICreatedBy, IListQueryParams } from './'
 import { IUserObject } from './UserModel'
 import { IMediaObject, MediaDocument } from './MediaModel'
-import { IRequestListQuery } from '../typings'
 
 /**
  * Album object interface.
@@ -43,7 +42,7 @@ export type AlbumDocument = Document & {
   readonly createdAt: Date
   getList(
     authedUser: IUserObject,
-    params?: IRequestListQuery,
+    params?: IListQueryParams,
   ): Promise<PaginateResult<AlbumDocument>>
   create(authedUser: IUserObject, body: IAlbumInput): Promise<AlbumDocument>
   getOne(authedUser: IUserObject, id: string): Promise<AlbumDocument>
@@ -98,7 +97,7 @@ albumSchema.index({ name: 'text' })
  *
  * @param {IUserObject} authedUser
  *   Authenticated user request.
- * @param {IRequestListQuery} params
+ * @param {IListQueryParams} params
  *   List parameters.
  *
  * @returns {PaginateResult<AlbumDocument>}
@@ -106,7 +105,7 @@ albumSchema.index({ name: 'text' })
  */
 albumSchema.methods.getList = async function (
   authedUser: IUserObject,
-  params: IRequestListQuery = {},
+  params: IListQueryParams = {},
 ): Promise<PaginateResult<AlbumDocument>> {
   const { limit, offset, sort, search, filters } = params
   let query = {}
