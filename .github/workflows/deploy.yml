@@ -19,7 +19,7 @@ jobs:
             cd ${{ secrets.PATH }}
             export NODE_OPTIONS="--max-old-space-size=8192"
             git pull
-            npm install
+            npm ci
             npm run build-prod
             cp src/index.html dist
             npm prune --production
