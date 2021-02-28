@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 
+import { UserRoles } from 'album-api-config'
+
 import { Album, IAlbumObject } from '../models'
-import { ApiResponse, ApiErrorForbidden } from '../helpers'
+import { ApiResponse, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 
 /**
  * Album controller class.
@@ -32,7 +34,9 @@ export class AlbumController {
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, body } = req
-      if (!authedUser) {
+      // Make sure that only admins and
+      // editors can create albums.
+      if (!authedUser || authedUser.role === UserRoles.viewer) {
         throw new ApiErrorForbidden()
       }
       const savedAlbum = await new Album().create(authedUser, body)
@@ -53,6 +57,10 @@ export class AlbumController {
       }
       const { id } = params
       const album = await new Album().getOne(authedUser, id)
+      // Throw 404 error if no album.
+      if (!album) {
+        throw new ApiErrorNotFound()
+      }
       return new ApiResponse(res, album.toObject())
     } catch (err) {
       return next(err)
@@ -70,6 +78,10 @@ export class AlbumController {
       }
       const { id } = params
       const album = await new Album().updateOne(authedUser, id, body)
+      // Throw 404 error if no album.
+      if (!album) {
+        throw new ApiErrorNotFound()
+      }
       return new ApiResponse(res, album.toObject())
     } catch (err) {
       return next(err)

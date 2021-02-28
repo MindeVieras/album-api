@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 
+import { UserRoles } from 'album-api-config'
+
 import { Media } from '../models'
-import { ApiResponse, ApiErrorForbidden } from '../helpers'
+import { ApiResponse, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 
 /**
  * Media controller class.
@@ -19,6 +21,11 @@ export class MediaController {
       }
       const { id } = params
       const media = await new Media().getOne(authedUser, id)
+
+      // Throw 404 error if no media.
+      if (!media) {
+        throw new ApiErrorNotFound()
+      }
       return new ApiResponse(res, media.toObject())
     } catch (err) {
       return next(err)
@@ -31,9 +38,11 @@ export class MediaController {
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, body } = req
-      if (!authedUser) {
+      // Viewers are forbidden to create media.
+      if (!authedUser || authedUser.role === UserRoles.viewer) {
         throw new ApiErrorForbidden()
       }
+
       const savedMedia = await new Media().create(authedUser, body)
       return new ApiResponse(res, savedMedia.toObject(), httpStatus.CREATED)
     } catch (err) {

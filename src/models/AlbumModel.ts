@@ -5,7 +5,6 @@ import { AlbumStatus, UserRoles } from 'album-api-config'
 import { IUserObject } from './UserModel'
 import { IMediaObject, MediaDocument } from './MediaModel'
 import { IRequestListQuery } from '../typings'
-import { ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 import { populateCreatedBy, populateMedia, ICreatedBy } from '../config'
 
 /**
@@ -159,12 +158,6 @@ albumSchema.methods.create = async function (
   authedUser: IUserObject,
   body: IAlbumInput,
 ): Promise<AlbumDocument> {
-  // Make sure that only admins and
-  // editors can create albums.
-  if (authedUser.role === UserRoles.viewer) {
-    throw new ApiErrorForbidden()
-  }
-
   // Save album to database.
   return await new Album({ ...body, createdBy: authedUser.id }).save()
 }
@@ -177,13 +170,13 @@ albumSchema.methods.create = async function (
  * @param {string} id
  *   Album document object id.
  *
- * @returns {Promise<AlbumDocument>}
- *   Album document.
+ * @returns {Promise<AlbumDocument | null>}
+ *   Album document or null.
  */
 albumSchema.methods.getOne = async function (
   authedUser: IUserObject,
   id: string,
-): Promise<AlbumDocument> {
+): Promise<AlbumDocument | null> {
   // Admin can access any album,
   // editor users can only access they own albums
   // and viewers can only access the albums created by its creator.
@@ -204,10 +197,6 @@ albumSchema.methods.getOne = async function (
     .populate(populateCreatedBy)
     .populate(populateMedia)
 
-  // Throw 404 error if no album.
-  if (!album) {
-    throw new ApiErrorNotFound()
-  }
   return album
 }
 
@@ -221,22 +210,17 @@ albumSchema.methods.getOne = async function (
  * @param {IAlbumInput} body
  *   Album body to save.
  *
- * @returns {Promise<AlbumDocument>}
- *   Updated album document.
+ * @returns {Promise<AlbumDocument | null>}
+ *   Updated album document or null.
  */
 albumSchema.methods.updateOne = async function (
   authedUser: IUserObject,
   id: string,
   body: IAlbumInput,
-): Promise<AlbumDocument> {
+): Promise<AlbumDocument | null> {
   const album = await Album.findById(id)
     .populate(populateCreatedBy)
     .populate(populateMedia)
-
-  // Throw 404 error if no album.
-  if (!album) {
-    throw new ApiErrorNotFound()
-  }
 
   // // Handle username field,
   // // it can only by updated by an admin user.
@@ -249,7 +233,7 @@ albumSchema.methods.updateOne = async function (
   //   user.profile = { ...user.toObject().profile, ...body.profile }
   // }
 
-  await album.save()
+  // await album.save()
 
   return album
 }

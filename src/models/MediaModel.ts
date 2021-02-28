@@ -1,13 +1,11 @@
 import mongoose, { Document, Schema, Model } from 'mongoose'
-import httpStatus from 'http-status-codes'
 import AWS from 'aws-sdk'
 
-import { Config, MediaStatus, MediaType, UserRoles } from 'album-api-config'
+import { Config, MediaStatus, MediaType } from 'album-api-config'
 
 import { IUserObject } from './UserModel'
 import { Album } from './AlbumModel'
 import { ICreatedBy, populateCreatedBy, IPopulatedMediaAlbum } from '../config'
-import { ApiErrorNotFound, ApiError, ApiErrorForbidden } from '../helpers'
 
 /**
  * Media document type.
@@ -157,7 +155,9 @@ mediaSchema.pre('save', async function (next) {
     // throw an error if media key already exists.
     const mediaKeyExists = await Media.findOne({ key: media.key })
     if (mediaKeyExists) {
-      throw new ApiError(`Media key '${media.key}' already exists`, httpStatus.CONFLICT)
+      const err = new Error(`Media key '${media.key}' already exists`)
+      err.name = 'MediaKeyAlreadyExistsError'
+      throw err
     }
 
     // Get media metadata.
@@ -187,20 +187,16 @@ mediaSchema.pre('save', async function (next) {
  * @param {string} id
  *   Media document object id.
  *
- * @returns {Promise<MediaDocument>}
- *   Media document.
+ * @returns {Promise<MediaDocument | null>}
+ *   Media document or null.
  */
 mediaSchema.methods.getOne = async function (
   authedUser: IUserObject,
   id: string,
-): Promise<MediaDocument> {
+): Promise<MediaDocument | null> {
   let query = { _id: id }
   const media = await Media.findOne(query).populate(populateCreatedBy)
 
-  // Throw 404 error if no media.
-  if (!media) {
-    throw new ApiErrorNotFound()
-  }
   return media
 }
 
@@ -219,11 +215,6 @@ mediaSchema.methods.create = async function (
   authedUser: IUserObject,
   body: IMediaInput,
 ): Promise<MediaDocument> {
-  // Viewers are forbidden to create media.
-  if (authedUser.role === UserRoles.viewer) {
-    throw new ApiErrorForbidden()
-  }
-
   // Create media data object.
   const mediaDataToSave = {
     ...body,

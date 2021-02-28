@@ -1,10 +1,8 @@
 import bcrypt from 'bcryptjs'
 import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
-import httpStatus from 'http-status-codes'
 
 import { UserRoles, UserStatus, makeInitials } from 'album-api-config'
 
-import { ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 import { IRequestListQuery } from '../typings'
 import { populateCreatedBy, ICreatedBy } from '../config'
 
@@ -140,7 +138,9 @@ userSchema.pre('save', async function (next) {
     // throw an error if user already exists.
     const userExists = await User.findOne({ username: user.username })
     if (userExists) {
-      throw new ApiError(`User '${user.username}' already exists`, httpStatus.CONFLICT)
+      const err = new Error(`User '${user.username}' already exists`)
+      err.name = 'UserAlreadyExistsError'
+      throw err
     }
 
     // Generate a salt.
@@ -251,17 +251,10 @@ userSchema.methods.create = async function (
   authedUser: IUserObject,
   body: IUserInput,
 ): Promise<UserDocument> {
-  const { password, role } = body
+  const { password } = body
 
   // Remove password from request as soon as possible.
   delete body.password
-
-  // If role is provided,
-  // make sure that only admin users
-  // can create other admins.
-  if (role && role === UserRoles.admin && authedUser.role !== UserRoles.admin) {
-    throw new ApiErrorForbidden()
-  }
 
   // Create user data object, set password as hash.
   // Actual hash is generated at the model level.
@@ -279,13 +272,13 @@ userSchema.methods.create = async function (
  * @param {string} id
  *   User document id.
  *
- * @returns {Promise<UserDocument>}
+ * @returns {Promise<UserDocument | null>}
  *   User document.
  */
 userSchema.methods.getOne = async function (
   authedUser: IUserObject,
   id: string,
-): Promise<UserDocument> {
+): Promise<UserDocument | null> {
   // Admin can access any user,
   // editor users can only access they own users
   // and viewers can only access own user.
@@ -300,10 +293,6 @@ userSchema.methods.getOne = async function (
 
   const user = await User.findOne(query).populate(populateCreatedBy)
 
-  // Throw 404 error if no user.
-  if (!user) {
-    throw new ApiErrorNotFound()
-  }
   return user
 }
 
@@ -329,7 +318,9 @@ userSchema.methods.updateOne = async function (
 
   // Throw 404 error if no user.
   if (!user) {
-    throw new ApiErrorNotFound()
+    const err = new Error()
+    err.name = 'UserNotFoundError'
+    throw err
   }
 
   // Handle username field,
