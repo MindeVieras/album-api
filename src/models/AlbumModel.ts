@@ -2,10 +2,10 @@ import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
 
 import { AlbumStatus, UserRoles } from 'album-api-config'
 
+import { populateCreatedBy, populateMedia, ICreatedBy } from './'
 import { IUserObject } from './UserModel'
 import { IMediaObject, MediaDocument } from './MediaModel'
 import { IRequestListQuery } from '../typings'
-import { populateCreatedBy, populateMedia, ICreatedBy } from '../config'
 
 /**
  * Album object interface.

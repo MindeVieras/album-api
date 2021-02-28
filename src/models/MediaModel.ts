@@ -3,9 +3,9 @@ import AWS from 'aws-sdk'
 
 import { Config, MediaStatus, MediaType } from 'album-api-config'
 
+import { ICreatedBy, populateCreatedBy, IPopulatedMediaAlbum } from './'
 import { IUserObject } from './UserModel'
 import { Album } from './AlbumModel'
-import { ICreatedBy, populateCreatedBy, IPopulatedMediaAlbum } from '../config'
 
 /**
  * Media document type.

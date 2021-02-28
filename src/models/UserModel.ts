@@ -3,8 +3,8 @@ import mongoose, { Document, Schema, PaginateResult } from 'mongoose'
 
 import { UserRoles, UserStatus, makeInitials } from 'album-api-config'
 
+import { populateCreatedBy, ICreatedBy } from './'
 import { IRequestListQuery } from '../typings'
-import { populateCreatedBy, ICreatedBy } from '../config'
 
 /**
  * User object interface.
