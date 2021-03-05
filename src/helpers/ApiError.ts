@@ -40,12 +40,11 @@ export class ApiError extends Error {
     // Error code.
     code?: string | number,
   ) {
-    super()
+    super(message)
 
     // ApiError properties
     this.name = 'ApiError'
     this.status = status
-    this.message = message
     if (errors) {
       this.errors = errors
     }

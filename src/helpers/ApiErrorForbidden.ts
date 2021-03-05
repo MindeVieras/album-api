@@ -17,10 +17,9 @@ export class ApiErrorForbidden extends ApiError {
     // Default message - 'Forbidden'.
     message: string = httpStatus.getStatusText(httpStatus.FORBIDDEN),
   ) {
-    super()
+    super(message)
 
     // ApiErrorForbidden properties
     this.status = httpStatus.FORBIDDEN
-    this.message = message
   }
 }
