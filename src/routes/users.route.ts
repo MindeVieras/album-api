@@ -13,25 +13,20 @@ import { validator } from '../middleware'
  */
 const router = express.Router()
 
-/**
- * Initiate User controller.
- */
-const User = new UserController()
-
 router
   .route('/')
-  .get(isAuthed(UserRoles.editor), validator.query(paramValidation.listQuery), User.getList)
-  .post(isAuthed(UserRoles.editor), validator.body(paramValidation.userPostBody), User.create)
-  .delete(isAuthed(UserRoles.editor), validator.body(paramValidation.deleteBody), User.delete)
+  .get(isAuthed(UserRoles.editor), validator.query(paramValidation.listQuery), UserController.getList)
+  .post(isAuthed(UserRoles.editor), validator.body(paramValidation.userPostBody), UserController.create)
+  .delete(isAuthed(UserRoles.editor), validator.body(paramValidation.deleteBody), UserController.delete)
 
 router
   .route('/:id')
-  .get(isAuthed(UserRoles.viewer), validator.params(paramValidation.idParam), User.getOne)
+  .get(isAuthed(UserRoles.viewer), validator.params(paramValidation.idParam), UserController.getOne)
   .patch(
     isAuthed(UserRoles.viewer),
     validator.params(paramValidation.idParam),
     validator.body(paramValidation.userPatchBody),
-    User.updateOne,
+    UserController.updateOne,
   )
 
 export default router

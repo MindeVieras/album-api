@@ -11,11 +11,6 @@ import { validator } from '../middleware'
  */
 const router = express.Router()
 
-/**
- * Initiate User controller.
- */
-const User = new UserController()
-
-router.route('/').post(validator.body(paramValidation.authPostBody), User.authorize)
+router.route('/').post(validator.body(paramValidation.authPostBody), UserController.authorize)
 
 export default router

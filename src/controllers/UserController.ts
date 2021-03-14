@@ -15,7 +15,7 @@ export class UserController {
   /**
    * Authenticates user.
    */
-  public authorize(req: Request, res: Response, next: NextFunction) {
+  public static authorize(req: Request, res: Response, next: NextFunction) {
     passport.authenticate('local', (err: Error, user: UserDocument, info: IVerifyOptions) => {
       if (err) {
         return next(err)
@@ -43,7 +43,7 @@ export class UserController {
   /**
    * Get list of users.
    */
-  public async getList(req: Request, res: Response, next: NextFunction) {
+  public static async getList(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, query } = req
       if (!authedUser) {
@@ -61,7 +61,7 @@ export class UserController {
   /**
    * Create new user.
    */
-  public async create(req: Request, res: Response, next: NextFunction) {
+  public static async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, body } = req
       if (!authedUser) {
@@ -85,7 +85,7 @@ export class UserController {
   /**
    * Get single user.
    */
-  public async getOne(req: Request, res: Response, next: NextFunction) {
+  public static async getOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, params } = req
       if (!authedUser) {
@@ -106,7 +106,7 @@ export class UserController {
   /**
    * Update user.
    */
-  public async updateOne(req: Request, res: Response, next: NextFunction) {
+  public static async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, params, body } = req
       if (!authedUser) {
@@ -123,7 +123,7 @@ export class UserController {
   /**
    * Delete users by ids.
    */
-  public async delete(req: Request, res: Response, next: NextFunction) {
+  public static async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, body } = req
       if (!authedUser) {
