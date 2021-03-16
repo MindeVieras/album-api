@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 
-import { UserRoles, Media } from 'album-api-config'
+import { UserRoles, Media } from 'album-sdk'
 
 import { ApiResponse, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 

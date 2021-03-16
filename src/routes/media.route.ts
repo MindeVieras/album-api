@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { UserRoles } from 'album-api-config'
+import { UserRoles } from 'album-sdk'
 
 import { MediaController } from '../controllers'
 import { paramValidation, isAuthed } from '../config'

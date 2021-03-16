@@ -1,4 +1,4 @@
-import { Database } from 'album-api-config'
+import { Database } from 'album-sdk'
 
 import Server from './Server'
 

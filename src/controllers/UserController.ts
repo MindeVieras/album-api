@@ -4,7 +4,7 @@ import passport from 'passport'
 import { IVerifyOptions } from 'passport-local'
 import jwt from 'jsonwebtoken'
 
-import { Config, UserRoles, User, UserDocument, IUserObject } from 'album-api-config'
+import { Config, UserRoles, User, UserDocument, IUserObject } from 'album-sdk'
 
 import { ApiResponse, ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 
@@ -124,12 +124,49 @@ export class UserController {
    * Delete users by ids.
    */
   public static async delete(req: Request, res: Response, next: NextFunction) {
+
+
+    // /**
+    //  * Deletes users by ids.
+    //  *
+    //  * @param {IUserObject} authedUser
+    //  *   Authenticated user request.
+    //  * @param {string[]} ids
+    //  *   Array of user ids.
+    //  *
+    //  * @returns {Promise<void>}
+    //  *   Empty promise.
+    //  */
+    // userSchema.methods.delete = async function (authedUser: IUserObject, ids: string[]) {
+    //   const idsFilter = { _id: { $in: ids } }
+    //   // Authenticated user must be active to delete users.
+    //   if (authedUser.status === UserStatus.active) {
+    //     switch (authedUser.role) {
+    //       // Admins can delete any users.
+    //       case UserRoles.admin:
+    //         return await User.deleteMany({ ...idsFilter })
+
+    //       // Editors can only delete they own users.
+    //       case UserRoles.editor:
+    //         return User.deleteMany({ ...idsFilter, createdBy: authedUser.id })
+
+    //       // Others cannot delete any users.
+    //       default:
+    //         return Promise
+    //     }
+    //   }
+
+    //   return Promise
+    // }
+
+
+
     try {
       const { authedUser, body } = req
       if (!authedUser) {
         throw new ApiErrorForbidden()
       }
-      new User().delete(authedUser, body)
+      new User().deletePermanently(body)
       return new ApiResponse(res)
     } catch (err) {
       return next(err)

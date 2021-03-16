@@ -1,4 +1,4 @@
-import { IUserObject } from 'album-api-config'
+import { IUserObject } from 'album-sdk'
 
 declare global {
   namespace Express {
