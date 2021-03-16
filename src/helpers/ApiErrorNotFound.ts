@@ -17,10 +17,9 @@ export class ApiErrorNotFound extends ApiError {
     // Default message - 'Not Found'.
     message: string = httpStatus.getStatusText(httpStatus.NOT_FOUND),
   ) {
-    super()
+    super(message)
 
     // ApiErrorForbidden properties
     this.status = httpStatus.NOT_FOUND
-    this.message = message
   }
 }

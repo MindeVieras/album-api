@@ -24,7 +24,7 @@
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "@uppy/companion": "^2.5.1",
-    "album-api-config": "git+ssh://git@github.com/MindeVieras/album-api-config.git#0.3.3",
+    "album-sdk": "git+ssh://git@github.com/MindeVieras/album-sdk.git#0.4.1",
     "aspect-ratio": "^2.1.1",
     "aws-sdk": "^2.853.0",
     "body-parser": "^1.19.0",

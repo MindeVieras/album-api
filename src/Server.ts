@@ -7,7 +7,7 @@ import morgan from 'morgan'
 import path from 'path'
 import passport from 'passport'
 
-import { Config } from 'album-api-config'
+import { Config } from 'album-sdk'
 
 import routes from './routes/index.route'
 import { errorConverter, errorNotFound, errorHandler } from './middleware'

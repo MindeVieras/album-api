@@ -4,7 +4,7 @@ import passport from 'passport'
 import { IVerifyOptions } from 'passport-local'
 import jwt from 'jsonwebtoken'
 
-import { Config, UserRoles, User, UserDocument, IUserObject } from 'album-api-config'
+import { Config, UserRoles, User, UserDocument, IUserObject } from 'album-sdk'
 
 import { ApiResponse, ApiError, ApiErrorForbidden, ApiErrorNotFound } from '../helpers'
 
@@ -15,7 +15,7 @@ export class UserController {
   /**
    * Authenticates user.
    */
-  public authorize(req: Request, res: Response, next: NextFunction) {
+  public static authorize(req: Request, res: Response, next: NextFunction) {
     passport.authenticate('local', (err: Error, user: UserDocument, info: IVerifyOptions) => {
       if (err) {
         return next(err)
@@ -43,7 +43,7 @@ export class UserController {
   /**
    * Get list of users.
    */
-  public async getList(req: Request, res: Response, next: NextFunction) {
+  public static async getList(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, query } = req
       if (!authedUser) {
@@ -61,7 +61,7 @@ export class UserController {
   /**
    * Create new user.
    */
-  public async create(req: Request, res: Response, next: NextFunction) {
+  public static async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, body } = req
       if (!authedUser) {
@@ -85,7 +85,7 @@ export class UserController {
   /**
    * Get single user.
    */
-  public async getOne(req: Request, res: Response, next: NextFunction) {
+  public static async getOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, params } = req
       if (!authedUser) {
@@ -106,7 +106,7 @@ export class UserController {
   /**
    * Update user.
    */
-  public async updateOne(req: Request, res: Response, next: NextFunction) {
+  public static async updateOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { authedUser, params, body } = req
       if (!authedUser) {
@@ -123,13 +123,50 @@ export class UserController {
   /**
    * Delete users by ids.
    */
-  public async delete(req: Request, res: Response, next: NextFunction) {
+  public static async delete(req: Request, res: Response, next: NextFunction) {
+
+
+    // /**
+    //  * Deletes users by ids.
+    //  *
+    //  * @param {IUserObject} authedUser
+    //  *   Authenticated user request.
+    //  * @param {string[]} ids
+    //  *   Array of user ids.
+    //  *
+    //  * @returns {Promise<void>}
+    //  *   Empty promise.
+    //  */
+    // userSchema.methods.delete = async function (authedUser: IUserObject, ids: string[]) {
+    //   const idsFilter = { _id: { $in: ids } }
+    //   // Authenticated user must be active to delete users.
+    //   if (authedUser.status === UserStatus.active) {
+    //     switch (authedUser.role) {
+    //       // Admins can delete any users.
+    //       case UserRoles.admin:
+    //         return await User.deleteMany({ ...idsFilter })
+
+    //       // Editors can only delete they own users.
+    //       case UserRoles.editor:
+    //         return User.deleteMany({ ...idsFilter, createdBy: authedUser.id })
+
+    //       // Others cannot delete any users.
+    //       default:
+    //         return Promise
+    //     }
+    //   }
+
+    //   return Promise
+    // }
+
+
+
     try {
       const { authedUser, body } = req
       if (!authedUser) {
         throw new ApiErrorForbidden()
       }
-      new User().delete(authedUser, body)
+      new User().deletePermanently(body)
       return new ApiResponse(res)
     } catch (err) {
       return next(err)

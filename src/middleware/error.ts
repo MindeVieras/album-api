@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 import { unflatten } from 'flat'
 
-import { Config } from 'album-api-config'
+import { Config } from 'album-sdk'
 
 import { ApiError, IValidationErrors, ApiErrorNotFound } from '../helpers'
 
@@ -48,7 +48,6 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
  */
 export const errorConverter = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   let convertedError = err
-  console.log(convertedError.message)
 
   // Handle Joi input validation errors.
   if (err.error && err.error.isJoi) {
@@ -70,16 +69,18 @@ export const errorConverter = (err: ApiError, req: Request, res: Response, next:
    * Handle errors from the models.
    */
 
-  // Entity already exists error.
-  if (err.name === 'MediaKeyAlreadyExistsError'
-    || err.name === 'UserAlreadyExistsError'
-  ) {
-    convertedError = new ApiError(err.message, httpStatus.CONFLICT)
-  }
-  // Entity not found error.
-  if (err.name === 'UserNotFoundError') {
-    convertedError = new ApiErrorNotFound()
-  }
+  // // Media Key already exists error.
+  // if (err.name === 'MediaKeyAlreadyExistsError') {
+  //   convertedError = new ApiError(err.message, httpStatus.CONFLICT)
+  // }
+  // // User already exists error.
+  // if (err.name === 'UserAlreadyExistsError') {
+  //   convertedError = new ApiError(err.message, httpStatus.CONFLICT)
+  // }
+  // // User not found error.
+  // if (err.name === 'UserNotFoundError') {
+  //   convertedError = new ApiErrorNotFound()
+  // }
 
   return errorHandler(convertedError, req, res, next)
 }
