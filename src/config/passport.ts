@@ -15,26 +15,22 @@ const JwtStrategy = passportJwt.Strategy
  */
 passport.use(
   'local',
-  new LocalStrategy({ usernameField: 'username', session: false }, (username, password, done) => {
-    User.findOne({ username }, null, null, (err, user) => {
-      if (err) {
-        return done(err)
-      }
+  new LocalStrategy({ usernameField: 'username', session: false }, async (username, password, done) => {
+    const errorMessage = { message: 'Invalid username or password' }
+    try {
+      const user = await User.findOne({ username })
+
       if (!user) {
-        return done(undefined, false, { message: 'Invalid username or password' })
+        return done(undefined, false, errorMessage)
       }
-      user
-        .comparePassword(password)
-        .then((isMatch: boolean) => {
-          if (isMatch) {
-            return done(undefined, user)
-          }
-          return done(undefined, false, { message: 'Invalid username or password' })
-        })
-        .catch((err) => {
-          return done(err)
-        })
-    })
+      if (await user.comparePassword(password)) {
+        return done(undefined, user)
+      }
+      return done(undefined, false, errorMessage)
+    } catch (err) {
+      console.error(err)
+      return done(undefined, false, errorMessage)
+    }
   }),
 )
 
